@@ -7,7 +7,8 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
 
 function App() {
-  const [gameState, setGameState] = useState('JOIN'); // JOIN, LOBBY, GAME
+  const [gameState, setGameState] = useState('INTRO'); // INTRO, JOIN, LOBBY, GAME
+  const [introPhase, setIntroPhase] = useState('WAITING'); // WAITING, PLAYING, ENDED
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [isHost, setIsHost] = useState(false);
@@ -35,6 +36,7 @@ function App() {
     const savedToken = localStorage.getItem('kuyu_token');
     const savedRoom = localStorage.getItem('kuyu_room');
     if (savedToken && savedRoom) {
+       setGameState('JOIN');
        socket.emit('reconnectRoom', { roomCode: savedRoom, token: savedToken });
     }
 
@@ -155,19 +157,57 @@ function App() {
           {toast}
         </div>
       )}
-      <header className="mb-8 mt-4 text-center relative w-full max-w-4xl">
-        <h1 className="text-5xl font-bold text-blood-red tracking-widest drop-shadow-lg font-serif">KUYU</h1>
-        <p className="text-sm text-slate-400 mt-2 tracking-wide text-opacity-80">Karanlık Bir Köyün Olayları</p>
-        {gameState !== 'JOIN' && (
-          <button onClick={handleLeave} className="absolute right-0 top-2 bg-red-900/50 hover:bg-red-800 text-red-200 px-4 py-2 rounded-lg text-xs tracking-widest uppercase transition border border-red-900/50 shadow-lg">
-            Çıkış Yap
-          </button>
-        )}
-      </header>
-      
-      {gameState === 'JOIN' && (
-        <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+
+      {gameState === 'INTRO' && (
+        <div className="fixed inset-0 bg-black z-[100] flex items-center justify-center overflow-hidden">
+           {introPhase === 'WAITING' && (
+              <button 
+                 onClick={() => setIntroPhase('PLAYING')} 
+                 className="text-slate-400 uppercase tracking-[0.5em] hover:text-white transition-colors duration-1000 animate-pulse text-sm"
+              >
+                 Karanlığa Adım At
+              </button>
+           )}
+           {introPhase !== 'WAITING' && (
+              <video 
+                 src="/intro.mp4" 
+                 autoPlay 
+                 playsInline
+                 onEnded={() => setIntroPhase('ENDED')}
+                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+              />
+           )}
+           {introPhase === 'ENDED' && (
+              <div 
+                 className="relative z-10 flex flex-col items-center cursor-pointer group animate-pulse"
+                 onClick={() => setGameState('JOIN')}
+              >
+                 <h1 className="text-7xl md:text-9xl font-bold text-blood-red tracking-[0.3em] font-serif group-hover:text-red-500 transition-all duration-700 drop-shadow-[0_0_40px_rgba(220,38,38,1)]">
+                    KUYU
+                 </h1>
+                 <p className="text-slate-400 mt-8 tracking-[0.5em] text-xs uppercase group-hover:text-slate-200 transition-colors">
+                    Kasabaya Girmek İçin Tıkla
+                 </p>
+              </div>
+           )}
+        </div>
       )}
+
+      {gameState !== 'INTRO' && (
+        <>
+          <header className="mb-8 mt-4 text-center relative w-full max-w-4xl">
+            <h1 className="text-5xl font-bold text-blood-red tracking-widest drop-shadow-lg font-serif">KUYU</h1>
+            <p className="text-sm text-slate-400 mt-2 tracking-wide text-opacity-80">Karanlık Bir Köyün Olayları</p>
+            {gameState !== 'JOIN' && (
+              <button onClick={handleLeave} className="absolute right-0 top-2 bg-red-900/50 hover:bg-red-800 text-red-200 px-4 py-2 rounded-lg text-xs tracking-widest uppercase transition border border-red-900/50 shadow-lg">
+                Çıkış Yap
+              </button>
+            )}
+          </header>
+          
+          {gameState === 'JOIN' && (
+            <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+          )}
       
       {gameState === 'LOBBY' && (
          <div className="w-full max-w-md bg-dark-bg p-6 rounded-xl border border-slate-800 shadow-2xl transition-all">
@@ -259,6 +299,8 @@ function App() {
            gameResults={gameResults}
            isSpectator={isSpectator}
          />
+      )}
+        </>
       )}
     </div>
   );
