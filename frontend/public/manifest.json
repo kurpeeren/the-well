@@ -1,21 +1,23 @@
 {
-  "name": "Kuyu Game",
-  "short_name": "Kuyu",
-  "description": "Dark Anatolian village multiplayer game",
+  "name": "KUYU",
+  "short_name": "KUYU",
+  "description": "Karanlık Bir Köyün Olayları",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#7f1d1d",
   "icons": [
     {
-      "src": "/vite.svg",
+      "src": "/kuyu-icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/vite.svg",
+      "src": "/kuyu-icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
