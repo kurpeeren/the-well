@@ -204,7 +204,7 @@ function App() {
       )}
 
       {gameState !== 'INTRO' && (
-        <div className={`w-full flex flex-col items-center ${gameState === 'JOIN' || gameState === 'LOBBY' ? 'my-auto' : ''}`}>
+        <div className="w-full flex flex-col items-center pt-8 md:pt-20 pb-20">
           <header className="mb-8 mt-4 text-center relative w-full max-w-4xl">
             <h1 className="text-5xl font-bold text-blood-red tracking-widest drop-shadow-lg font-serif">KUYU</h1>
             <p className="text-sm text-slate-400 mt-2 tracking-wide text-opacity-80">Karanlık Bir Köyün Olayları</p>
