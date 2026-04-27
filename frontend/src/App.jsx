@@ -24,6 +24,12 @@ function App() {
   const [dayCount, setDayCount] = useState(1);
   const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, kirmizi: 4, gri: 2, yesil: 9 });
   const [gameResults, setGameResults] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     const savedToken = localStorage.getItem('kuyu_token');
@@ -56,7 +62,7 @@ function App() {
     });
 
     socket.on('error', (msg) => {
-      alert(msg);
+      showToast(msg);
     });
     
     socket.on('reconnectFailed', () => {
@@ -144,6 +150,11 @@ function App() {
 
   return (
     <div className="min-h-screen text-slate-100 font-sans flex flex-col items-center p-4">
+      {toast && (
+        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
+          {toast}
+        </div>
+      )}
       <header className="mb-8 mt-4 text-center relative w-full max-w-4xl">
         <h1 className="text-5xl font-bold text-blood-red tracking-widest drop-shadow-lg font-serif">KUYU</h1>
         <p className="text-sm text-slate-400 mt-2 tracking-wide text-opacity-80">Karanlık Bir Köyün Olayları</p>
@@ -155,7 +166,7 @@ function App() {
       </header>
       
       {gameState === 'JOIN' && (
-        <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} />
+        <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
       )}
       
       {gameState === 'LOBBY' && (

@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { UserPlus, LogIn, ArrowRight, Eye } from 'lucide-react';
 
-function Lobby({ socket, playerName, setPlayerName }) {
+function Lobby({ socket, playerName, setPlayerName, showToast }) {
   const [mode, setMode] = useState(''); // 'CREATE', 'JOIN'
   const [joinCode, setJoinCode] = useState('');
 
   const handleCreate = () => {
-    if (!playerName.trim()) return alert('Kasabaya girmek için bir isim seç.');
+    if (!playerName.trim()) return showToast('Kasabaya girmek için bir isim seç.');
     socket.emit('createRoom', playerName);
   };
 
   const handleJoin = () => {
-     if (!playerName.trim()) return alert('Kasabaya girmek için bir isim seç.');
-     if (!joinCode.trim()) return alert('Oda kodu eksik!');
+     if (!playerName.trim()) return showToast('Kasabaya girmek için bir isim seç.');
+     if (!joinCode.trim()) return showToast('Oda kodu eksik!');
      socket.emit('joinRoom', { playerName, roomCode: joinCode });
   };
 
   const handleSpectate = () => {
-     if (!joinCode.trim()) return alert('Oda kodu eksik!');
+     if (!joinCode.trim()) return showToast('Oda kodu eksik!');
      socket.emit('joinAsSpectator', { playerName: playerName || 'İzleyici', roomCode: joinCode });
   };
 
