@@ -10,13 +10,11 @@ const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } 
 
 const rooms = {};
 const generateRoomCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateToken = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 const { ROLES } = require('./roles');
 const GameEngine = require('./GameEngine');
 const engine = new GameEngine(io, rooms);
-
-
-
 
 function getActorId(room, socketId, impersonateId) {
    if (room.isDevMode && impersonateId && room.host === socketId) {
@@ -25,14 +23,14 @@ function getActorId(room, socketId, impersonateId) {
    return socketId;
 }
 
-
 io.on('connection', (socket) => {
   socket.on('createRoom', (playerName) => {
     const roomCode = generateRoomCode();
+    const token = generateToken();
     rooms[roomCode] = {
       id: roomCode,
-      players: [{ socketId: socket.id, name: playerName, role: null, isAlive: true, uses: 0, 
-                  isMayorRevealed: false, execTarget: null }],
+      players: [{ socketId: socket.id, token, name: playerName, role: null, isAlive: true, uses: 0, 
+                  isMayorRevealed: false, execTarget: null, connected: true }],
       host: socket.id,
       status: 'LOBBY', 
       timeRemaining: 0,
@@ -47,12 +45,13 @@ io.on('connection', (socket) => {
       settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30 }
     };
     socket.join(roomCode);
-    socket.emit('roomJoined', { roomCode, isHost: true, settings: rooms[roomCode].settings });
+    socket.emit('roomJoined', { roomCode, isHost: true, token, settings: rooms[roomCode].settings });
     io.to(roomCode).emit('updateLobby', rooms[roomCode].players);
   });
 
   socket.on('createDevRoom', () => {
     const roomCode = generateRoomCode();
+    const hostToken = generateToken();
     let pool = [
       'Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Tefeci', 'Meyhaneci', 
       'Kan Davalı', 'Kundakçı', 'Yanaşma', 'Şifacı', 'Avcı', 'Bekçi', 
@@ -61,8 +60,10 @@ io.on('connection', (socket) => {
     let fakePlayers = [];
     pool.forEach((role, idx) => {
        fakePlayers.push({
-          socketId: `dev_${idx}`, name: `Bot ${idx+1}`, role: role, 
-          isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null
+          socketId: idx === 0 ? socket.id : `dev_${idx}`, 
+          token: idx === 0 ? hostToken : generateToken(),
+          name: idx === 0 ? 'Dev Host' : `Bot ${idx}`, role: role, 
+          isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null, connected: true
        });
     });
 
@@ -74,13 +75,12 @@ io.on('connection', (socket) => {
 
     rooms[roomCode] = {
       id: roomCode, players: fakePlayers, host: socket.id, status: 'LOBBY', 
-      id: roomCode, players: fakePlayers, host: socket.id, status: 'LOBBY', 
       timeRemaining: 0, nightActions: {}, votes: {}, deadJesterVotes: [],
       doused: {}, silenced: {}, isDevMode: true, dayCount: 1, spectators: [],
       settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30 }
     };
     socket.join(roomCode);
-    socket.emit('roomJoined', { roomCode, isHost: true, isDevMode: true, settings: rooms[roomCode].settings });
+    socket.emit('roomJoined', { roomCode, isHost: true, token: hostToken, isDevMode: true, settings: rooms[roomCode].settings });
     io.to(roomCode).emit('updateLobby', rooms[roomCode].players);
   });
 
@@ -89,9 +89,10 @@ io.on('connection', (socket) => {
     if (rooms[roomCode].status !== 'LOBBY') return socket.emit('error', 'Oyun zaten başlamış.');
     if (rooms[roomCode].players.length >= 16) return socket.emit('error', 'Oda dolu.');
 
-    rooms[roomCode].players.push({ socketId: socket.id, name: playerName, role: null, isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null });
+    const token = generateToken();
+    rooms[roomCode].players.push({ socketId: socket.id, token, name: playerName, role: null, isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null, connected: true });
     socket.join(roomCode);
-    socket.emit('roomJoined', { roomCode, isHost: false, settings: rooms[roomCode].settings, isSpectator: false });
+    socket.emit('roomJoined', { roomCode, isHost: false, token, settings: rooms[roomCode].settings, isSpectator: false });
     io.to(roomCode).emit('updateLobby', rooms[roomCode].players);
   });
 
@@ -102,15 +103,75 @@ io.on('connection', (socket) => {
     rooms[roomCode].spectators.push({ socketId: socket.id, name: playerName || 'İzleyici' });
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: false, settings: rooms[roomCode].settings, isSpectator: true, isDevMode: rooms[roomCode].isDevMode });
-    // Lobbyi gunceller ama izleyiciler oyuncu listesinde gozukmez
     io.to(roomCode).emit('updateLobby', rooms[roomCode].players);
+  });
+
+  socket.on('reconnectRoom', ({ roomCode, token }) => {
+     const room = rooms[roomCode];
+     if (!room) return socket.emit('reconnectFailed');
+     const player = room.players.find(p => p.token === token);
+     if (!player) return socket.emit('reconnectFailed');
+
+     const oldId = player.socketId;
+     const newId = socket.id;
+
+     if (room.host === oldId) room.host = newId;
+     room.players.forEach(p => {
+        if (p.socketId === oldId) p.socketId = newId;
+        if (p.execTarget === oldId) p.execTarget = newId;
+     });
+     if (room.doused[oldId]) { room.doused[newId] = room.doused[oldId]; delete room.doused[oldId]; }
+     if (room.silenced[oldId]) { room.silenced[newId] = room.silenced[oldId]; delete room.silenced[oldId]; }
+     if (room.votes[oldId]) { room.votes[newId] = room.votes[oldId]; delete room.votes[oldId]; }
+     for (let v in room.votes) {
+        if (room.votes[v].targetId === oldId) room.votes[v].targetId = newId;
+     }
+     if (room.nightActions[oldId]) { 
+        room.nightActions[newId] = room.nightActions[oldId]; 
+        room.nightActions[newId].actorId = newId;
+        delete room.nightActions[oldId]; 
+     }
+     for (let a in room.nightActions) {
+        if (room.nightActions[a].targetId === oldId) room.nightActions[a].targetId = newId;
+     }
+     const idx = room.deadJesterVotes.indexOf(oldId);
+     if (idx !== -1) room.deadJesterVotes[idx] = newId;
+
+     player.connected = true;
+     socket.join(roomCode);
+
+     socket.emit('roomJoined', { roomCode, isHost: room.host === newId, settings: room.settings, isSpectator: false, token: token, reconnected: true });
+     
+     if (room.status === 'LOBBY') {
+        io.to(roomCode).emit('updateLobby', room.players);
+     } else {
+        socket.emit('gameStarted', room.players);
+        socket.emit('phaseChanged', { phase: room.status, timeRemaining: room.timeRemaining, dayCount: room.dayCount });
+        io.to(roomCode).emit('updateLobby', room.players);
+     }
+  });
+
+  socket.on('leaveRoom', ({ roomCode, token }) => {
+     const room = rooms[roomCode];
+     if (!room) return;
+     const playerIndex = room.players.findIndex(p => p.token === token);
+     if (playerIndex !== -1) {
+        if (room.status === 'LOBBY') {
+           const socketId = room.players[playerIndex].socketId;
+           room.players.splice(playerIndex, 1);
+           if (room.host === socketId && room.players.length > 0) room.host = room.players[0].socketId;
+           io.to(roomCode).emit('updateLobby', room.players);
+        } else {
+           room.players[playerIndex].connected = false;
+           io.to(roomCode).emit('updateLobby', room.players);
+        }
+     }
   });
 
   socket.on('updateSettings', ({ roomCode, settings }) => {
     const room = rooms[roomCode];
     if (room && room.host === socket.id) {
        room.settings = settings;
-       // to(roomCode) excluding sender
        socket.to(roomCode).emit('settingsUpdated', settings);
     }
   });
@@ -120,12 +181,8 @@ io.on('connection', (socket) => {
     if (room && room.host === socket.id) {
       engine.assignRoles(room);
       room.status = 'GAME_STARTING';
-      
-      // executioner hedefleri socket event ile gitsin
-      // Oyuncu listesi clienta gönderiyoruz
       io.to(roomCode).emit('gameStarted', room.players);
       
-      // Kan Davalı (Executioner) Hedef Bilgilendirmesi İçin
       room.players.forEach(p => {
          if (p.role === 'Kan Davalı' && p.execTarget) {
             const t = room.players.find(x => x.socketId === p.execTarget);
@@ -137,7 +194,6 @@ io.on('connection', (socket) => {
             }
          }
       });
-
       setTimeout(() => engine.changePhase(roomCode, 'NIGHT', room.settings.nightTimer), 5000);
     }
   });
@@ -153,26 +209,28 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     for (const roomCode in rooms) {
       const room = rooms[roomCode];
-      
-      // İzleyiciyi sil
       if (room.spectators) {
          const specIndex = room.spectators.findIndex(s => s.socketId === socket.id);
          if (specIndex !== -1) {
             room.spectators.splice(specIndex, 1);
-            continue; // Player degilse diger checklere gecis i kolaylasitir
+            continue;
          }
       }
-
       const playerIndex = room.players.findIndex(p => p.socketId === socket.id);
       if (playerIndex !== -1) {
-        room.players.splice(playerIndex, 1);
-        io.to(roomCode).emit('updateLobby', room.players);
-        if (room.players.length === 0) {
-          clearInterval(room.timerInterval);
-          delete rooms[roomCode];
-        } else if (room.host === socket.id) {
-          room.host = room.players[0].socketId;
-          io.to(room.host).emit('hostChanged', true);
+        if (room.status === 'LOBBY') {
+           room.players.splice(playerIndex, 1);
+           io.to(roomCode).emit('updateLobby', room.players);
+           if (room.players.length === 0) {
+             clearInterval(room.timerInterval);
+             delete rooms[roomCode];
+           } else if (room.host === socket.id) {
+             room.host = room.players[0].socketId;
+             io.to(room.host).emit('hostChanged', true);
+           }
+        } else {
+           room.players[playerIndex].connected = false;
+           io.to(roomCode).emit('updateLobby', room.players);
         }
       }
     }
@@ -202,11 +260,9 @@ io.on('connection', (socket) => {
          room.players.forEach(p => {
             if (!p.isAlive || p.role === 'Gassal') {
                engine.sendPrivateNews(roomCode, p.socketId, { text: `[Ölü] ${player.name}: ${message}`, align: 'Gri', isDeadChatEvent: true });
-               // Custom prop `isDeadChatEvent` is better for frontend routing since it was io.to.emit directly
                socket.to(p.socketId).emit('deadChatMessage', { sender: `[Ölü] ${player.name}`, message });
             }
          });
-         // In DevMode, send to host explicitly
          if (room.isDevMode) io.to(room.host).emit('deadChatMessage', { sender: `[Ölü] ${player.name}`, message });
       }
     }
@@ -244,7 +300,7 @@ io.on('connection', (socket) => {
          let voteWeight = player.isMayorRevealed ? 3 : 1;
          room.votes[actorId] = { targetId, weight: voteWeight };
          const currentCounts = {};
-         const voteDetails = {}; // Kimin kime oy verdiğini tutan detay objesi
+         const voteDetails = {}; 
          for (const v in room.votes) {
             const t = room.votes[v].targetId;
             const voterName = room.players.find(p => p.socketId === v)?.name;
@@ -256,7 +312,6 @@ io.on('connection', (socket) => {
      }
   });
 });
-
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => { console.log(`[*] Backend dev port ${PORT}`); });

@@ -26,12 +26,22 @@ function App() {
   const [gameResults, setGameResults] = useState(null);
 
   useEffect(() => {
-    socket.on('roomJoined', ({ roomCode, isHost, isDevMode, settings: roomSettings, isSpectator }) => {
+    const savedToken = localStorage.getItem('kuyu_token');
+    const savedRoom = localStorage.getItem('kuyu_room');
+    if (savedToken && savedRoom) {
+       socket.emit('reconnectRoom', { roomCode: savedRoom, token: savedToken });
+    }
+
+    socket.on('roomJoined', ({ roomCode, isHost, isDevMode, settings: roomSettings, isSpectator, token, reconnected }) => {
       setRoomCode(roomCode);
       setIsHost(isHost);
       if (isDevMode) setIsDevMode(true);
       if (isSpectator) setIsSpectator(true);
-      setGameState('LOBBY');
+      if (token && !isSpectator) {
+         localStorage.setItem('kuyu_token', token);
+         localStorage.setItem('kuyu_room', roomCode);
+      }
+      if (!reconnected) setGameState('LOBBY');
       setSystemNotes([]);
       setDayCount(1);
       if (roomSettings) setSettings(roomSettings);
@@ -47,6 +57,12 @@ function App() {
 
     socket.on('error', (msg) => {
       alert(msg);
+    });
+    
+    socket.on('reconnectFailed', () => {
+      localStorage.removeItem('kuyu_token');
+      localStorage.removeItem('kuyu_room');
+      setGameState('JOIN');
     });
 
     socket.on('gameStarted', (playerList) => {
@@ -111,14 +127,31 @@ function App() {
       socket.off('mayorRevealed');
       socket.off('gameOver');
       socket.off('settingsUpdated');
+      socket.off('reconnectFailed');
     };
   }, []);
 
+  const handleLeave = () => {
+    const savedToken = localStorage.getItem('kuyu_token');
+    const savedRoom = localStorage.getItem('kuyu_room');
+    if(savedToken && savedRoom) {
+       socket.emit('leaveRoom', { roomCode: savedRoom, token: savedToken });
+    }
+    localStorage.removeItem('kuyu_token');
+    localStorage.removeItem('kuyu_room');
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen text-slate-100 font-sans flex flex-col items-center p-4">
-      <header className="mb-8 mt-4 text-center">
+      <header className="mb-8 mt-4 text-center relative w-full max-w-4xl">
         <h1 className="text-5xl font-bold text-blood-red tracking-widest drop-shadow-lg font-serif">KUYU</h1>
         <p className="text-sm text-slate-400 mt-2 tracking-wide text-opacity-80">Karanlık Bir Köyün Olayları</p>
+        {gameState !== 'JOIN' && (
+          <button onClick={handleLeave} className="absolute right-0 top-2 bg-red-900/50 hover:bg-red-800 text-red-200 px-4 py-2 rounded-lg text-xs tracking-widest uppercase transition border border-red-900/50 shadow-lg">
+            Çıkış Yap
+          </button>
+        )}
       </header>
       
       {gameState === 'JOIN' && (

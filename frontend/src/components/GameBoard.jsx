@@ -240,17 +240,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
          </div>
       )}
 
-      <div className="flex justify-between items-center bg-slate-900/60 p-5 rounded-xl border border-slate-800 backdrop-blur-sm">
-        <div className="flex gap-4 items-center">
-           <div className="p-3 bg-slate-800 rounded-full border border-slate-700 shadow-inner">
+      <div className="flex flex-col sm:flex-row justify-between items-center bg-slate-900/60 p-3 sm:p-5 rounded-xl border border-slate-800 backdrop-blur-sm gap-4">
+        <div className="flex gap-3 sm:gap-4 items-center w-full sm:w-auto">
+           <div className="p-2 sm:p-3 bg-slate-800 rounded-full border border-slate-700 shadow-inner shrink-0">
              {getPhaseIcon()}
            </div>
-           <div>
-             <h2 className="text-2xl font-bold tracking-wider font-serif text-slate-200">{getPhaseNameTR()}</h2>
-             <p className="text-sm font-medium mt-1 text-slate-300">
-               {isSpectator ? 'Rolün: ' : 'Rolün: '}
+           <div className="flex-1 min-w-0">
+             <h2 className="text-lg sm:text-2xl font-bold tracking-wider font-serif text-slate-200 truncate">{getPhaseNameTR()}</h2>
+             <div className="text-xs sm:text-sm font-medium mt-1 text-slate-300 flex items-center flex-wrap gap-1">
+               <span>Rolün: </span>
                <span 
-                 className={`uppercase tracking-widest cursor-pointer select-none px-3 py-1 rounded-md ml-1 transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-500 bg-slate-800 border border-slate-700'}`}
+                 className={`uppercase tracking-widest cursor-pointer select-none px-2 py-0.5 sm:px-3 sm:py-1 rounded-md transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-500 bg-slate-800 border border-slate-700'}`}
                  onPointerDown={() => !isSpectator && setIsRoleVisible(true)}
                  onPointerUp={() => !isSpectator && setIsRoleVisible(false)}
                  onPointerLeave={() => !isSpectator && setIsRoleVisible(false)}
@@ -258,20 +258,20 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                >
                  {isSpectator ? 'İzleyici Ruh' : (isRoleVisible ? activeRole : '****')}
                </span>
-               <button onClick={() => setShowRoleModal(true)} className="ml-2 mt-1 text-slate-500 hover:text-yellow-500 transition-colors tooltip align-middle" title="Rol Rehberi">
+               <button onClick={() => setShowRoleModal(true)} className="ml-1 text-slate-500 hover:text-yellow-500 transition-colors tooltip align-middle shrink-0" title="Rol Rehberi">
                  <Info size={16} />
                </button>
-             </p>
+             </div>
            </div>
         </div>
-        <div className="flex gap-4 items-center">
-           <button onClick={() => setShowNotes(true)} className="p-3 bg-slate-800 rounded-full border-2 border-slate-700 hover:border-accent text-slate-300 hover:text-white transition-all shadow-md group relative">
-             <BookOpen size={24} />
+        <div className="flex gap-4 items-center justify-center w-full sm:w-auto border-t border-slate-800/50 sm:border-0 pt-3 sm:pt-0">
+           <button onClick={() => setShowNotes(true)} className="p-2.5 sm:p-3 bg-slate-800 rounded-full border-2 border-slate-700 hover:border-accent text-slate-300 hover:text-white transition-all shadow-md group relative">
+             <BookOpen size={20} className="sm:w-6 sm:h-6" />
              {systemNotes?.length > 0 && <span className="absolute -top-1 -right-1 bg-blood-red w-4 h-4 rounded-full animate-pulse border border-dark-bg"></span>}
            </button>
-           <div className="flex flex-col items-center justify-center bg-slate-800 w-20 h-20 rounded-full border-2 border-slate-700 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
-             <span className="text-3xl font-mono text-white tracking-tighter">{timeRemaining}</span>
-             <span className="text-[10px] text-slate-400 uppercase tracking-widest">Saniye</span>
+           <div className="flex flex-col items-center justify-center bg-slate-800 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-slate-700 shadow-[0_0_15px_rgba(0,0,0,0.5)] shrink-0">
+             <span className="text-2xl sm:text-3xl font-mono text-white tracking-tighter leading-none">{timeRemaining}</span>
+             <span className="text-[8px] sm:text-[10px] text-slate-400 uppercase tracking-widest mt-1">Saniye</span>
            </div>
         </div>
       </div>
