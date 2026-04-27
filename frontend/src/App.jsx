@@ -174,7 +174,7 @@ function App() {
                  autoPlay 
                  playsInline
                  onEnded={() => setIntroPhase('ENDED')}
-                 className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+                 className={`absolute inset-0 w-full h-full object-contain md:object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
               />
            )}
            {introPhase === 'ENDED' && (
