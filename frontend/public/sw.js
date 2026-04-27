@@ -1,20 +1,22 @@
-const CACHE_NAME = 'kuyu-cache-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
-];
+self.addEventListener('install', (e) => {
+  self.skipWaiting(); // Force the waiting service worker to become the active service worker.
+});
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          return caches.delete(cacheName); // Delete all old caches
+        })
+      );
+    }).then(() => {
+      self.clients.claim(); // Claim control immediately
+    })
   );
 });
 
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
-  );
+  // Bypass cache completely and fetch from network
+  event.respondWith(fetch(event.request));
 });
