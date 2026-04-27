@@ -169,13 +169,17 @@ function App() {
               </button>
            )}
            {introPhase !== 'WAITING' && (
-              <video 
-                 src="/intro.mp4" 
-                 autoPlay 
-                 playsInline
-                 onEnded={() => setIntroPhase('ENDED')}
-                 className={`absolute inset-0 w-full h-full object-contain md:object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
-              />
+              <>
+                 <video 
+                    src="/intro.mp4" 
+                    autoPlay 
+                    playsInline
+                    onEnded={() => setIntroPhase('ENDED')}
+                    className={`absolute inset-0 w-full h-full object-contain md:object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+                 />
+                 <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_transparent_40%,_black_100%)] opacity-90 z-[5]"></div>
+                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black via-transparent to-black opacity-80 z-[6]"></div>
+              </>
            )}
            {introPhase === 'ENDED' && (
               <div 
