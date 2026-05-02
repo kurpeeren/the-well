@@ -178,7 +178,9 @@ function App() {
                         onEnded={() => setIntroPhase('ENDED')}
                         className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
                      />
-                     <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 40%, black 85%)' }}></div>
+                     <div className="absolute inset-0 z-10 pointer-events-none" style={{ 
+                        background: 'radial-gradient(ellipse at center, transparent 25%, black 70%)' 
+                     }}></div>
                   </div>
                </div>
            )}
