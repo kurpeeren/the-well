@@ -176,15 +176,13 @@ function App() {
                     playsInline
                     onEnded={() => setIntroPhase('ENDED')}
                     className={`absolute w-full h-full object-contain md:object-cover scale-[1.50] md:scale-100 transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+                    style={{ 
+                       WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 85%)', 
+                       maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 85%)' 
+                    }}
                  />
                  
-                 {/* Top and Bottom Fades to hide video edges on mobile */}
-                 <div className="absolute top-0 left-0 right-0 h-[35%] md:h-[15%] bg-gradient-to-b from-black from-40% to-transparent z-[5] pointer-events-none"></div>
-                 <div className="absolute bottom-0 left-0 right-0 h-[35%] md:h-[15%] bg-gradient-to-t from-black from-40% to-transparent z-[5] pointer-events-none"></div>
-                 
-                 {/* Left and Right Fades to hide cropped edges */}
-                 <div className="absolute top-0 bottom-0 left-0 w-[15%] md:w-[5%] bg-gradient-to-r from-black to-transparent z-[5] pointer-events-none"></div>
-                 <div className="absolute top-0 bottom-0 right-0 w-[15%] md:w-[5%] bg-gradient-to-l from-black to-transparent z-[5] pointer-events-none"></div>
+
               </div>
            )}
            {introPhase === 'ENDED' && (
