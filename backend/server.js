@@ -292,6 +292,25 @@ io.on('connection', (socket) => {
      }
   });
 
+  socket.on('skipDayVote', ({ roomCode, impersonateId }) => {
+     const room = rooms[roomCode];
+     if (room && room.status === 'DAY') {
+       const actorId = getActorId(room, socket.id, impersonateId);
+       const player = room.players.find(p => p.socketId === actorId);
+       if (!room.skipDayVotes) room.skipDayVotes = [];
+       if (player && player.isAlive && !room.skipDayVotes.includes(actorId)) {
+          room.skipDayVotes.push(actorId);
+          const alivePlayersCount = room.players.filter(p => p.isAlive).length;
+          io.to(roomCode).emit('skipDayUpdate', { count: room.skipDayVotes.length, total: alivePlayersCount });
+          
+          if (room.skipDayVotes.length >= alivePlayersCount) {
+             if (room.timerInterval) clearInterval(room.timerInterval);
+             engine.processPhaseEnd(roomCode, 'DAY');
+          }
+       }
+     }
+   });
+
   socket.on('votePlayer', ({ roomCode, targetId, impersonateId }) => {
      const room = rooms[roomCode];
      if (room && room.status === 'VOTING') {

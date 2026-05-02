@@ -25,6 +25,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   const [voteCounts, setVoteCounts] = useState({});
   const [voteDetails, setVoteDetails] = useState({});
   const [isSilenced, setIsSilenced] = useState(false);
+  const [skipDayCount, setSkipDayCount] = useState({ count: 0, total: 0 });
   const chatEndRef = useRef(null);
   const deadChatEndRef = useRef(null);
 
@@ -36,11 +37,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
        setVoteDetails(data.details || {});
     });
     socket.on('youAreSilenced', () => setIsSilenced(true));
+    socket.on('skipDayUpdate', (data) => setSkipDayCount(data));
     return () => {
        socket.off('chatMessage');
        socket.off('deadChatMessage');
        socket.off('voteCounts');
        socket.off('youAreSilenced');
+       socket.off('skipDayUpdate');
     }
   }, [socket]);
 
@@ -387,6 +390,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
         {gamePhase === 'DAY' && (
            <div className="flex flex-col h-full absolute inset-0 pointer-events-auto animate-in fade-in duration-500 bg-slate-900/50 rounded-xl p-2 border border-slate-800">
              
+             {me.isAlive && !isSpectator && (
+                <div className="flex justify-end w-full mb-1 z-10 px-1">
+                   <button 
+                      onClick={() => socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}
+                      className="px-4 py-1.5 bg-slate-800/80 text-slate-300 rounded-lg border border-slate-700 hover:bg-slate-700 hover:text-white transition shadow-md text-[10px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap"
+                   >
+                      Günü Atla ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive).length})
+                   </button>
+                </div>
+             )}
+
              {isMuhtar && !me.isMayorRevealed && me.isAlive && (
                 <div className="bg-slate-800/80 p-3 mb-2 rounded-xl border border-slate-700 flex justify-between items-center shadow-lg">
                    <span className="text-slate-300 text-sm">Gidişatı beğenmedin mi? Ağırlığını koyma vakti!</span>
