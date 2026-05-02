@@ -169,21 +169,18 @@ function App() {
               </button>
            )}
            {introPhase !== 'WAITING' && (
-              <div className="absolute inset-0 overflow-hidden flex items-center justify-center bg-black">
-                 <video 
-                    src="/intro.mp4" 
-                    autoPlay 
-                    playsInline
-                    onEnded={() => setIntroPhase('ENDED')}
-                    className={`absolute w-full h-full object-contain md:object-cover scale-[1.50] md:scale-100 transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
-                    style={{ 
-                       WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 85%)', 
-                       maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 85%)' 
-                    }}
-                 />
-                 
-
-              </div>
+               <div className="absolute inset-0 overflow-hidden flex items-center justify-center bg-black">
+                  <div className="relative w-full aspect-video md:w-full md:h-full md:aspect-auto flex items-center justify-center">
+                     <video 
+                        src="/intro.mp4" 
+                        autoPlay 
+                        playsInline
+                        onEnded={() => setIntroPhase('ENDED')}
+                        className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+                     />
+                     <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 40%, black 85%)' }}></div>
+                  </div>
+               </div>
            )}
            {introPhase === 'ENDED' && (
               <div 
