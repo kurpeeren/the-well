@@ -306,6 +306,7 @@ function App() {
            dayCount={dayCount}
            gameResults={gameResults}
            isSpectator={isSpectator}
+           onLeave={handleLeave}
          />
       )}
         </div>

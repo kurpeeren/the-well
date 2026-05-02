@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info } from 'lucide-react';
 
-function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, isSpectator }) {
+function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, isSpectator, onLeave }) {
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
@@ -285,7 +285,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2">
 
-      <div className="flex-1 flex flex-col relative min-h-[55vh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
+      <div className="flex-1 flex flex-col relative h-[60vh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
 
         <div className="absolute inset-0 z-10 pointer-events-none">
 
@@ -505,7 +505,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
              
              <div className="mt-12 text-center pb-8">
                  <p className="text-slate-500 text-sm tracking-widest mb-4">Bir sonraki oyun için odayı yeniden kurman gerekiyor...</p>
-                 <button onClick={() => window.location.reload()} className="px-8 py-4 bg-slate-800 text-white rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-amber-500 hover:border-amber-500 transition-all uppercase tracking-widest font-bold shadow-lg">Lobiye Dön</button>
+                 <button onClick={() => onLeave ? onLeave() : window.location.reload()} className="px-8 py-4 bg-slate-800 text-white rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-amber-500 hover:border-amber-500 transition-all uppercase tracking-widest font-bold shadow-lg">Lobiye Dön</button>
              </div>
           </div>
         )}
