@@ -81,33 +81,53 @@ class GameEngine {
     yesil = yesil ?? 9;
   
     let activeRoles = [];
+
+    // Çekiliş havuzlarını kopyarak oluştur
+    let currentEvil = [];
+    let currentNeutral = [];
+    let currentTown = [];
+    
+    const getNextRole = (originalPool, currentPool) => {
+        if (originalPool.length === 0) return null;
+        if (currentPool.length === 0) {
+            currentPool.push(...originalPool);
+            currentPool.sort(() => Math.random() - 0.5);
+        }
+        return currentPool.pop();
+    };
   
     // 1. Kırmızı Takım (Kötüler)
     for (let i = 0; i < kirmizi && activeRoles.length < count; i++) {
        if (i === 0 && enabledRoles['Eşkıya Başı']) activeRoles.push('Eşkıya Başı');
        else if (i === 1 && enabledRoles['Seri Katil']) activeRoles.push('Seri Katil');
-       else if (poolEvil.length > 0) activeRoles.push(poolEvil[Math.floor(Math.random() * poolEvil.length)]);
-       // Eğer kötü kalmadıysa ve kırmızı oranı isteniyorsa, pas geçilir. Aşağıdaki döngüler tamamlar.
+       else {
+           let r = getNextRole(poolEvil, currentEvil);
+           if (r) activeRoles.push(r);
+       }
     }
   
     // 2. Gri Takım (Tarafsızlar)
     for (let i = 0; i < gri && activeRoles.length < count; i++) {
-       if (poolNeutral.length > 0) activeRoles.push(poolNeutral[Math.floor(Math.random() * poolNeutral.length)]);
+       let r = getNextRole(poolNeutral, currentNeutral);
+       if (r) activeRoles.push(r);
     }
   
     // 3. Yeşil Takım (Masumlar)
     for (let i = 0; i < yesil && activeRoles.length < count; i++) {
-       if (poolTown.length > 0) activeRoles.push(poolTown[Math.floor(Math.random() * poolTown.length)]);
+       let r = getNextRole(poolTown, currentTown);
+       if (r) activeRoles.push(r);
     }
   
     // Eğer toplam sayı oyuncu sayısına ulaşmadıysa eksikleri eldeki havuzlardan rastgele doldur
     let allAvailable = [...poolTown, ...poolEvil, ...poolNeutral];
     if (enabledRoles['Eşkıya Başı']) allAvailable.push('Eşkıya Başı');
     if (enabledRoles['Seri Katil']) allAvailable.push('Seri Katil');
+    let currentAll = [];
     
     while (activeRoles.length < count) {
         if (allAvailable.length > 0) {
-            activeRoles.push(allAvailable[Math.floor(Math.random() * allAvailable.length)]);
+            let r = getNextRole(allAvailable, currentAll);
+            if (r) activeRoles.push(r);
         } else {
             activeRoles.push('Muhtar'); // Tamamen boş kalma durumuna son çare
         }
