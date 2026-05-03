@@ -28,7 +28,7 @@ function getInvestResults(role) {
    if (['Gözcü', 'Münafık', 'Köy Delisi'].includes(role)) return 'Gözcü, Münafık veya Köy Delisi';
    if (['Eşkıya Başı', 'Muhtar', 'Kaçak'].includes(role)) return 'Eşkıya Başı, Muhtar veya Kaçak';
    if (['Gassal', 'Tefeci', 'Kundakçı'].includes(role)) return 'Gassal, Tefeci veya Kundakçı';
-   if (['Avcı', 'Eşkıya', 'Meyhaneci'].includes(role)) return 'Avcı, Eşkıya veya Meyhaneci';
+   if (['Avcı', 'Eşkıya', 'Meyhaneci', 'Eskort'].includes(role)) return 'Avcı, Eşkıya, Meyhaneci veya Eskort';
    return 'Bu kişiyi okuyamadın (Şüphe uyandırıcı)'; 
 }
 

@@ -189,7 +189,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   if (isEskiya) {
      nightTargets = nightTargets.map(p => {
         if (['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(p.role)) {
-           return { ...p, name: p.name + ' [TAKIM]' };
+           return { ...p, isTeam: true };
         }
         return p;
      });
@@ -886,7 +886,7 @@ function PlayerList({ players, selected, onSelect, isNight, isDevMode }) {
     <div className="grid grid-cols-2 gap-4">
       {players.map(p => (
         <div key={p.socketId} onClick={() => onSelect(p.socketId)} className={`p-4 rounded-xl cursor-pointer border-2 transition-all duration-300 font-medium text-center ${selected === p.socketId ? (isNight ? 'bg-blood-red/20 border-blood-red text-white shadow-[0_0_15px_rgba(127,29,29,0.3)]' : 'bg-accent/20 border-accent text-white shadow-[0_0_15px_rgba(29,78,216,0.3)]') : 'bg-slate-800/80 border-slate-700 hover:border-slate-500 text-slate-300'}`}>
-          {p.name} {p.isMayorRevealed && <span className="text-amber-500 text-xs ml-2">[MUHTAR]</span>}
+          <span className={p.isTeam ? "text-blood-red drop-shadow-[0_0_5px_rgba(127,29,29,0.8)]" : ""}>{p.name}</span> {p.isMayorRevealed && <span className="text-amber-500 text-xs ml-2">[MUHTAR]</span>}
           {isDevMode && <span className="block text-yellow-500 text-[10px] uppercase font-bold tracking-widest opacity-80 mt-1">({p.role || 'Rol Bekleniyor'})</span>}
         </div>
       ))}
