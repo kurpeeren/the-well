@@ -189,7 +189,7 @@ class GameEngine {
           if (!roleblocked[a.actorId]) {
               if (a.actionType === 'douse' && a.targetId && !alerts[a.targetId]) {
                   room.doused[a.targetId] = true;
-                  this.sendPrivateNews(roomCode, a.actorId, { text: "Hedefinin evini gazyağına buladın.", align: 'Yeşil' });
+                  this.sendPrivateNews(roomCode, a.actorId, { text: `${getPlayer(a.targetId)?.name || 'Hedefin'} adlı kişinin evini gazyağına buladın.`, align: 'Yeşil' });
               } else if (a.actionType === 'ignite') {
                   for (let dousedId in room.doused) {
                      deaths.push(dousedId);
@@ -222,7 +222,7 @@ class GameEngine {
               } else {
                   room.silenced[a.targetId] = true;
                   const tefTargetP = getPlayer(a.targetId);
-                  this.sendPrivateNews(roomCode, a.actorId, { text: `${tefTargetP?.name || 'Hedef'} susturuldu, yarın konuşamayacak.`, align: 'Yeşil' });
+                  this.sendPrivateNews(roomCode, a.actorId, { text: `${tefTargetP?.name || 'Hedef'} adlı kişiyi susturdun, yarın konuşamayacak.`, align: 'Yeşil' });
               }
           }
       });
@@ -237,7 +237,7 @@ class GameEngine {
                   framed[a.targetId] = true;
                   const munTargetP = getPlayer(a.targetId);
                   if (munTargetP) munTargetP.isFramed = true;
-                  this.sendPrivateNews(roomCode, a.actorId, { text: `${munTargetP?.name || 'Hedef'}'in kapısına suç aletleri bıraktın.`, align: 'Gri' });
+                  this.sendPrivateNews(roomCode, a.actorId, { text: `${munTargetP?.name || 'Hedef'} adlı kişinin kapısına suç aletleri bıraktın.`, align: 'Gri' });
               }
           }
       });
@@ -256,7 +256,7 @@ class GameEngine {
                   }
                   const sifTargetP = getPlayer(a.targetId);
                   const wasAttacked = deaths.includes(a.targetId) || (mTargetId === a.targetId) || Object.values(actions).some(x => x.targetId === a.targetId && ['Eşkıya Başı','Eşkıya','Seri Katil'].includes(x.role));
-                  this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : `${sifTargetP?.name || 'Hedef'}'i korudun${healed[a.targetId] ? ' — iyi ki oradaydın, saldırı oldu ama kurtardın!' : ', gece boyunca güvende kaldı.'}`, align: 'Yeşil' });
+                  this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : `${sifTargetP?.name || 'Hedef'} adlı kişiyi korudun${healed[a.targetId] ? ' — iyi ki oradaydın, saldırı oldu ama kurtardın!' : ', gece boyunca güvende kaldı.'}`, align: 'Yeşil' });
               }
           }
       });
@@ -307,12 +307,12 @@ class GameEngine {
                  this.sendPrivateNews(roomCode, mKillerId, { text: "Kendi takımından birine saldırmaya çalıştın ve vazgeçtin!", align: 'Kırmızı' });
              } else if(healed[mTargetId]) {
                this.sendPrivateNews(roomCode, mTargetId, { text: "Bu gece biri sana saldırdı... Ama tam son anda birinin müdahalesiyle kurtarıldın!", align: 'Yeşil' });
-               this.sendPrivateNews(roomCode, mKillerId, { text: `${targetP?.name || 'Hedef'}'e saldırdın ama biri araya girdi, hedefin kurtarıldı!`, align: 'Kırmızı' });
+               this.sendPrivateNews(roomCode, mKillerId, { text: `${targetP?.name || 'Hedef'} adlı kişiye saldırdın ama biri araya girdi, o kişi kurtarıldı!`, align: 'Kırmızı' });
              } else if(vested[mTargetId]) {
                this.sendPrivateNews(roomCode, mTargetId, { text: "Vahşice bir saldırıya uğradın ama direncini kıramadılar, ucuz atlattın!", align: 'Yeşil' });
                this.sendPrivateNews(roomCode, mKillerId, { text: "Saldırdığın kişiyi biri hayatta tuttu!", align: 'Kırmızı' });
              } else if(targetP && ROLES[targetP.role]?.nightImmune) {
-               this.sendPrivateNews(roomCode, mKillerId, { text: "Hedefin gece saldırılarına karşı çok güçlü, ölmedi!", align: 'Kırmızı' });
+               this.sendPrivateNews(roomCode, mKillerId, { text: `${targetP?.name || 'Saldırdığın kişi'} gece saldırılarına karşı çok güçlü, ölmedi!`, align: 'Kırmızı' });
              } else {
                deaths.push(mTargetId);
                this.sendPrivateNews(roomCode, mKillerId, { text: `${targetP?.name || 'Hedef'} ortadan kaldırıldı, saldırın başarılı oldu.`, align: 'Yeşil' });
@@ -328,16 +328,16 @@ class GameEngine {
              if(healed[a.targetId]) {
                 const skTargetHealed = getPlayer(a.targetId);
                 this.sendPrivateNews(roomCode, a.targetId, { text: "Bu gece biri sana saldırdı... Ama tam son anda birinin müdahalesiyle kurtarıldın!", align: 'Yeşil' });
-                this.sendPrivateNews(roomCode, a.actorId, { text: `${skTargetHealed?.name || 'Hedef'}'e saldırdın ama biri araya girdi, hedefin kurtarıldı!`, align: 'Kırmızı' });
+                this.sendPrivateNews(roomCode, a.actorId, { text: `${skTargetHealed?.name || 'Hedef'} adlı kişiye saldırdın ama biri araya girdi, o kişi kurtarıldı!`, align: 'Kırmızı' });
              } else if(vested[a.targetId]) {
                 this.sendPrivateNews(roomCode, a.targetId, { text: "Seri Katil vahşice saldırdı ama direncini kıramadı, ucuz atlattın!", align: 'Yeşil' });
                 this.sendPrivateNews(roomCode, a.actorId, { text: "Saldırdığın kişiyi biri hayatta tuttu!", align: 'Kırmızı' });
              } else if (getPlayer(a.targetId) && ROLES[getPlayer(a.targetId).role]?.nightImmune) {
-                this.sendPrivateNews(roomCode, a.actorId, { text: "Saldırdın ancak hedefin ölmedi! Bıçağın işe yaramadı.", align: 'Kırmızı' });
+                this.sendPrivateNews(roomCode, a.actorId, { text: `${getPlayer(a.targetId)?.name || 'Saldırdığın kişi'} ölmedi! Bıçağın işe yaramadı.`, align: 'Kırmızı' });
              } else {
                 deaths.push(a.targetId);
                 const skTarget = getPlayer(a.targetId);
-                this.sendPrivateNews(roomCode, a.actorId, { text: `${skTarget?.name || 'Hedef'}'i vahşice katlettin.`, align: 'Yeşil' });
+                this.sendPrivateNews(roomCode, a.actorId, { text: `${skTarget?.name || 'Hedef'} adlı kişiyi vahşice katlettin.`, align: 'Yeşil' });
              }
           }
       });
@@ -365,7 +365,7 @@ class GameEngine {
       room.players.forEach(p => {
           if (p.role === 'Kan Davalı' && p.execTarget && deaths.includes(p.execTarget) && p.isAlive) {
              p.role = 'Köy Delisi';
-             this.sendPrivateNews(roomCode, p.socketId, { text: "Hedefin Eşkıyalarca gece vahşice öldürüldü. Amacını kaybederek delirdin... Artık amacın kendini heba ettirmek!", align: 'Kırmızı' });
+             this.sendPrivateNews(roomCode, p.socketId, { text: `Kan davalın ${getPlayer(p.execTarget)?.name || 'hedefin'} Eşkıyalarca gece vahşice öldürüldü. Amacını kaybederek delirdin... Artık amacın kendini heba ettirmek!`, align: 'Kırmızı' });
           }
       });
   
@@ -432,7 +432,7 @@ class GameEngine {
            // Kan Davalı (Executioner) kazandı mı?
            room.players.forEach(p => {
                if (p.role === 'Kan Davalı' && p.execTarget === topTarget) {
-                   this.sendPrivateNews(roomCode, p.socketId, { text: "İntikamını aldın! Hedefini ipe götürdün, OYUNU SEN KAZANDIN! Artık arkanı yaslayıp rahatlayabilirsin.", align: 'Yeşil' });
+                   this.sendPrivateNews(roomCode, p.socketId, { text: `İntikamını aldın! Kan davalın ${room.players.find(x => x.socketId === p.execTarget)?.name || 'hedefini'} ipe götürdün, OYUNU SEN KAZANDIN! Artık arkanı yaslayıp rahatlayabilirsin.`, align: 'Yeşil' });
                    p.won = true;
                }
            });
