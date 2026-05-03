@@ -360,9 +360,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                <span>Rolün: </span>
                <span 
                  className={`uppercase tracking-widest cursor-pointer select-none px-2 py-0.5 sm:px-3 sm:py-1 rounded-md transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-500 bg-slate-800 border border-slate-700'}`}
-                 onPointerDown={() => !isSpectator && setIsRoleVisible(true)}
-                 onPointerUp={() => !isSpectator && setIsRoleVisible(false)}
-                 onPointerLeave={() => !isSpectator && setIsRoleVisible(false)}
+                 onClick={() => !isSpectator && setIsRoleVisible(!isRoleVisible)}
                  onContextMenu={(e) => e.preventDefault()}
                >
                  {isSpectator ? 'İzleyici Ruh' : (isRoleVisible ? activeRole : '****')}
@@ -530,15 +528,15 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                  <p className="text-purple-400/80 text-sm font-serif tracking-wider uppercase">— İzleyici Boyutundan İzleniyor —</p>
                </div>
              ) : me.isAlive ? (
-               <form onSubmit={(e) => sendChat(e, false)} className="flex gap-2 mt-2 bg-slate-800 p-2 rounded-xl">
+               <form onSubmit={(e) => sendChat(e, false)} className="flex gap-2 mt-2 bg-slate-800 p-2 rounded-xl w-full">
                  <input type="text" 
                     value={currentMessage} 
                     onChange={e => setCurrentMessage(e.target.value)} 
                     disabled={isSilenced}
-                    className="flex-1 bg-slate-900 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent border border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" 
+                    className="flex-1 min-w-0 bg-slate-900 text-white rounded-lg px-3 py-3 sm:px-4 focus:outline-none focus:ring-1 focus:ring-accent border border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base" 
                     placeholder={isSilenced ? "Tefeci seni susturduğu için konuşamazsın!" : "Zanlıları tartış..."} 
                  />
-                 <button type="submit" disabled={isSilenced} className="bg-accent px-6 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed"><Send size={20} /></button>
+                 <button type="submit" disabled={isSilenced} className="bg-accent px-4 sm:px-6 shrink-0 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed"><Send size={20} /></button>
                </form>
              ) : (
                <div className="bg-red-900/20 border border-red-900 rounded-xl p-4 mt-2 text-center">
