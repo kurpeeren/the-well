@@ -31,6 +31,7 @@ function App() {
   const [systemNotes, setSystemNotes] = useState([]);
   const [dayCount, setDayCount] = useState(1);
   const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, kirmizi: 4, gri: 2, yesil: 9 });
+  const [isRatioManuallySet, setIsRatioManuallySet] = useState(false);
   const [gameResults, setGameResults] = useState(null);
   const [revealedNotes, setRevealedNotes] = useState([]);
   const [toast, setToast] = useState(null);
@@ -40,6 +41,23 @@ function App() {
     setToast(msg);
     setTimeout(() => setToast(null), 3000);
   };
+
+  useEffect(() => {
+     if (gameState === 'LOBBY' && isHost && !isRatioManuallySet) {
+        const N = players.length;
+        if (N > 0) {
+           let k = Math.max(1, Math.round(N * 0.26));
+           let g = Math.round(N * 0.14);
+           let y = N - k - g;
+           if (y < 0) y = 0;
+           if (settings.kirmizi !== k || settings.gri !== g || settings.yesil !== y) {
+              const newSettings = { ...settings, kirmizi: k, gri: g, yesil: y };
+              setSettings(newSettings);
+              socket.emit('updateSettings', { roomCode, settings: newSettings });
+           }
+        }
+     }
+  }, [players.length, gameState, isHost, isRatioManuallySet]);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('kuyu_token');
@@ -295,6 +313,7 @@ function App() {
                           <label className={`text-[10px] ${colorMap[k]} font-bold mb-1 uppercase tracking-wider`}>{labelMap[k]}</label>
                           <input type="number" disabled={!isHost} value={settings[k] || 0} 
                              onChange={(e) => {
+                                setIsRatioManuallySet(true);
                                 const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
                                 setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
                              }}
