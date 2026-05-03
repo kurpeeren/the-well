@@ -717,7 +717,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
           <div className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[90vh]">
             
             {/* Kapak: Resim Alanı */}
-            <div className="relative w-full h-40 bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="relative w-full aspect-square bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
               {ROLE_INFO[activeRole]?.image ? (
                 <img 
                   src={ROLE_INFO[activeRole].image} 
