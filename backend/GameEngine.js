@@ -551,11 +551,25 @@ class GameEngine {
            return {
               name: p.name,
               role: p.role,
-              won: wonStatus
+              won: wonStatus,
+              isBot: p.socketId.startsWith('dev_')
            };
        });
  
        this.io.to(roomCode).emit('gameOver', { winnerTitle: winningTeam, results });
+       
+       // Supabase'e oyun geçmişini kaydet
+       const supabase = require('./db');
+       supabase.from('game_history').insert([{
+           room_code: roomCode,
+           game_mode: room.isDevMode ? 'DEV_MODE' : 'NORMAL',
+           winner: winningTeam,
+           players: results
+       }]).then(({ error }) => {
+           if (error) console.error("Supabase'e oyun kaydedilirken hata oluştu:", error);
+           else console.log(`Oyun geçmişi başarıyla kaydedildi: Oda ${roomCode}`);
+       });
+
        return true;
     }
     return false;
