@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     const roomCode = generateRoomCode();
     const hostToken = generateToken();
     let pool = [
-      'Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Tefeci', 'Consort', 
+      'Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Tefeci', 'Meyhaneci', 
       'Kan Davalı', 'Kundakçı', 'Kaçak', 'Şifacı', 'Avcı', 'Bekçi', 
       'Münafık', 'Eşkıya', 'Eşkıya Başı', 'Seri Katil'
     ];

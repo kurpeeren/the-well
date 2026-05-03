@@ -124,8 +124,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   };
 
   // ROLE LOGIC
-  const isEskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(activeRole);
-  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Dedikoducu', 'Falcı', 'Tefeci', 'Consort', 'Eskort'].includes(activeRole);
+  const isEskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(activeRole);
+  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Dedikoducu', 'Falcı', 'Tefeci', 'Meyhaneci', 'Eskort'].includes(activeRole);
   
   const isAvci = activeRole === 'Avcı';
   const isKundakci = activeRole === 'Kundakçı';
@@ -176,7 +176,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
   if (isEskiya) {
      nightTargets = nightTargets.map(p => {
-        if (['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(p.role)) {
+        if (['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(p.role)) {
            return { ...p, name: p.name + ' [TAKIM]' };
         }
         return p;
@@ -184,7 +184,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   }
 
   const getTeamColor = (role) => {
-    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
+    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
     const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil'];
 
     if (evils.includes(role)) return 'text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
@@ -193,7 +193,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   };
 
   const getTeamName = (role) => {
-    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
+    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
     const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil'];
     if (evils.includes(role)) return 'Kırmızı Takım';
     if (neutrals.includes(role)) return 'Gri Takım';
@@ -273,11 +273,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
       ability: '🤐 Birini bir gün susturur',
       desc: 'Faiz ve tehditle geçimini sağlar. Her gece bir kişiyi hedefler; ertesi gün o kişi tartışmada hiçbir şey yazamaz (susturulur). Susturulan Muhtar mührünü de vuramaz.',
     },
-    'Consort': {
+    'Meyhaneci': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
-      image: '/roles/consort.png',
-      ability: '💋 Hedefini bir gece işe yaramaz hale getirir',
-      desc: 'Eşkıyaların kiralık engelleyicisi. Gece bir kişiyi ziyaret eder; o kişi o gece yeteneğini kullanamaz. Masum roller bile devre dışı kalabilir. Eskort gibi çalışır ama kötü amaçlıdır.',
+      image: '/roles/meyhaneci.png',
+      ability: '🍺 Hedefini bir gece sarhoş edip işe yaramaz hale getirir',
+      desc: 'Eşkıyaların en sinsi müttefiki. Gece bir kişiyi meyhaneye çeker; o kişi sabaha kadar sızıp kalır ve o gece hiçbir yeteneğini kullanamaz. Şifacı koruyamaz, Bekçi soruşturamaz, Katil vuramaz.',
     },
     'Kan Davalı': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
