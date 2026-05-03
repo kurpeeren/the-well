@@ -4,7 +4,7 @@ const ROLES = {
   'Bekçi': { align: 'Masum', team: 'Köylüler' },
   'Avcı': { align: 'Masum', team: 'Köylüler', limit: 3 },
   'Muhtar': { align: 'Masum', team: 'Köylüler' }, 
-  'Dedikoducu': { align: 'Masum', team: 'Köylüler' }, 
+  'Gözcü': { align: 'Masum', team: 'Köylüler' }, 
   'Falcı': { align: 'Masum', team: 'Köylüler' }, 
   'Gassal': { align: 'Masum', team: 'Köylüler' }, 
   'Eskort': { align: 'Masum', team: 'Köylüler' }, 
@@ -25,7 +25,7 @@ const ROLES = {
 function getInvestResults(role) {
    if (['Bekçi', 'Kan Davalı', 'Seri Katil'].includes(role)) return 'Bekçi, Kan Davalı veya Seri Katil';
    if (['Şifacı', 'Seri Katil', 'Falcı'].includes(role)) return 'Şifacı, Seri Katil veya Falcı';
-   if (['Dedikoducu', 'Münafık', 'Köy Delisi'].includes(role)) return 'Dedikoducu, Münafık veya Köy Delisi';
+   if (['Gözcü', 'Münafık', 'Köy Delisi'].includes(role)) return 'Gözcü, Münafık veya Köy Delisi';
    if (['Eşkıya Başı', 'Muhtar', 'Kaçak'].includes(role)) return 'Eşkıya Başı, Muhtar veya Kaçak';
    if (['Gassal', 'Tefeci', 'Kundakçı'].includes(role)) return 'Gassal, Tefeci veya Kundakçı';
    if (['Avcı', 'Eşkıya', 'Meyhaneci'].includes(role)) return 'Avcı, Eşkıya veya Meyhaneci';

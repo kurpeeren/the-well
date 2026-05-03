@@ -34,7 +34,7 @@ class GameEngine {
     const count = room.players.length;
     const poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
     const poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Kaçak'];
-    const poolTown = ['Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
+    const poolTown = ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
   
     let { kirmizi, gri, yesil } = room.settings;
     kirmizi = kirmizi ?? 4;
@@ -241,8 +241,8 @@ class GameEngine {
           }
       });
   
-      // Priority 8: Bekçi, Dedikoducu, Falcı
-      actions.filter(a => ['Bekçi', 'Dedikoducu', 'Falcı'].includes(a.role) && a.targetId).forEach(a => {
+      // Priority 8: Bekçi, Gözcü, Falcı
+      actions.filter(a => ['Bekçi', 'Gözcü', 'Falcı'].includes(a.role) && a.targetId).forEach(a => {
          if(!roleblocked[a.actorId] && !alerts[a.targetId]) {
             const targetP = getPlayer(a.targetId);
             if(!targetP) return;
@@ -257,7 +257,7 @@ class GameEngine {
                 let msg = `${targetP.name} incelendi: ${tAlign === 'Masum' ? 'Temiz görünüyor.' : 'Eşkıya!'}`;
                 this.sendPrivateNews(roomCode, a.actorId, { text: msg, align: tAlign === 'Masum' ? 'Gri' : 'Kırmızı' });
             } 
-            else if (a.role === 'Dedikoducu') {
+            else if (a.role === 'Gözcü') {
                const targetVisits = (visits[a.targetId] || []).filter(vid => vid !== a.actorId);
                const visNames = targetVisits.map(vid => getPlayer(vid)?.name).join(', ');
                let msg = targetVisits.length > 0 ? `${targetP.name} evini ziyaret edenler: ${visNames}` : `${targetP.name} evini dün gece kimse ziyaret etmedi.`;

@@ -276,8 +276,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
     'Meyhaneci': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/meyhaneci.jpeg',
-      ability: '🍺 Hedefini bir gece sarhoş edip işe yaramaz hale getirir',
-      desc: 'Eşkıyaların en sinsi müttefiki. Gece bir kişiyi meyhaneye çeker; o kişi sabaha kadar sızıp kalır ve o gece hiçbir yeteneğini kullanamaz. Şifacı koruyamaz, Bekçi soruşturamaz, Katil vuramaz.',
+      ability: '💋 Hedefini bir gece işe yaramaz hale getirir',
+      desc: 'Eşkıyaların kiralık engelleyicisi. Gece bir kişiyi ziyaret eder; o kişi o gece yeteneğini kullanamaz. Masum roller bile devre dışı kalabilir. Eskort gibi çalışır ama kötü amaçlıdır.',
     },
     'Kan Davalı': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
@@ -295,7 +295,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
       image: '/roles/kacak.jpeg',
       ability: '🛡️ Sınırlı sayıda kapısını kilitler (4 hak)',
-      desc: 'Köye dışarıdan gelmiş, belası olmayan biridir. Ne eşkıyalarla ne de köylülerle derdi vardır. Tek derdi kendi canını kurtarmaktır. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır.',
+      desc: 'Sadece hayatta kalmayı hedefler. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır. Saldırılardan korunmak için kapısını kilitleyebilir ama bu hak sınırlıdır.',
     },
     'Köy Delisi': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
