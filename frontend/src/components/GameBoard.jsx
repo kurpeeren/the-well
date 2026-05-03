@@ -680,8 +680,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* NOTLAR MODAL */}
       {showNotes && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300 pointer-events-auto">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col h-[80vh]">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
+          <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col h-[80vh]" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 rounded-t-2xl">
               <div className="flex items-center gap-3">
                  <BookOpen className="text-accent" size={24} />
@@ -732,8 +732,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* ROL BİLGİSİ MODAL */}
       {showRoleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
-          <div className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowRoleModal(false)}>
+          <div className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             
             {/* Kapak: Resim Alanı */}
             <div className="relative w-full aspect-square bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
@@ -796,8 +796,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* SİLENCED MODAL */}
       {showSilencedModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
-          <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center p-8 text-center">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowSilencedModal(false)}>
+          <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center p-8 text-center" onClick={(e) => e.stopPropagation()}>
              <VolumeX size={64} className="text-red-500 mb-4 animate-pulse" />
              <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-2">ŞŞŞT!</h3>
              <p className="text-slate-300 text-sm leading-relaxed mb-8">
@@ -849,8 +849,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* REVEALED DEATH NOTES MODAL */}
       {revealedNotes && revealedNotes.length > 0 && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4 animate-in zoom-in duration-500 pointer-events-auto">
-           <div className="w-full max-w-lg bg-[#f4e4bc] text-slate-900 p-8 rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4 animate-in zoom-in duration-500 pointer-events-auto" onClick={() => setRevealedNotes([])}>
+           <div className="w-full max-w-lg bg-[#f4e4bc] text-slate-900 p-8 rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }} onClick={(e) => e.stopPropagation()}>
               <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-black/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-black/20 to-transparent"></div>
               
