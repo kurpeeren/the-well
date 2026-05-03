@@ -21,7 +21,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   const [currentMessage, setCurrentMessage] = useState('');
   const [hasActioned, setHasActioned] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
-  const [personalNotes, setPersonalNotes] = useState('');
+  const [personalNotesMap, setPersonalNotesMap] = useState({});
   const [isRoleVisible, setIsRoleVisible] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [voteCounts, setVoteCounts] = useState({});
@@ -704,7 +704,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
                <div className="flex-1 flex flex-col">
                   <h4 className="text-sm font-bold text-yellow-500 tracking-wider uppercase mb-3 border-b border-slate-800 pb-2">Kişisel Gizli Notların</h4>
-                  <textarea value={personalNotes} onChange={e => setPersonalNotes(e.target.value)} placeholder="Şüphelendiğin durumları veya emin olduklarını buraya karala..." className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed" />
+                  <textarea value={personalNotesMap[activeSocketId] || ''} onChange={e => setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: e.target.value }))} placeholder="Şüphelendiğin durumları veya emin olduklarını buraya karala..." className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed" />
                </div>
             </div>
           </div>
