@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info } from 'lucide-react';
+import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX } from 'lucide-react';
 
 function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, isSpectator, onLeave, isHost }) {
   const [impersonateId, setImpersonateId] = useState(null);
@@ -25,6 +25,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   const [voteCounts, setVoteCounts] = useState({});
   const [voteDetails, setVoteDetails] = useState({});
   const [isSilenced, setIsSilenced] = useState(false);
+  const [showSilencedModal, setShowSilencedModal] = useState(false);
   const [skipDayCount, setSkipDayCount] = useState({ count: 0, total: 0 });
   const chatEndRef = useRef(null);
   const deadChatEndRef = useRef(null);
@@ -36,7 +37,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
        setVoteCounts(data.counts || {});
        setVoteDetails(data.details || {});
     });
-    socket.on('youAreSilenced', () => setIsSilenced(true));
+    socket.on('youAreSilenced', () => {
+       setIsSilenced(true);
+       setShowSilencedModal(true);
+    });
     socket.on('skipDayUpdate', (data) => setSkipDayCount(data));
     return () => {
        socket.off('chatMessage');
@@ -288,7 +292,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2">
 
-      <div className="flex-1 flex flex-col relative h-[75dvh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
+      <div className="flex-1 flex flex-col relative h-[75vh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
 
         <div className="absolute inset-0 z-10 pointer-events-none">
 
@@ -646,6 +650,25 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                    </button>
                 </div>
              </div>
+          </div>
+        </div>
+      )}
+
+      {/* SİLENCED MODAL */}
+      {showSilencedModal && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
+          <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center p-8 text-center">
+             <VolumeX size={64} className="text-red-500 mb-4 animate-pulse" />
+             <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-2">ŞŞŞT!</h3>
+             <p className="text-slate-300 text-sm leading-relaxed mb-8">
+               Tefeci seni susturdu! Bugün konuşman kesinlikle yasak. Sadece diğerlerini dinleyebilirsin.
+             </p>
+             <button 
+                onClick={() => setShowSilencedModal(false)} 
+                className="w-full py-4 bg-red-900/40 text-red-100 hover:bg-red-800/60 font-bold tracking-widest uppercase rounded-xl transition-colors border border-red-900/50"
+             >
+                Tamam, Susuyorum
+             </button>
           </div>
         </div>
       )}
