@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
     const hostToken = generateToken();
     let pool = [
       'Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Tefeci', 'Consort', 
-      'Kan Davalı', 'Kundakçı', 'Yanaşma', 'Şifacı', 'Avcı', 'Bekçi', 
+      'Kan Davalı', 'Kundakçı', 'Kaçak', 'Şifacı', 'Avcı', 'Bekçi', 
       'Münafık', 'Eşkıya', 'Eşkıya Başı', 'Seri Katil'
     ];
     

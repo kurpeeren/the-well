@@ -129,7 +129,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   
   const isAvci = activeRole === 'Avcı';
   const isKundakci = activeRole === 'Kundakçı';
-  const isYanasma = activeRole === 'Yanaşma';
+  const isYanasma = activeRole === 'Kaçak';
   const isMuhtar = activeRole === 'Muhtar';
   
   // İzleyiciler de Gassal gibi ölü konuşmalarını görebilsin
@@ -185,7 +185,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
   const getTeamColor = (role) => {
     const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
-    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Yanaşma', 'Seri Katil'];
+    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil'];
 
     if (evils.includes(role)) return 'text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
     if (neutrals.includes(role)) return 'text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)]'; // Gri
@@ -194,7 +194,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
   const getTeamName = (role) => {
     const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
-    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Yanaşma', 'Seri Katil'];
+    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil'];
     if (evils.includes(role)) return 'Kırmızı Takım';
     if (neutrals.includes(role)) return 'Gri Takım';
     return 'Yeşil Takım';
@@ -291,11 +291,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
       ability: '🔥 Evleri yakabilir, son kişi olmak ister',
       desc: 'Herkesi yakıp en son kalan olmayı hedefler. Gece saldırılarına bağışıktır. Bir gece evlere gazyağı dökebilir, başka bir gece hepsini ateşe verebilir. Kendi kendine bir kaos yaratır.',
     },
-    'Yanaşma': {
+    'Kaçak': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/yanasma.png',
+      image: '/roles/kacak.png',
       ability: '🛡️ Sınırlı sayıda kapısını kilitler (4 hak)',
-      desc: 'Sadece hayatta kalmayı hedefler. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır. Saldırılardan korunmak için kapısını kilitleyebilir ama bu hak sınırlıdır.',
+      desc: 'Köye dışarıdan gelmiş, belası olmayan biridir. Ne eşkıyalarla ne de köylülerle derdi vardır. Tek derdi kendi canını kurtarmaktır. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır.',
     },
     'Köy Delisi': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',

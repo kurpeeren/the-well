@@ -19,14 +19,14 @@ const ROLES = {
   'Seri Katil': { align: 'Tarafsız', team: 'Bireysel', nightImmune: true }, 
   'Kan Davalı': { align: 'Tarafsız', team: 'Bireysel', nightImmune: true }, 
   'Kundakçı': { align: 'Kötü', team: 'Bireysel', nightImmune: true }, 
-  'Yanaşma': { align: 'Tarafsız', team: 'Bireysel', limit: 4 }, 
+  'Kaçak': { align: 'Tarafsız', team: 'Bireysel', limit: 4 }, 
 };
 
 function getInvestResults(role) {
    if (['Bekçi', 'Kan Davalı', 'Seri Katil'].includes(role)) return 'Bekçi, Kan Davalı veya Seri Katil';
    if (['Şifacı', 'Seri Katil', 'Falcı'].includes(role)) return 'Şifacı, Seri Katil veya Falcı';
    if (['Dedikoducu', 'Münafık', 'Köy Delisi'].includes(role)) return 'Dedikoducu, Münafık veya Köy Delisi';
-   if (['Eşkıya Başı', 'Muhtar', 'Yanaşma'].includes(role)) return 'Eşkıya Başı, Muhtar veya Yanaşma';
+   if (['Eşkıya Başı', 'Muhtar', 'Kaçak'].includes(role)) return 'Eşkıya Başı, Muhtar veya Kaçak';
    if (['Gassal', 'Tefeci', 'Kundakçı'].includes(role)) return 'Gassal, Tefeci veya Kundakçı';
    if (['Avcı', 'Eşkıya', 'Consort'].includes(role)) return 'Avcı, Eşkıya veya Consort';
    return 'Bu kişiyi okuyamadın (Şüphe uyandırıcı)'; 

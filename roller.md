@@ -84,10 +84,10 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
   2. Eline meşaleyi alıp önceden gazyağı döktüğü herkesin evini **aynı anda Ateşe Verir** (Ignite). 
 - **Kazanma Şartı:** Köydeki herkesi yakıp sona kalan tek kişi veya Kundakçı olmak.
 
-### 🛡️ Yanaşma *(Town of Salem: Survivor)*
-- **Hikayesi:** Köye dışarıdan gelmiş, kimseye bulaşmadan sadece günü kurtarmaya çalışan zavallı biri.
-- **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp, katledilmeyip hayatta kalmak.
-- **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.
+### 🛡️ Kaçak *(Town of Salem: Survivor)*
+- **Hikayesi:** Köye dışarıdan gelmiş, belası olmayan biridir. Ne eşkıyalarla ne de köylülerle derdi vardır. Tek derdi kendi canını kurtarmaktır.
+- **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp hayatta kalmak.
+- **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece saldırıya uğrarsa hayatta kalır.
 
 ### 🤡 Köy Delisi *(Town of Salem: Jester)*
 - **Hikayesi:** Aklını yitirmiş ve kuyunun dibindeki karanlığa takıntılı hale gelmiştir. Tek isteği o karanlığa kavuşmaktır.

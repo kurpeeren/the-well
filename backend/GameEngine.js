@@ -33,7 +33,7 @@ class GameEngine {
   
     const count = room.players.length;
     const poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
-    const poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Yanaşma'];
+    const poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Kaçak'];
     const poolTown = ['Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
   
     let { kirmizi, gri, yesil } = room.settings;
@@ -148,8 +148,8 @@ class GameEngine {
           }
       });
   
-      // Priority 2: Yanaşma Self Protect -- IMMUNE
-      actions.filter(a => a.role === 'Yanaşma' && a.actionType === 'protect').forEach(a => {
+      // Priority 2: Kaçak Self Protect -- IMMUNE
+      actions.filter(a => a.role === 'Kaçak' && a.actionType === 'protect').forEach(a => {
           const p = getPlayer(a.actorId);
           if(p && p.uses < 4) {
               p.uses++;
@@ -460,8 +460,8 @@ class GameEngine {
        
        const results = room.players.map(p => {
            let wonStatus = false;
-           // Bireysel Kazanma Şartları (Yanaşma, vb.)
-           if (p.role === 'Yanaşma') {
+           // Bireysel Kazanma Şartları (Kaçak, vb.)
+           if (p.role === 'Kaçak') {
                wonStatus = p.isAlive;
            } else {
                const pTeam = ROLES[p.role]?.team;
