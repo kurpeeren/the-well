@@ -77,7 +77,12 @@ io.on('connection', (socket) => {
 
     const exec = fakePlayers.find(p => p.role === 'Kan Davalı');
     if (exec) {
-       const masumlar = fakePlayers.filter(p => ROLES[p.role]?.team === 'Köylüler' && p.socketId !== exec.socketId);
+       // Dev Host (socket.id) ve Kan Davalı'nın kendisini hariç tut
+       const masumlar = fakePlayers.filter(p => 
+           ROLES[p.role]?.team === 'Köylüler' && 
+           p.socketId !== exec.socketId &&
+           p.socketId !== socket.id  // Dev Host hiçbir zaman hedef olmasın
+       );
        if (masumlar.length > 0) {
            const randomMasum = masumlar[Math.floor(Math.random() * masumlar.length)];
            exec.execTarget = randomMasum.socketId;
