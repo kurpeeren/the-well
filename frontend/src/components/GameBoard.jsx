@@ -125,7 +125,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
   // ROLE LOGIC
   const isEskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(activeRole);
-  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Dedikoducu', 'Falcı', 'Tefeci', 'Meyhaneci', 'Eskort'].includes(activeRole);
+  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Gözcü', 'Falcı', 'Tefeci', 'Meyhaneci', 'Eskort'].includes(activeRole);
   
   const isAvci = activeRole === 'Avcı';
   const isKundakci = activeRole === 'Kundakçı';
@@ -203,109 +203,109 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   const ROLE_INFO = {
     'Şifacı': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/sifaci.png',
+      image: '/roles/sifaci.jpeg',
       ability: '🌿 Her gece bir kişiyi iyileştirir',
       desc: 'Köyün bilge otacısı. Her gece bir oyuncunun kapısına giderek onu gece saldırılarından korur. Eğer o gece hedefi saldırıya uğrarsa, hayatta kalır. Kendini oyun boyunca yalnızca 2 kez iyileştirebilir.',
     },
     'Bekçi': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/bekci.png',
+      image: '/roles/bekci.jpeg',
       ability: '🔦 Her gece bir kişiyi kontrol eder',
       desc: 'Geceleri elinde fenerle sokakları arşınlar. Seçtiği kişinin eşkıya olup olmadığını araştırır. Eşkıya Başı kontrol edildiğinde masum görünür; Münafık tarafından çerçevelenmiş biri ise eşkıya gibi görünür.',
     },
     'Avcı': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/avci.png',
+      image: '/roles/avci.jpeg',
       ability: '🪤 Sınırlı sayıda pusu kurabilir (3 hak)',
       desc: 'Eski bir dağ adamı, tetikte uyur. "Pusuya Yat" seçeneğiyle o gece evine gelen herkesi, masum ya da değil, vurur. Gece koruması yoktur. Sınırlı sayıda kullanım hakkı vardır.',
     },
     'Muhtar': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/muhtar.png',
+      image: '/roles/muhtar.jpeg',
       ability: '🔏 Mühür vurarak oyunu ağırlığını ortaya koyar',
       desc: 'Köyün mühürdarı. Gece hareketsizdir. Gündüz "Mührü Vur" diyerek kimliğini ilan edebilir. Bu andan itibaren oylamalarda oyu 3 sayılır; ancak Şifacı kendisini bir daha koruyamaz. Susturulmuşsa mührü vuramaz.',
     },
-    'Dedikoducu': {
+    'Gözcü': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/dedikoducu.png',
+      image: '/roles/gozcu.jpeg',
       ability: '🕵️ Bir kişinin evini gözetler',
       desc: 'Gece uyku tutmaz, başkalarının işine burnunu sokar. Bir kişinin kapısını gözlemler: o gece o kişiyi kim ziyaret etmiş görür. Ama içeride ne yaptıklarını bilemez.',
     },
     'Falcı': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/falci.png',
+      image: '/roles/falci.jpeg',
       ability: '🔮 Olası 3 rolden oluşan kehanet alır',
       desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona o kişinin olası 3 rolünden oluşan bir kehanet sunar. Münafık tarafından çerçevelenmiş biri farklı bir kehanet üretir.',
     },
     'Gassal': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/gassal.png',
+      image: '/roles/gassal.jpeg',
       ability: '💀 Ölü konuşmalarını dinleyebilir',
       desc: 'Ölü yıkayıcısıdır. Gece yetenekli değildir ama öte dünyaya kapısı açıktır: ölmüş oyuncuların kendi aralarında yaptığı "Ölüler Boyutu" sohbetini canlı olarak görebilir.',
     },
     'Eskort': {
       color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
-      image: '/roles/eskort.png',
+      image: '/roles/eskort.jpeg',
       ability: '💃 Hedefini oyalar, yeteneğini engeller',
       desc: 'Her gece bir kişiyi ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz. Eşkıyaları bile etkisiz kılabilir; eşkıyalar da onu ziyaret ederse ölebilir.',
     },
     'Eşkıya Başı': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
-      image: '/roles/eskiya_basi.png',
+      image: '/roles/eskiya_basi.jpeg',
       ability: '🗡️ Her gece öldürme emri verir',
       desc: 'Çetenin acımasız lideri. Gece saldırılarına bağışıktır. Bekçi onu kontrol etse masum görünür (kan bulaşmamışsa). Kimin öldürüleceğini o belirler. Eşkıyalar ona karşı çıkamaz.',
     },
     'Münafık': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
-      image: '/roles/munafik.png',
+      image: '/roles/munafik.jpeg',
       ability: '🎭 Bir kişiyi yanlış gösterir',
       desc: 'Gece bir kişiyi hedefler. O gece Bekçi veya Falcı o kişiyi araştırırsa, sistem o kişiyi sanki eşkıyaymış gibi gösterir. Masum biri haksız yere şüphe altına girebilir.',
     },
     'Eşkıya': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
-      image: '/roles/eskiya.png',
+      image: '/roles/eskiya.jpeg',
       ability: '🔪 Eşkıya Başı ile koordineli saldırır',
       desc: 'Çetenin yardımcısı. Eşkıya Başı seçmezse inisiyatif alıp kendi hedefini vurabilir. Takım olarak hareket eder; gece kimin öldürüleceğini birlikte planlarlar.',
     },
     'Tefeci': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
-      image: '/roles/tefeci.png',
+      image: '/roles/tefeci.jpeg',
       ability: '🤐 Birini bir gün susturur',
       desc: 'Faiz ve tehditle geçimini sağlar. Her gece bir kişiyi hedefler; ertesi gün o kişi tartışmada hiçbir şey yazamaz (susturulur). Susturulan Muhtar mührünü de vuramaz.',
     },
     'Meyhaneci': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
-      image: '/roles/meyhaneci.png',
+      image: '/roles/meyhaneci.jpeg',
       ability: '🍺 Hedefini bir gece sarhoş edip işe yaramaz hale getirir',
       desc: 'Eşkıyaların en sinsi müttefiki. Gece bir kişiyi meyhaneye çeker; o kişi sabaha kadar sızıp kalır ve o gece hiçbir yeteneğini kullanamaz. Şifacı koruyamaz, Bekçi soruşturamaz, Katil vuramaz.',
     },
     'Kan Davalı': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/kan_davali.png',
+      image: '/roles/kan_davali.jpeg',
       ability: '⚔️ Tek bir kişiyi kuyuya attırmak zorundadır',
       desc: 'Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Oyun başı rastgele bir "kan hasımı" atanır; bu kişiyi gündüz oylamayla kuyuya attırmak zorundadır. Hasım başka bir şekilde ölürse Köy Delisi\'ne dönüşür.',
     },
     'Kundakçı': {
       color: 'text-orange-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/kundakci.png',
+      image: '/roles/kundakci.jpeg',
       ability: '🔥 Evleri yakabilir, son kişi olmak ister',
       desc: 'Herkesi yakıp en son kalan olmayı hedefler. Gece saldırılarına bağışıktır. Bir gece evlere gazyağı dökebilir, başka bir gece hepsini ateşe verebilir. Kendi kendine bir kaos yaratır.',
     },
     'Kaçak': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/kacak.png',
+      image: '/roles/kacak.jpeg',
       ability: '🛡️ Sınırlı sayıda kapısını kilitler (4 hak)',
       desc: 'Köye dışarıdan gelmiş, belası olmayan biridir. Ne eşkıyalarla ne de köylülerle derdi vardır. Tek derdi kendi canını kurtarmaktır. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır.',
     },
     'Köy Delisi': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/koy_delisi.png',
+      image: '/roles/koy_delisi.jpeg',
       ability: '🪦 Kendisini kuyuya attırmak ister',
       desc: 'Aklını yitirmiş, kuyunun karanlığına çekilmiş biri. Tek amacı gündüz kendini oylamayla kuyuya attırmaktır. Başarılırsa kazanır ve oy verenlerden birini kuyuya çeker. Gece eylemsizdir.',
     },
     'Seri Katil': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/seri_katil.png',
+      image: '/roles/seri_katil.jpeg',
       ability: '🩸 Her gece bir kişiyi öldürür',
       desc: 'Yalnız hareket eden, gözü dönmüş bir cani. Gece bağışıklığı vardır. Hiçbir takıma bağlı olmaksızın her gece bir kişiyi öldürür. Köyde tek başına hayatta kalan kişi olursa kazanır.',
     },
