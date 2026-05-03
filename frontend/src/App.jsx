@@ -6,6 +6,12 @@ import GameBoard from './components/GameBoard';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
 
+const ROLES_LIST = [
+  { name: 'Şifacı', group: 'Masumlar' }, { name: 'Bekçi', group: 'Masumlar' }, { name: 'Avcı', group: 'Masumlar' }, { name: 'Muhtar', group: 'Masumlar' }, { name: 'Gözcü', group: 'Masumlar' }, { name: 'Falcı', group: 'Masumlar' }, { name: 'Gassal', group: 'Masumlar' }, { name: 'Eskort', group: 'Masumlar' },
+  { name: 'Eşkıya Başı', group: 'Eşkıyalar' }, { name: 'Münafık', group: 'Eşkıyalar' }, { name: 'Eşkıya', group: 'Eşkıyalar' }, { name: 'Tefeci', group: 'Eşkıyalar' }, { name: 'Meyhaneci', group: 'Eşkıyalar' },
+  { name: 'Köy Delisi', group: 'Tarafsızlar' }, { name: 'Seri Katil', group: 'Tarafsızlar' }, { name: 'Kan Davalı', group: 'Tarafsızlar' }, { name: 'Kundakçı', group: 'Tarafsızlar' }, { name: 'Kaçak', group: 'Tarafsızlar' }
+];
+
 function App() {
   const videoRef = useRef(null);
   const [gameState, setGameState] = useState('INTRO'); // INTRO, JOIN, LOBBY, GAME
@@ -28,6 +34,7 @@ function App() {
   const [gameResults, setGameResults] = useState(null);
   const [revealedNotes, setRevealedNotes] = useState([]);
   const [toast, setToast] = useState(null);
+  const [showRoleSettings, setShowRoleSettings] = useState(false);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -297,6 +304,11 @@ function App() {
                     )
                  })}
               </div>
+               <div className="mt-4 border-t border-slate-800 pt-3">
+                  <button onClick={() => isHost && setShowRoleSettings(true)} disabled={!isHost} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-widest border border-slate-700">
+                      Rol Havuzu Ayarları
+                  </button>
+               </div>
             </div>
 
             {isHost ? (
@@ -333,6 +345,42 @@ function App() {
          />
       )}
         </div>
+      )}
+
+      {showRoleSettings && (
+         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 relative">
+               <button onClick={() => setShowRoleSettings(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+               <h2 className="text-xl font-bold text-white mb-4 uppercase tracking-widest border-b border-slate-800 pb-2">Rol Havuzu Seçimi</h2>
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
+                     <div key={group}>
+                        <h3 className={`text-sm font-bold mb-3 uppercase tracking-wider ${group === 'Masumlar' ? 'text-green-500' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
+                        <div className="space-y-2">
+                           {ROLES_LIST.filter(r => r.group === group).map(r => (
+                              <label key={r.name} className="flex items-center space-x-3 text-slate-300 cursor-pointer hover:bg-slate-800 p-1 rounded transition-colors">
+                                 <input type="checkbox" checked={settings.roles ? settings.roles[r.name] !== false : true} disabled={!isHost}
+                                    onChange={(e) => {
+                                       const newRoles = { ...(settings.roles || {}) };
+                                       newRoles[r.name] = e.target.checked;
+                                       const newSettings = { ...settings, roles: newRoles };
+                                       setSettings(newSettings);
+                                       socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                    }}
+                                    className="w-4 h-4 rounded border-slate-600 text-blood-red focus:ring-blood-red focus:ring-1 bg-slate-800"
+                                 />
+                                 <span className="text-sm font-medium">{r.name}</span>
+                              </label>
+                           ))}
+                        </div>
+                     </div>
+                  ))}
+               </div>
+               <div className="mt-6 border-t border-slate-800 pt-4 flex justify-end">
+                  <button onClick={() => setShowRoleSettings(false)} className="bg-blood-red hover:bg-red-800 text-white px-6 py-2 rounded-xl font-bold transition-colors">Tamam</button>
+               </div>
+            </div>
+         </div>
       )}
     </div>
   );

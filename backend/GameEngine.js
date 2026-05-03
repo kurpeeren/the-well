@@ -19,20 +19,32 @@ class GameEngine {
   }
 
   assignRoles(room) {
+    const count = room.players.length;
+    let enabledRoles = room.settings?.roles || {};
+    if (Object.keys(enabledRoles).length === 0) {
+        Object.keys(ROLES).forEach(r => enabledRoles[r] = true);
+    }
+
     if (room.isDevMode) {
-        let pool = [
-          'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Tefeci', 'Meyhaneci', 
-          'Kan Davalı', 'Kundakçı', 'Kaçak', 'Şifacı', 'Avcı', 'Bekçi', 
-          'Münafık', 'Eşkıya', 'Eşkıya Başı', 'Seri Katil'
-        ];
-        // Fisher-Yates Shuffle
-        for (let i = pool.length - 1; i > 0; i--) {
+        let pool = Object.keys(enabledRoles).filter(r => enabledRoles[r]);
+        if (pool.length === 0) pool = Object.keys(ROLES);
+
+        let finalPool = [];
+        while(finalPool.length < count) {
+            let p = [...pool];
+            p.sort(() => Math.random() - 0.5);
+            for(let r of p) {
+                if(finalPool.length < count) finalPool.push(r);
+            }
+        }
+        
+        for (let i = finalPool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
+            [finalPool[i], finalPool[j]] = [finalPool[j], finalPool[i]];
         }
         
         room.players.forEach((player, i) => {
-          player.role = pool[i % pool.length];
+          player.role = finalPool[i];
           player.uses = 0;
           player.execTarget = null;
         });
@@ -47,10 +59,13 @@ class GameEngine {
         return;
     }
   
-    const count = room.players.length;
-    const poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
-    const poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Kaçak'];
-    const poolTown = ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
+    const poolEvil = Object.keys(enabledRoles).filter(r => enabledRoles[r] && (ROLES[r]?.team === 'Eşkıyalar' || r === 'Kundakçı'));
+    const poolNeutral = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Bireysel' && r !== 'Kundakçı' && r !== 'Seri Katil');
+    const poolTown = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Köylüler');
+
+    if (poolEvil.length === 0) poolEvil.push('Eşkıya');
+    if (poolNeutral.length === 0) poolNeutral.push('Köy Delisi');
+    if (poolTown.length === 0) poolTown.push('Muhtar');
   
     let { kirmizi, gri, yesil } = room.settings;
     kirmizi = kirmizi ?? 4;
@@ -61,8 +76,8 @@ class GameEngine {
   
     // 1. Kırmızı Takım (Kötüler)
     for (let i = 0; i < kirmizi && activeRoles.length < count; i++) {
-       if (i === 0) activeRoles.push('Eşkıya Başı');
-       else if (i === 1) activeRoles.push('Seri Katil');
+       if (i === 0 && enabledRoles['Eşkıya Başı']) activeRoles.push('Eşkıya Başı');
+       else if (i === 1 && enabledRoles['Seri Katil']) activeRoles.push('Seri Katil');
        else activeRoles.push(poolEvil[Math.floor(Math.random() * poolEvil.length)]);
     }
   
