@@ -72,6 +72,18 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
     if (deadChatEndRef.current) deadChatEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages, deadChatMessages]);
 
+  useEffect(() => {
+    const isModalOpen = showNotes || showRoleModal || showSilencedModal || (revealedNotes && revealedNotes.length > 0) || gamePhase === 'END';
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showNotes, showRoleModal, showSilencedModal, revealedNotes, gamePhase]);
+
   const handleAction = (actionType = 'target', isSelfAlert = false) => {
     // actionType: target, pusu, douse, ignite, protect, bos
     if (actionType === 'target' && !selectedPlayer) return;
@@ -634,8 +646,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
              <ul className="flex-1 overflow-y-auto custom-scrollbar space-y-2">
                 {players.filter(p => !p.isAlive).map(p => (
                    <li key={p.socketId} className="flex flex-col bg-black/40 p-2 rounded-lg border border-slate-800">
-                      <span className="text-slate-300 font-medium text-sm line-through opacity-70">{p.name} {isDevMode ? `(${p.role})` : ''}</span>
-                      <span className={`${getTeamColor(p.role).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider`}>{getTeamName(p.role)}</span>
+                      <span className="text-slate-300 font-medium text-sm line-through opacity-70">{p.name} {isDevMode ? `(${p.displayRole || p.role})` : ''}</span>
+                      <span className={`${getTeamColor(p.displayRole || p.role).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider`}>{getTeamName(p.displayRole || p.role)}</span>
                    </li>
                 ))}
                 {players.filter(p => !p.isAlive).length === 0 && (

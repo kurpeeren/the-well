@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
@@ -7,6 +7,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
 
 function App() {
+  const videoRef = useRef(null);
   const [gameState, setGameState] = useState('INTRO'); // INTRO, JOIN, LOBBY, GAME
   const [introPhase, setIntroPhase] = useState('WAITING'); // WAITING, PLAYING, ENDED
   const [playerName, setPlayerName] = useState('');
@@ -93,7 +94,7 @@ function App() {
     socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment, personalNote }) => {
       if(killedPlayerName) {
         setEventNews(`${killedPlayerName} gece karanlığında kurban gitti.`);
-        setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü. Takımı: `, align: killedPlayerAlignment }]);
+        setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü.`, align: 'Bilinmiyor' }]);
         if (personalNote) {
            setRevealedNotes(prev => [...prev, { playerName: killedPlayerName, note: personalNote }]);
         }
@@ -109,7 +110,7 @@ function App() {
     socket.on('voteResult', ({ lynchedPlayerName, lynchedPlayerAlignment, voteTally, personalNote }) => {
        if(lynchedPlayerName) {
          setEventNews(`${lynchedPlayerName} köylüler tarafından ${voteTally} oyla kuyuya fırlatıldı!`);
-         setSystemNotes(prev => [...prev, { text: `${lynchedPlayerName} kuyuya atıldı. (Toplam Oy: ${voteTally})`, align: lynchedPlayerAlignment }]);
+         setSystemNotes(prev => [...prev, { text: `${lynchedPlayerName} kuyuya atıldı. (Toplam Oy: ${voteTally})`, align: 'Bilinmiyor' }]);
          if (personalNote) {
             setRevealedNotes(prev => [...prev, { playerName: lynchedPlayerName, note: personalNote }]);
          }
@@ -180,29 +181,30 @@ function App() {
         <div className="fixed inset-0 bg-black z-[100] flex items-center justify-center overflow-hidden">
            {introPhase === 'WAITING' && (
               <button 
-                 onClick={() => setIntroPhase('PLAYING')} 
-                 className="text-slate-400 uppercase tracking-[0.5em] hover:text-white transition-colors duration-1000 animate-pulse text-sm"
+                 onClick={() => {
+                     setIntroPhase('PLAYING');
+                     if (videoRef.current) videoRef.current.play().catch(e => console.error("Video error:", e));
+                 }} 
+                 className="text-slate-400 uppercase tracking-[0.5em] hover:text-white transition-colors duration-1000 animate-pulse text-sm z-20"
               >
                  Karanlığa Adım At
               </button>
            )}
-           {introPhase !== 'WAITING' && (
-               <div className="absolute inset-0 overflow-hidden flex items-center justify-center bg-black">
-                  <div className="relative w-full aspect-video md:w-full md:h-full md:aspect-auto flex items-center justify-center">
-                     <video 
-                        src="/intro.mp4" 
-                        autoPlay 
-                        playsInline
-                        onEnded={() => setIntroPhase('ENDED')}
-                        className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
-                     />
-                     <div className="absolute inset-0 z-10 pointer-events-none" style={{ 
-                        background: 'radial-gradient(ellipse at center, transparent 50%, black 100%)',
-                        boxShadow: 'inset 0 0 60px 30px #000'
-                     }}></div>
-                  </div>
-               </div>
-           )}
+           <div className={`absolute inset-0 overflow-hidden flex items-center justify-center bg-black transition-opacity duration-1000 ${introPhase === 'WAITING' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <div className="relative w-full aspect-video md:w-full md:h-full md:aspect-auto flex items-center justify-center">
+                 <video 
+                    ref={videoRef}
+                    src="/intro.mp4" 
+                    playsInline
+                    onEnded={() => setIntroPhase('ENDED')}
+                    className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
+                 />
+                 <div className="absolute inset-0 z-10 pointer-events-none" style={{ 
+                    background: 'radial-gradient(ellipse at center, transparent 50%, black 100%)',
+                    boxShadow: 'inset 0 0 60px 30px #000'
+                 }}></div>
+              </div>
+           </div>
            {introPhase === 'ENDED' && (
               <div 
                  className="relative z-10 flex flex-col items-center cursor-pointer group animate-pulse"

@@ -39,7 +39,7 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 ### 💃 Eskort *(Town of Salem: Escort)*
 - **Hikayesi:** Köyün en göz alıcı, neşeli şahsiyetidir. Sohbeti o kadar hoştur ki, onunla muhabbete dalan kişi asıl işini gücünü yapmayı unutur.
 - **Gece Yeteneği:** Her gece birini hedefler ve sabaha kadar onu oyalar (Roleblock). Seçilen kişi aklı o gece onda kalacağı için planladığı yeteneğini kullanamaz (Şifacı koruyamaz, Seri Katil öldüremez).
-- **Not:** Mekanik olarak Meyhaneci'nin birebir aynısıdır, tek farkı köyün iyiliği (Masumlar) için çalışmasıdır.
+- **Not:** Mekanik olarak Consort'nin birebir aynısıdır, tek farkı köyün iyiliği (Masumlar) için çalışmasıdır.
 
 ---
 
@@ -63,9 +63,9 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Hikayesi:** Köyde herkese borç vermiş, herkesin açığını bilen karanlık bir adamdır. Gözdağı vererek insanları susturur.
 - **Gece Yeteneği:** Bir kişiyi hedefler. Ertesi gün (Gündüz ve Oylama aşamasında) o kişi chat'e hiçbir şey yazamaz. Ekranda "Tefeci seni susturdu" yazar. Hedef sadece kuyuya adam atmak için oy kullanabilir.
 
-### 🍺 Meyhaneci *(Town of Salem: Consort)*
-- **Hikayesi:** Köyün tek meyhanesinin sahibidir. Eşkıyaların sadık dostudur; parasıyla veya içkisiyle işini yaptırır. Hedeflediği kişiyi meyhaneye çekerek sabaha kadar sızdırır.
-- **Gece Yeteneği:** Hedeflediği kişinin aklını çeler (Roleblock). Seçtiği kişi o gece yeteneğini kullanamaz (Örn: Şifacı koruyamaz, Bekçi soruşturamaz, Katil vuramaz).
+### 💃 Consort / Şarkıcı *(Town of Salem: Consort)*
+- **Hikayesi:** Eğlencesiyle, içkisiyle veya cazibesiyle insanların aklını başından alır, görevlerini unutturur.
+- **Gece Yeteneği:** Hedeflediği kişinin aklını çeler (Roleblock). Seçtiği kişi o gece yeteneğini kullanamaz (Örn: Şifacı koruyamaz, Katil vuramaz).
 
 ---
 
@@ -84,10 +84,10 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
   2. Eline meşaleyi alıp önceden gazyağı döktüğü herkesin evini **aynı anda Ateşe Verir** (Ignite). 
 - **Kazanma Şartı:** Köydeki herkesi yakıp sona kalan tek kişi veya Kundakçı olmak.
 
-### 🛡️ Kaçak *(Town of Salem: Survivor)*
-- **Hikayesi:** Köye dışarıdan gelmiş, belası olmayan biridir. Ne eşkıyalarla ne de köylülerle derdi vardır. Tek derdi kendi canını kurtarmaktır.
-- **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp hayatta kalmak.
-- **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece saldırıya uğrarsa hayatta kalır.
+### 🛡️ Yanaşma *(Town of Salem: Survivor)*
+- **Hikayesi:** Köye dışarıdan gelmiş, kimseye bulaşmadan sadece günü kurtarmaya çalışan zavallı biri.
+- **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp, katledilmeyip hayatta kalmak.
+- **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.
 
 ### 🤡 Köy Delisi *(Town of Salem: Jester)*
 - **Hikayesi:** Aklını yitirmiş ve kuyunun dibindeki karanlığa takıntılı hale gelmiştir. Tek isteği o karanlığa kavuşmaktır.

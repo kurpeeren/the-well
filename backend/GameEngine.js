@@ -217,6 +217,7 @@ class GameEngine {
               } else {
                   framed[a.targetId] = true;
                   const munTargetP = getPlayer(a.targetId);
+                  if (munTargetP) munTargetP.isFramed = true;
                   this.sendPrivateNews(roomCode, a.actorId, { text: `${munTargetP?.name || 'Hedef'}'in kapısına suç aletleri bıraktın.`, align: 'Gri' });
               }
           }
@@ -336,6 +337,7 @@ class GameEngine {
         const p = getPlayer(dId);
         if(p && p.isAlive) {
           p.isAlive = false;
+          if (p.isFramed) p.displayRole = 'Eşkıya';
           killedInfos.push({ name: p.name, align: getColorAlignment(p.role), personalNote: p.personalNote });
         }
       });
@@ -399,6 +401,7 @@ class GameEngine {
          const lynched = room.players.find(p => p.socketId === topTarget);
          if (lynched) {
            lynched.isAlive = false;
+           if (lynched.isFramed) lynched.displayRole = 'Eşkıya';
            this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote });
   
            if (lynched.role === 'Köy Delisi') {
