@@ -118,8 +118,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   };
 
   // ROLE LOGIC
-  const isEskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(activeRole);
-  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Dedikoducu', 'Falcı', 'Tefeci', 'Meyhaneci', 'Dilber'].includes(activeRole);
+  const isEskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(activeRole);
+  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Dedikoducu', 'Falcı', 'Tefeci', 'Consort', 'Eskort'].includes(activeRole);
   
   const isAvci = activeRole === 'Avcı';
   const isKundakci = activeRole === 'Kundakçı';
@@ -170,7 +170,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
   if (isEskiya) {
      nightTargets = nightTargets.map(p => {
-        if (['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(p.role)) {
+        if (['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(p.role)) {
            return { ...p, name: p.name + ' [TAKIM]' };
         }
         return p;
@@ -178,7 +178,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   }
 
   const getTeamColor = (role) => {
-    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
+    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
     const neutrals = ['Köy Delisi', 'Kan Davalı', 'Yanaşma', 'Seri Katil'];
 
     if (evils.includes(role)) return 'text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
@@ -187,7 +187,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   };
 
   const getTeamName = (role) => {
-    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
+    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
     const neutrals = ['Köy Delisi', 'Kan Davalı', 'Yanaşma', 'Seri Katil'];
     if (evils.includes(role)) return 'Kırmızı Takım';
     if (neutrals.includes(role)) return 'Gri Takım';
@@ -202,13 +202,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
     'Dedikoducu': { color: 'text-green-500', desc: "Geceleri uyku tutmaz. Bir kişinin evini gözetler. O gece o eve kimlerin girip çıktığını görür ama içeride ne yaptıklarını bilemez." },
     'Falcı': { color: 'text-green-500', desc: "Kahve telvesinden insanların içini okur. Birini hedefler, sistem ona o kişinin olası üç rolünden oluşan bir kehanet sunar." },
     'Gassal': { color: 'text-green-500', desc: "Ölü yıkayıcısıdır. Geceleri ölülerin kendi aralarında yazıştığı 'Ölüler Boyutu' sohbetini canlı olarak görebilir." },
-    'Dilber': { color: 'text-green-500', desc: "Her gece birini hedefler ve sabaha kadar onu oyalar. Seçilen kişi planladığı yeteneğini o gece kullanamaz. Amacı masum olanları korumaktır." },
+    'Eskort': { color: 'text-green-500', desc: "Her gece birini hedefler ve sabaha kadar onu oyalar. Seçilen kişi planladığı yeteneğini o gece kullanamaz. Amacı masum olanları korumaktır." },
   
     'Eşkıya Başı': { color: 'text-blood-red', desc: "Çetenin acımasız lideridir. Gece saldırılarına bağışıklığı vardır. Bekçi onu kontrol ettiğinde Temiz/Masum görünür. Çetenin kimi öldüreceğine karar verir." },
     'Münafık': { color: 'text-blood-red', desc: "Gece birini hedefler. Eğer Bekçi veya Falcı o gece o kişiyi kontrol ederse, sistem o kişiyi 'Eşkıya' veya 'Münafık' mış gibi gösterir." },
     'Eşkıya': { color: 'text-blood-red', desc: "Eşkıya Başı'nın seçtiği hedefi öldürmeye gider. Eğer o seçmezse inisiyatif alıp kendi seçtiği kişiyi vurur." },
     'Tefeci': { color: 'text-blood-red', desc: "Bir kişiyi hedefler. Ertesi gün o kişi tartısmada hiçbir şey yazamaz (susturulur)." },
-    'Meyhaneci': { color: 'text-blood-red', desc: "Hedeflediği kişinin aklını çeler. Seçtiği kişi o gece yeteneğini kullanamaz." },
+    'Consort': { color: 'text-blood-red', desc: "Hedeflediği kişinin aklını çeler. Seçtiği kişi o gece yeteneğini kullanamaz." },
   
     'Kan Davalı': { color: 'text-gray-400', desc: "Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Tek amacı kendisine oyun başı rastgele atanan Hasmını gündüz oylamayla kuyuya attırmaktır. Hedefi gece tesadüfen ölürse Köy Delisi'ne dönüşür." },
     'Kundakçı': { color: 'text-gray-400', desc: "Herkesi yakıp sona kalan kişi olmak ister. Gece saldırılarına bağışıktır. İstediği gece evlere gazyağı dökebilir, dilediği başka bir gece hepsini ateşe verebilir." },

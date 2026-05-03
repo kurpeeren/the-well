@@ -36,10 +36,10 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Hikayesi:** Ölü yıkayıcısıdır, öte alemle bağı vardır. Kuyuya atılanların veya gece katledilenlerin son fısıltılarını duyar.
 - **Gece Yeteneği:** Hayattakilerin aksine, geceleri ölülerin kendi aralarında yazıştığı "Ölüler Boyutu" sohbetini canlı olarak görebilir. Ölülerden ipucu toplar.
 
-### 💃 Dilber *(Town of Salem: Escort)*
+### 💃 Eskort *(Town of Salem: Escort)*
 - **Hikayesi:** Köyün en göz alıcı, neşeli şahsiyetidir. Sohbeti o kadar hoştur ki, onunla muhabbete dalan kişi asıl işini gücünü yapmayı unutur.
 - **Gece Yeteneği:** Her gece birini hedefler ve sabaha kadar onu oyalar (Roleblock). Seçilen kişi aklı o gece onda kalacağı için planladığı yeteneğini kullanamaz (Şifacı koruyamaz, Seri Katil öldüremez).
-- **Not:** Mekanik olarak Meyhaneci'nin birebir aynısıdır, tek farkı köyün iyiliği (Masumlar) için çalışmasıdır.
+- **Not:** Mekanik olarak Consort'nin birebir aynısıdır, tek farkı köyün iyiliği (Masumlar) için çalışmasıdır.
 
 ---
 
@@ -63,7 +63,7 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Hikayesi:** Köyde herkese borç vermiş, herkesin açığını bilen karanlık bir adamdır. Gözdağı vererek insanları susturur.
 - **Gece Yeteneği:** Bir kişiyi hedefler. Ertesi gün (Gündüz ve Oylama aşamasında) o kişi chat'e hiçbir şey yazamaz. Ekranda "Tefeci seni susturdu" yazar. Hedef sadece kuyuya adam atmak için oy kullanabilir.
 
-### 💃 Meyhaneci / Şarkıcı *(Town of Salem: Consort)*
+### 💃 Consort / Şarkıcı *(Town of Salem: Consort)*
 - **Hikayesi:** Eğlencesiyle, içkisiyle veya cazibesiyle insanların aklını başından alır, görevlerini unutturur.
 - **Gece Yeteneği:** Hedeflediği kişinin aklını çeler (Roleblock). Seçtiği kişi o gece yeteneğini kullanamaz (Örn: Şifacı koruyamaz, Katil vuramaz).
 

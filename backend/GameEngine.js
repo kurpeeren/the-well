@@ -32,9 +32,9 @@ class GameEngine {
     }
   
     const count = room.players.length;
-    const poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
+    const poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Consort', 'Kundakçı'];
     const poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Yanaşma'];
-    const poolTown = ['Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Dilber'];
+    const poolTown = ['Muhtar', 'Dedikoducu', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
   
     let { kirmizi, gri, yesil } = room.settings;
     kirmizi = kirmizi ?? 4;
@@ -157,8 +157,8 @@ class GameEngine {
           }
       });
   
-      // Priority 3: Meyhaneci ve Dilber
-      actions.filter(a => (a.role === 'Meyhaneci' || a.role === 'Dilber') && a.targetId).forEach(a => {
+      // Priority 3: Consort ve Eskort
+      actions.filter(a => (a.role === 'Consort' || a.role === 'Eskort') && a.targetId).forEach(a => {
           if (!alerts[a.targetId]) {
               roleblocked[a.targetId] = true;
               this.sendPrivateNews(roomCode, a.targetId, { text: `${a.role} aklını çeldi! Bu gece görevini yapamadın.`, align: 'Kırmızı' });
@@ -198,7 +198,7 @@ class GameEngine {
       actions.filter(a => a.role === 'Tefeci' && a.targetId).forEach(a => {
           if(!roleblocked[a.actorId] && !alerts[a.targetId]) {
               const targetP = getPlayer(a.targetId);
-              if (targetP && ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(targetP.role)) {
+              if (targetP && ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(targetP.role)) {
                   this.sendPrivateNews(roomCode, a.actorId, { text: "Kendi takımından birini susturamazsın!", align: 'Kırmızı' });
               } else {
                   room.silenced[a.targetId] = true;
@@ -211,7 +211,7 @@ class GameEngine {
       actions.filter(a => a.role === 'Münafık' && a.targetId).forEach(a => {
           if(!roleblocked[a.actorId] && !alerts[a.targetId]) {
               const targetP = getPlayer(a.targetId);
-              if (targetP && ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(targetP.role)) {
+              if (targetP && ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(targetP.role)) {
                   this.sendPrivateNews(roomCode, a.actorId, { text: "Kendi adamına iftira atamazsın!", align: 'Kırmızı' });
               } else {
                   framed[a.targetId] = true;
@@ -279,7 +279,7 @@ class GameEngine {
       if (mKillerId && mTargetId && !roleblocked[mKillerId]) {
           const targetP = getPlayer(mTargetId);
           if(!alerts[mTargetId]) {
-             if (targetP && ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(targetP.role)) {
+             if (targetP && ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Consort'].includes(targetP.role)) {
                  this.sendPrivateNews(roomCode, mKillerId, { text: "Kendi takımından birine saldırmaya çalıştın ve vazgeçtin!", align: 'Kırmızı' });
              } else if(healed[mTargetId]) {
                this.sendPrivateNews(roomCode, mTargetId, { text: "Saldırıya uğradın ama Şifacı seni kurtardı!", align: 'Yeşil' });
