@@ -402,7 +402,7 @@ class GameEngine {
          if (lynched) {
            lynched.isAlive = false;
            if (lynched.isFramed) lynched.displayRole = 'Eşkıya';
-           this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote });
+           this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote, voteTally: max });
   
            if (lynched.role === 'Köy Delisi') {
               const guilty = Object.keys(room.votes).filter(id => room.votes[id].targetId === topTarget);
