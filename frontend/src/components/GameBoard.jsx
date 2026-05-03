@@ -288,7 +288,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2">
 
-      <div className="flex-1 flex flex-col relative h-[60vh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
+      <div className="flex-1 flex flex-col relative h-[75dvh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
 
         <div className="absolute inset-0 z-10 pointer-events-none">
 
@@ -396,7 +396,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                       onClick={() => socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}
                       className="px-4 py-1.5 bg-slate-800/80 text-slate-300 rounded-lg border border-slate-700 hover:bg-slate-700 hover:text-white transition shadow-md text-[10px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap"
                    >
-                      Günü Atla ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive).length})
+                      Günü Atla ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive && p.connected).length})
                    </button>
                 </div>
              )}

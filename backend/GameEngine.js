@@ -101,7 +101,7 @@ class GameEngine {
   
     this.io.to(roomCode).emit('updateLobby', room.players);
     this.io.to(roomCode).emit('phaseChanged', { phase, timeRemaining: timeInSeconds, dayCount: room.dayCount });
-    this.io.to(roomCode).emit('skipDayUpdate', { count: 0, total: room.players.filter(p => p.isAlive).length });
+    this.io.to(roomCode).emit('skipDayUpdate', { count: 0, total: room.players.filter(p => p.isAlive && p.connected).length });
     if (room.timerInterval) clearInterval(room.timerInterval);
   
     room.timerInterval = setInterval(() => {

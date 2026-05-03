@@ -300,7 +300,7 @@ io.on('connection', (socket) => {
        if (!room.skipDayVotes) room.skipDayVotes = [];
        if (player && player.isAlive && !room.skipDayVotes.includes(actorId)) {
           room.skipDayVotes.push(actorId);
-          const alivePlayersCount = room.players.filter(p => p.isAlive).length;
+          const alivePlayersCount = room.players.filter(p => p.isAlive && p.connected).length;
           io.to(roomCode).emit('skipDayUpdate', { count: room.skipDayVotes.length, total: alivePlayersCount });
           
           if (room.skipDayVotes.length >= alivePlayersCount) {
