@@ -53,6 +53,24 @@ app.get('/api/admin/stats', (req, res) => {
     });
 });
 
+const supabase = require('./db');
+
+app.get('/api/admin/history', async (req, res) => {
+    if (req.headers.authorization !== ADMIN_PASSWORD) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const { data, error } = await supabase
+        .from('game_history')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+    
+    if (error) {
+        return res.status(500).json({ error: error.message });
+    }
+    res.json(data);
+});
+
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 

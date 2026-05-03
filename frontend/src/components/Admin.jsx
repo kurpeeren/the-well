@@ -6,8 +6,10 @@ export default function Admin({ onExit }) {
     const [token, setToken] = useState(localStorage.getItem('kuyu_admin_token') || '');
     const [password, setPassword] = useState('');
     const [stats, setStats] = useState(null);
+    const [history, setHistory] = useState([]);
     const [error, setError] = useState('');
     const [expandedRoom, setExpandedRoom] = useState(null);
+    const [expandedHistoryId, setExpandedHistoryId] = useState(null);
 
     useEffect(() => {
         if (token) {
@@ -22,9 +24,15 @@ export default function Admin({ onExit }) {
             const res = await fetch(`${BACKEND_URL}/api/admin/stats`, {
                 headers: { 'Authorization': authToken }
             });
-            if (res.ok) {
+            const histRes = await fetch(`${BACKEND_URL}/api/admin/history`, {
+                headers: { 'Authorization': authToken }
+            });
+
+            if (res.ok && histRes.ok) {
                 const data = await res.json();
+                const histData = await histRes.json();
                 setStats(data);
+                setHistory(histData);
                 setError('');
                 if (authToken !== token) {
                     setToken(authToken);
@@ -167,6 +175,73 @@ export default function Admin({ onExit }) {
                                             )}
                                         </React.Fragment>
                                     ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <h2 className="text-xl font-bold mt-12 mb-4 text-slate-300">Oynanmış Oyun Geçmişi <span className="text-sm font-normal text-slate-500 ml-2">(Supabase Veritabanı Kayıtları)</span></h2>
+                <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden mb-12">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-900 border-b border-slate-700">
+                                <tr>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Tarih</th>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oda Kodu</th>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Mod</th>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Kazanan</th>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oyuncu Sayısı</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-700/50">
+                                {history.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="p-6 text-center text-slate-500 italic">Henüz hiç oyun oynanmamış.</td>
+                                    </tr>
+                                ) : (
+                                    history.map(h => {
+                                        const realPlayersCount = h.players ? h.players.filter(p => !p.isBot).length : 0;
+                                        return (
+                                            <React.Fragment key={h.id}>
+                                                <tr 
+                                                    onClick={() => setExpandedHistoryId(expandedHistoryId === h.id ? null : h.id)}
+                                                    className="hover:bg-slate-700/50 transition-colors cursor-pointer"
+                                                >
+                                                    <td className="p-4 text-slate-300">
+                                                        {expandedHistoryId === h.id ? '▼ ' : '▶ '}
+                                                        {new Date(h.created_at).toLocaleString('tr-TR')}
+                                                    </td>
+                                                    <td className="p-4 font-mono font-bold tracking-widest text-white">{h.room_code}</td>
+                                                    <td className="p-4 text-slate-400">{h.game_mode}</td>
+                                                    <td className="p-4 font-bold text-yellow-500">{h.winner || 'Belirtilmedi'}</td>
+                                                    <td className="p-4 text-slate-300">{realPlayersCount} Gerçek / {h.players ? h.players.length - realPlayersCount : 0} Bot</td>
+                                                </tr>
+                                                {expandedHistoryId === h.id && (
+                                                    <tr className="bg-slate-900/50">
+                                                        <td colSpan="5" className="p-6 border-l-2 border-yellow-500">
+                                                            <h4 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-widest">Maç Sonucu Oyuncu Durumları</h4>
+                                                            {(!h.players || h.players.length === 0) ? (
+                                                                <span className="italic text-slate-500">Oyuncu verisi yok.</span>
+                                                            ) : (
+                                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                                    {h.players.filter(p => !p.isBot).map((p, i) => (
+                                                                        <div key={i} className={`p-3 rounded-lg border ${p.won ? 'bg-green-900/20 border-green-700' : 'bg-red-900/20 border-red-900/30 opacity-70 line-through'}`}>
+                                                                            <div className="font-bold text-white flex justify-between">
+                                                                                {p.name}
+                                                                                {p.won && <span className="text-green-500 text-xs uppercase tracking-wider">Kazandı</span>}
+                                                                            </div>
+                                                                            <div className="text-xs text-slate-400 mt-1">{p.role ? p.role : 'Bilinmiyor'}</div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
