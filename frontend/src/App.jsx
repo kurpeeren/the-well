@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
+import Admin from './components/Admin';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
@@ -14,7 +15,10 @@ const ROLES_LIST = [
 
 function App() {
   const videoRef = useRef(null);
-  const [gameState, setGameState] = useState('INTRO'); // INTRO, JOIN, LOBBY, GAME
+  const [gameState, setGameState] = useState(() => {
+     if (window.location.search.includes('admin=true')) return 'ADMIN';
+     return 'INTRO';
+  }); // INTRO, JOIN, LOBBY, GAME, ADMIN
   const [introPhase, setIntroPhase] = useState('WAITING'); // WAITING, PLAYING, ENDED
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState('');
@@ -193,6 +197,15 @@ function App() {
     localStorage.removeItem('kuyu_room');
     window.location.reload();
   };
+
+  if (gameState === 'ADMIN') {
+      return <Admin onExit={() => {
+          const url = new URL(window.location);
+          url.searchParams.delete('admin');
+          window.history.pushState({}, '', url);
+          setGameState('INTRO');
+      }} />;
+  }
 
   return (
     <div className="min-h-[100dvh] text-slate-100 font-sans flex flex-col items-center p-4">
