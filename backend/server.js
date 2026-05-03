@@ -35,7 +35,13 @@ app.get('/api/admin/stats', (req, res) => {
             dayCount: r.dayCount,
             realPlayers: realPlayersCount,
             botPlayers: botPlayersCount,
-            spectators: r.spectators.length
+            spectators: r.spectators.length,
+            createdAt: r.createdAt,
+            playersList: r.players.filter(p => !p.socketId.startsWith('dev_')).map(p => ({
+                name: p.name,
+                role: p.role,
+                isAlive: p.isAlive
+            }))
         };
     });
 
@@ -83,6 +89,8 @@ io.on('connection', (socket) => {
       silenced: {},  
       isDevMode: false,
       dayCount: 1,
+      peacefulDays: 0,
+      createdAt: Date.now(),
       spectators: [],
       settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30 }
     };
@@ -132,10 +140,22 @@ io.on('connection', (socket) => {
     }
 
     rooms[roomCode] = {
-      id: roomCode, players: fakePlayers, host: socket.id, status: 'LOBBY', 
-      timeRemaining: 0, nightActions: {}, votes: {}, deadJesterVotes: [],
-      doused: {}, silenced: {}, isDevMode: true, dayCount: 1, spectators: [],
-      settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30 }
+      id: roomCode,
+      players: fakePlayers,
+      host: socket.id,
+      status: 'LOBBY',
+      timeRemaining: 0,
+      nightActions: {},
+      votes: {},
+      deadJesterVotes: [],
+      doused: {},
+      silenced: {},
+      isDevMode: true,
+      dayCount: 1,
+      peacefulDays: 0,
+      createdAt: Date.now(),
+      spectators: [],
+      settings: { nightTimer: 3, morningTimer: 3, dayTimer: 5, votingTimer: 3 }
     };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: true, token: hostToken, isDevMode: true, settings: rooms[roomCode].settings });

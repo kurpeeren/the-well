@@ -422,6 +422,13 @@ class GameEngine {
       });
   
       room.nightActions = {}; 
+      
+      if (killedInfos.length === 0) {
+          room.peacefulDays = (room.peacefulDays || 0) + 1;
+      } else {
+          room.peacefulDays = 0;
+      }
+
       if (this.checkWinCondition(roomCode)) return;
   
       if (killedInfos.length > 0) {
@@ -472,6 +479,7 @@ class GameEngine {
          const lynched = room.players.find(p => p.socketId === topTarget);
          if (lynched) {
            lynched.isAlive = false;
+           room.peacefulDays = 0; // Birisi linç edilerek öldü
            if (lynched.isFramed) lynched.displayRole = 'Eşkıya';
            this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote, voteTally: max });
   
@@ -509,11 +517,13 @@ class GameEngine {
     const aruCount = alivePlayers.filter(p => p.role === 'Kundakçı').length;
  
     const others = alivePlayers.length - esiCount - cCount - aruCount;
- 
     let winningTeam = null;
- 
+
+    if (room.peacefulDays >= 15) {
+       winningTeam = 'Beraberlik';
+    }
     // Arsonist wins if only arsonist is alive
-    if (aruCount > 0 && alivePlayers.length === aruCount) {
+    else if (aruCount > 0 && alivePlayers.length === aruCount) {
        winningTeam = 'Kundakçı';
     }
     // Eşkıyalar kazanır

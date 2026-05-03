@@ -112,14 +112,15 @@ export default function Admin({ onExit }) {
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oda Kodu</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Durum</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oyuncu (Aktif/Bot)</th>
-                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">İzleyici</th>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oyuncular</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Gün</th>
+                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Açılış</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-700/50">
                                 {stats.rooms.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="p-6 text-center text-slate-500 italic">Şu an aktif bir oda bulunmuyor.</td>
+                                        <td colSpan="6" className="p-6 text-center text-slate-500 italic">Şu an aktif bir oda bulunmuyor.</td>
                                     </tr>
                                 ) : (
                                     stats.rooms.map(r => (
@@ -133,9 +134,20 @@ export default function Admin({ onExit }) {
                                             </td>
                                             <td className="p-4">
                                                 <span className="text-white font-bold">{r.realPlayers}</span> / <span className="text-slate-500">{r.botPlayers} bot</span>
+                                                {r.spectators > 0 && <span className="block text-xs text-slate-500">{r.spectators} İzleyici</span>}
                                             </td>
-                                            <td className="p-4 text-slate-400">{r.spectators}</td>
+                                            <td className="p-4 text-xs text-slate-400 max-w-xs">
+                                                {r.playersList && r.playersList.map((p, i) => (
+                                                    <span key={i} className={`inline-block mr-1 mb-1 px-1 rounded ${p.isAlive ? 'bg-slate-800' : 'bg-red-900/30 line-through'}`}>
+                                                        {p.name} {p.role ? `(${p.role})` : ''}
+                                                    </span>
+                                                ))}
+                                                {(!r.playersList || r.playersList.length === 0) && <span className="italic">Sadece Botlar</span>}
+                                            </td>
                                             <td className="p-4 font-bold text-yellow-500">{r.dayCount}</td>
+                                            <td className="p-4 text-xs text-slate-400">
+                                                {r.createdAt ? new Date(r.createdAt).toLocaleTimeString('tr-TR') : '-'}
+                                            </td>
                                         </tr>
                                     ))
                                 )}
