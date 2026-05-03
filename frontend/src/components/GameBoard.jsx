@@ -184,8 +184,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   }
 
   const getTeamColor = (role) => {
-    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
-    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil'];
+    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
+    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
 
     if (evils.includes(role)) return 'text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
     if (neutrals.includes(role)) return 'text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)]'; // Gri
@@ -193,8 +193,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   };
 
   const getTeamName = (role) => {
-    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
-    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil'];
+    const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
+    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
     if (evils.includes(role)) return 'Kırmızı Takım';
     if (neutrals.includes(role)) return 'Gri Takım';
     return 'Yeşil Takım';
