@@ -189,7 +189,8 @@ function App() {
                         className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${introPhase === 'ENDED' ? 'opacity-20 blur-sm' : 'opacity-100'}`}
                      />
                      <div className="absolute inset-0 z-10 pointer-events-none" style={{ 
-                        background: 'radial-gradient(ellipse at center, transparent 25%, black 70%)' 
+                        background: 'radial-gradient(ellipse at center, transparent 50%, black 100%)',
+                        boxShadow: 'inset 0 0 60px 30px #000'
                      }}></div>
                   </div>
                </div>
