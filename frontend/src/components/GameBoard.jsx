@@ -655,7 +655,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* SİLENCED MODAL */}
       {showSilencedModal && (
-        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
           <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center p-8 text-center">
              <VolumeX size={64} className="text-red-500 mb-4 animate-pulse" />
              <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-2">ŞŞŞT!</h3>
