@@ -7,6 +7,7 @@ export default function Admin({ onExit }) {
     const [password, setPassword] = useState('');
     const [stats, setStats] = useState(null);
     const [error, setError] = useState('');
+    const [expandedRoom, setExpandedRoom] = useState(null);
 
     useEffect(() => {
         if (token) {
@@ -103,7 +104,7 @@ export default function Admin({ onExit }) {
                     </div>
                 </div>
 
-                <h2 className="text-xl font-bold mb-4 text-slate-300">Aktif Oyun Odaları</h2>
+                <h2 className="text-xl font-bold mb-4 text-slate-300">Aktif Oyun Odaları <span className="text-sm font-normal text-slate-500 ml-2">(Detaylar için tıklayın)</span></h2>
                 <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
@@ -112,7 +113,6 @@ export default function Admin({ onExit }) {
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oda Kodu</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Durum</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oyuncu (Aktif/Bot)</th>
-                                    <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oyuncular</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Gün</th>
                                     <th className="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Açılış</th>
                                 </tr>
@@ -120,35 +120,52 @@ export default function Admin({ onExit }) {
                             <tbody className="divide-y divide-slate-700/50">
                                 {stats.rooms.length === 0 ? (
                                     <tr>
-                                        <td colSpan="6" className="p-6 text-center text-slate-500 italic">Şu an aktif bir oda bulunmuyor.</td>
+                                        <td colSpan="5" className="p-6 text-center text-slate-500 italic">Şu an aktif bir oda bulunmuyor.</td>
                                     </tr>
                                 ) : (
                                     stats.rooms.map(r => (
-                                        <tr key={r.id} className="hover:bg-slate-700/30 transition-colors">
-                                            <td className="p-4 font-mono font-bold tracking-widest flex items-center">
-                                                {r.id} 
-                                                {r.isDevMode && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-1 rounded ml-2">DEV</span>}
-                                            </td>
-                                            <td className={`p-4 font-bold ${r.status === 'LOBBY' ? 'text-blue-400' : 'text-red-400'}`}>
-                                                {r.status}
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="text-white font-bold">{r.realPlayers}</span> / <span className="text-slate-500">{r.botPlayers} bot</span>
-                                                {r.spectators > 0 && <span className="block text-xs text-slate-500">{r.spectators} İzleyici</span>}
-                                            </td>
-                                            <td className="p-4 text-xs text-slate-400 max-w-xs">
-                                                {r.playersList && r.playersList.map((p, i) => (
-                                                    <span key={i} className={`inline-block mr-1 mb-1 px-1 rounded ${p.isAlive ? 'bg-slate-800' : 'bg-red-900/30 line-through'}`}>
-                                                        {p.name} {p.role ? `(${p.role})` : ''}
-                                                    </span>
-                                                ))}
-                                                {(!r.playersList || r.playersList.length === 0) && <span className="italic">Sadece Botlar</span>}
-                                            </td>
-                                            <td className="p-4 font-bold text-yellow-500">{r.dayCount}</td>
-                                            <td className="p-4 text-xs text-slate-400">
-                                                {r.createdAt ? new Date(r.createdAt).toLocaleTimeString('tr-TR') : '-'}
-                                            </td>
-                                        </tr>
+                                        <React.Fragment key={r.id}>
+                                            <tr 
+                                                onClick={() => setExpandedRoom(expandedRoom === r.id ? null : r.id)}
+                                                className="hover:bg-slate-700/50 transition-colors cursor-pointer"
+                                            >
+                                                <td className="p-4 font-mono font-bold tracking-widest flex items-center">
+                                                    {expandedRoom === r.id ? '▼ ' : '▶ '}
+                                                    {r.id} 
+                                                    {r.isDevMode && <span className="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-1 rounded ml-2">DEV</span>}
+                                                </td>
+                                                <td className={`p-4 font-bold ${r.status === 'LOBBY' ? 'text-blue-400' : 'text-red-400'}`}>
+                                                    {r.status}
+                                                </td>
+                                                <td className="p-4">
+                                                    <span className="text-white font-bold">{r.realPlayers}</span> / <span className="text-slate-500">{r.botPlayers} bot</span>
+                                                    {r.spectators > 0 && <span className="block text-xs text-slate-500">{r.spectators} İzleyici</span>}
+                                                </td>
+                                                <td className="p-4 font-bold text-yellow-500">{r.dayCount}</td>
+                                                <td className="p-4 text-xs text-slate-400">
+                                                    {r.createdAt ? new Date(r.createdAt).toLocaleTimeString('tr-TR') : '-'}
+                                                </td>
+                                            </tr>
+                                            {expandedRoom === r.id && (
+                                                <tr className="bg-slate-900/50">
+                                                    <td colSpan="5" className="p-6 border-l-2 border-red-500">
+                                                        <h4 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-widest">Odadaki Gerçek Oyuncular</h4>
+                                                        {(!r.playersList || r.playersList.length === 0) ? (
+                                                            <span className="italic text-slate-500">Bu odada şu an hiç gerçek oyuncu yok, sadece botlar var.</span>
+                                                        ) : (
+                                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                                {r.playersList.map((p, i) => (
+                                                                    <div key={i} className={`p-3 rounded-lg border ${p.isAlive ? 'bg-slate-800 border-slate-700' : 'bg-red-900/20 border-red-900/30 opacity-60 line-through'}`}>
+                                                                        <div className="font-bold text-white">{p.name}</div>
+                                                                        <div className="text-xs text-slate-400 mt-1">{p.role ? p.role : 'Rol atanmadı'}</div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
                                     ))
                                 )}
                             </tbody>
