@@ -201,26 +201,114 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   };
 
   const ROLE_INFO = {
-    'Şifacı': { color: 'text-green-500', desc: "Köyün otacısıdır, kimin kapısına dert gelse devasını bulur. Her gece bir oyuncuyu seçer. Eğer düşmanlar o oyuncuya saldırırsa, onu hayatta tutar. Kendini oyun boyunca sadece 2 kez iyileştirebilir." },
-    'Bekçi': { color: 'text-green-500', desc: "Geceleri elinde feneriyle sokakları arşınlar. Her gece bir oyuncuyu kontrol eder. Sistem ona o kişinin Eşkıya veya Masum olup olmadığını söyler. (Eşkıya Başı hariç)." },
-    'Avcı': { color: 'text-green-500', desc: "Eski bir dağ adamıdır, tetikte uyur. Geceleri 'Pusuya Yatma' kararı alabilir. Eğer pusuya yatarsa, o gece ölmez ve onu ziyarete gelen herkesi vurur. Kısıtlama: Sınırlı sayıda pusu kurabilir." },
-    'Muhtar': { color: 'text-green-500', desc: "Köyün mühürdarı. Gece hiçbir şey yapmaz. Gündüz 'Mührü Vur' butonuna basarak Muhtar olduğunu köye ilan edebilir. O andan itibaren oyu 3 sayılır ancak Şifacı onu gece koruyamaz." },
-    'Dedikoducu': { color: 'text-green-500', desc: "Geceleri uyku tutmaz. Bir kişinin evini gözetler. O gece o eve kimlerin girip çıktığını görür ama içeride ne yaptıklarını bilemez." },
-    'Falcı': { color: 'text-green-500', desc: "Kahve telvesinden insanların içini okur. Birini hedefler, sistem ona o kişinin olası üç rolünden oluşan bir kehanet sunar." },
-    'Gassal': { color: 'text-green-500', desc: "Ölü yıkayıcısıdır. Geceleri ölülerin kendi aralarında yazıştığı 'Ölüler Boyutu' sohbetini canlı olarak görebilir." },
-    'Eskort': { color: 'text-green-500', desc: "Her gece birini hedefler ve sabaha kadar onu oyalar. Seçilen kişi planladığı yeteneğini o gece kullanamaz. Amacı masum olanları korumaktır." },
-  
-    'Eşkıya Başı': { color: 'text-blood-red', desc: "Çetenin acımasız lideridir. Gece saldırılarına bağışıklığı vardır. Bekçi onu kontrol ettiğinde Temiz/Masum görünür. Çetenin kimi öldüreceğine karar verir." },
-    'Münafık': { color: 'text-blood-red', desc: "Gece birini hedefler. Eğer Bekçi veya Falcı o gece o kişiyi kontrol ederse, sistem o kişiyi 'Eşkıya' veya 'Münafık' mış gibi gösterir." },
-    'Eşkıya': { color: 'text-blood-red', desc: "Eşkıya Başı'nın seçtiği hedefi öldürmeye gider. Eğer o seçmezse inisiyatif alıp kendi seçtiği kişiyi vurur." },
-    'Tefeci': { color: 'text-blood-red', desc: "Bir kişiyi hedefler. Ertesi gün o kişi tartısmada hiçbir şey yazamaz (susturulur)." },
-    'Consort': { color: 'text-blood-red', desc: "Hedeflediği kişinin aklını çeler. Seçtiği kişi o gece yeteneğini kullanamaz." },
-  
-    'Kan Davalı': { color: 'text-gray-400', desc: "Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Tek amacı kendisine oyun başı rastgele atanan Hasmını gündüz oylamayla kuyuya attırmaktır. Hedefi gece tesadüfen ölürse Köy Delisi'ne dönüşür." },
-    'Kundakçı': { color: 'text-gray-400', desc: "Herkesi yakıp sona kalan kişi olmak ister. Gece saldırılarına bağışıktır. İstediği gece evlere gazyağı dökebilir, dilediği başka bir gece hepsini ateşe verebilir." },
-    'Yanaşma': { color: 'text-gray-400', desc: "Sadece günü kurtarmaya çalışır. Kazanmak için kuyuya atılmayıp sonuna kadar (kim kazanırsa kazansın) yaşamak zorundadır. Sadece sınırlı sayıda kapısını kilitleyip saldırılardan saklanabilir." },
-    'Köy Delisi': { color: 'text-gray-400', desc: "Aklını yitirmiş ve kuyunun dibindeki karanlığa takıntılı hale gelmiştir. Tek isteği gündüz kendini bilerek kuyuya attırmaktır. Atılırsa kazanan o olur ve ona oy veren birini kuyuya yanına çeker." },
-    'Seri Katil': { color: 'text-gray-400', desc: "Gözünü kan bürümüş, yalnız hareket eden bir canidir. Gece bağışıklığı vardır. Her gece seçtiği birini öldürerek köyde tek başına hayatta kalmayı amaçlar." }
+    'Şifacı': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/sifaci.png',
+      ability: '🌿 Her gece bir kişiyi iyileştirir',
+      desc: 'Köyün bilge otacısı. Her gece bir oyuncunun kapısına giderek onu gece saldırılarından korur. Eğer o gece hedefi saldırıya uğrarsa, hayatta kalır. Kendini oyun boyunca yalnızca 2 kez iyileştirebilir.',
+    },
+    'Bekçi': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/bekci.png',
+      ability: '🔦 Her gece bir kişiyi kontrol eder',
+      desc: 'Geceleri elinde fenerle sokakları arşınlar. Seçtiği kişinin eşkıya olup olmadığını araştırır. Eşkıya Başı kontrol edildiğinde masum görünür; Münafık tarafından çerçevelenmiş biri ise eşkıya gibi görünür.',
+    },
+    'Avcı': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/avci.png',
+      ability: '🪤 Sınırlı sayıda pusu kurabilir (3 hak)',
+      desc: 'Eski bir dağ adamı, tetikte uyur. "Pusuya Yat" seçeneğiyle o gece evine gelen herkesi, masum ya da değil, vurur. Gece koruması yoktur. Sınırlı sayıda kullanım hakkı vardır.',
+    },
+    'Muhtar': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/muhtar.png',
+      ability: '🔏 Mühür vurarak oyunu ağırlığını ortaya koyar',
+      desc: 'Köyün mühürdarı. Gece hareketsizdir. Gündüz "Mührü Vur" diyerek kimliğini ilan edebilir. Bu andan itibaren oylamalarda oyu 3 sayılır; ancak Şifacı kendisini bir daha koruyamaz. Susturulmuşsa mührü vuramaz.',
+    },
+    'Dedikoducu': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/dedikoducu.png',
+      ability: '🕵️ Bir kişinin evini gözetler',
+      desc: 'Gece uyku tutmaz, başkalarının işine burnunu sokar. Bir kişinin kapısını gözlemler: o gece o kişiyi kim ziyaret etmiş görür. Ama içeride ne yaptıklarını bilemez.',
+    },
+    'Falcı': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/falci.png',
+      ability: '🔮 Olası 3 rolden oluşan kehanet alır',
+      desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona o kişinin olası 3 rolünden oluşan bir kehanet sunar. Münafık tarafından çerçevelenmiş biri farklı bir kehanet üretir.',
+    },
+    'Gassal': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/gassal.png',
+      ability: '💀 Ölü konuşmalarını dinleyebilir',
+      desc: 'Ölü yıkayıcısıdır. Gece yetenekli değildir ama öte dünyaya kapısı açıktır: ölmüş oyuncuların kendi aralarında yaptığı "Ölüler Boyutu" sohbetini canlı olarak görebilir.',
+    },
+    'Eskort': {
+      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      image: '/roles/eskort.png',
+      ability: '💃 Hedefini oyalar, yeteneğini engeller',
+      desc: 'Her gece bir kişiyi ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz. Eşkıyaları bile etkisiz kılabilir; eşkıyalar da onu ziyaret ederse ölebilir.',
+    },
+    'Eşkıya Başı': {
+      color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
+      image: '/roles/eskiya_basi.png',
+      ability: '🗡️ Her gece öldürme emri verir',
+      desc: 'Çetenin acımasız lideri. Gece saldırılarına bağışıktır. Bekçi onu kontrol etse masum görünür (kan bulaşmamışsa). Kimin öldürüleceğini o belirler. Eşkıyalar ona karşı çıkamaz.',
+    },
+    'Münafık': {
+      color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
+      image: '/roles/munafik.png',
+      ability: '🎭 Bir kişiyi yanlış gösterir',
+      desc: 'Gece bir kişiyi hedefler. O gece Bekçi veya Falcı o kişiyi araştırırsa, sistem o kişiyi sanki eşkıyaymış gibi gösterir. Masum biri haksız yere şüphe altına girebilir.',
+    },
+    'Eşkıya': {
+      color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
+      image: '/roles/eskiya.png',
+      ability: '🔪 Eşkıya Başı ile koordineli saldırır',
+      desc: 'Çetenin yardımcısı. Eşkıya Başı seçmezse inisiyatif alıp kendi hedefini vurabilir. Takım olarak hareket eder; gece kimin öldürüleceğini birlikte planlarlar.',
+    },
+    'Tefeci': {
+      color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
+      image: '/roles/tefeci.png',
+      ability: '🤐 Birini bir gün susturur',
+      desc: 'Faiz ve tehditle geçimini sağlar. Her gece bir kişiyi hedefler; ertesi gün o kişi tartışmada hiçbir şey yazamaz (susturulur). Susturulan Muhtar mührünü de vuramaz.',
+    },
+    'Consort': {
+      color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
+      image: '/roles/consort.png',
+      ability: '💋 Hedefini bir gece işe yaramaz hale getirir',
+      desc: 'Eşkıyaların kiralık engelleyicisi. Gece bir kişiyi ziyaret eder; o kişi o gece yeteneğini kullanamaz. Masum roller bile devre dışı kalabilir. Eskort gibi çalışır ama kötü amaçlıdır.',
+    },
+    'Kan Davalı': {
+      color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
+      image: '/roles/kan_davali.png',
+      ability: '⚔️ Tek bir kişiyi kuyuya attırmak zorundadır',
+      desc: 'Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Oyun başı rastgele bir "kan hasımı" atanır; bu kişiyi gündüz oylamayla kuyuya attırmak zorundadır. Hasım başka bir şekilde ölürse Köy Delisi\'ne dönüşür.',
+    },
+    'Kundakçı': {
+      color: 'text-orange-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
+      image: '/roles/kundakci.png',
+      ability: '🔥 Evleri yakabilir, son kişi olmak ister',
+      desc: 'Herkesi yakıp en son kalan olmayı hedefler. Gece saldırılarına bağışıktır. Bir gece evlere gazyağı dökebilir, başka bir gece hepsini ateşe verebilir. Kendi kendine bir kaos yaratır.',
+    },
+    'Yanaşma': {
+      color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
+      image: '/roles/yanasma.png',
+      ability: '🛡️ Sınırlı sayıda kapısını kilitler (4 hak)',
+      desc: 'Sadece hayatta kalmayı hedefler. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır. Saldırılardan korunmak için kapısını kilitleyebilir ama bu hak sınırlıdır.',
+    },
+    'Köy Delisi': {
+      color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
+      image: '/roles/koy_delisi.png',
+      ability: '🪦 Kendisini kuyuya attırmak ister',
+      desc: 'Aklını yitirmiş, kuyunun karanlığına çekilmiş biri. Tek amacı gündüz kendini oylamayla kuyuya attırmaktır. Başarılırsa kazanır ve oy verenlerden birini kuyuya çeker. Gece eylemsizdir.',
+    },
+    'Seri Katil': {
+      color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
+      image: '/roles/seri_katil.png',
+      ability: '🩸 Her gece bir kişiyi öldürür',
+      desc: 'Yalnız hareket eden, gözü dönmüş bir cani. Gece bağışıklığı vardır. Hiçbir takıma bağlı olmaksızın her gece bir kişiyi öldürür. Köyde tek başına hayatta kalan kişi olursa kazanır.',
+    },
   };
 
   return (
@@ -625,30 +713,64 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* ROL BİLGİSİ MODAL */}
       {showRoleModal && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
-          <div className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
-             <div className="bg-slate-800/80 p-4 border-b border-slate-700 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                   <Info size={20} className="text-accent" />
-                   <h3 className="font-serif tracking-widest uppercase text-lg text-slate-200">Rol Detayı</h3>
-                </div>
-                <button onClick={() => setShowRoleModal(false)} className="text-slate-400 hover:text-white transition-colors">
-                   <X size={24} />
-                </button>
-             </div>
-             <div className="p-6">
-                <h4 className={`text-2xl font-bold font-serif mb-4 text-center ${ROLE_INFO[activeRole]?.color || 'text-slate-200'}`}>
-                   {activeRole || 'Bilinmiyor'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in zoom-in duration-200 pointer-events-auto">
+          <div className="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[90vh]">
+            
+            {/* Kapak: Resim Alanı */}
+            <div className="relative w-full h-40 bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+              {ROLE_INFO[activeRole]?.image ? (
+                <img 
+                  src={ROLE_INFO[activeRole].image} 
+                  alt={activeRole}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.target.style.display='none'; }}
+                />
+              ) : null}
+              {/* Placeholder overlay her zaman var, resim yoksa tam görünür */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+              <div className="absolute bottom-3 left-0 right-0 flex flex-col items-center">
+                <h4 className={`text-2xl font-bold font-serif tracking-widest ${ROLE_INFO[activeRole]?.color || 'text-slate-200'}`}>
+                  {activeRole || 'Bilinmiyor'}
                 </h4>
-                <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                   {ROLE_INFO[activeRole]?.desc || 'Bu rol hakkında henüz gizemli parşömenlerde detay bulunmuyor...'}
-                </p>
-                <div className="text-center">
-                   <button onClick={() => setShowRoleModal(false)} className="px-6 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-lg border border-slate-700 font-medium tracking-wide">
-                     Anladım
-                   </button>
+                {ROLE_INFO[activeRole]?.team && (
+                  <span className={`mt-1 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${ROLE_INFO[activeRole].teamColor}`}>
+                    {ROLE_INFO[activeRole].team}
+                  </span>
+                )}
+              </div>
+              <button onClick={() => setShowRoleModal(false)} className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors bg-black/50 rounded-full p-1">
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* İçerik */}
+            <div className="p-5 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+
+              {/* Yetenek Özeti */}
+              {ROLE_INFO[activeRole]?.ability && (
+                <div className="bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-3">
+                  <p className="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-1">Yetenek</p>
+                  <p className={`text-sm font-semibold ${ROLE_INFO[activeRole]?.color || 'text-slate-200'}`}>
+                    {ROLE_INFO[activeRole].ability}
+                  </p>
                 </div>
-             </div>
+              )}
+
+              {/* Açıklama */}
+              <div>
+                <p className="text-[11px] text-slate-500 uppercase tracking-widest font-bold mb-2">Hikaye & Kurallar</p>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  {ROLE_INFO[activeRole]?.desc || 'Bu rol hakkında henüz gizemli parşömenlerde detay bulunmuyor...'}
+                </p>
+              </div>
+
+              <button 
+                onClick={() => setShowRoleModal(false)} 
+                className="w-full py-3 bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700 font-bold tracking-widest uppercase text-sm transition-colors mt-1"
+              >
+                Anladım
+              </button>
+            </div>
           </div>
         </div>
       )}
