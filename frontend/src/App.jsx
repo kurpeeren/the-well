@@ -25,6 +25,7 @@ function App() {
   const [dayCount, setDayCount] = useState(1);
   const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, kirmizi: 4, gri: 2, yesil: 9 });
   const [gameResults, setGameResults] = useState(null);
+  const [revealedNotes, setRevealedNotes] = useState([]);
   const [toast, setToast] = useState(null);
 
   const showToast = (msg) => {
@@ -89,10 +90,13 @@ function App() {
 
     socket.on('timerUpdate', (t) => setTimeRemaining(t));
 
-    socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment }) => {
+    socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment, personalNote }) => {
       if(killedPlayerName) {
         setEventNews(`${killedPlayerName} gece karanlığında kurban gitti.`);
         setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü. Takımı: `, align: killedPlayerAlignment }]);
+        if (personalNote) {
+           setRevealedNotes(prev => [...prev, { playerName: killedPlayerName, note: personalNote }]);
+        }
       } else {
         setEventNews('Dün gece köye huzur hakimdi, kimse ölmedi.');
       }
@@ -102,10 +106,13 @@ function App() {
       setSystemNotes(prev => [...prev, newsObj]);
     });
 
-    socket.on('voteResult', ({ lynchedPlayerName, lynchedPlayerAlignment, voteTally }) => {
+    socket.on('voteResult', ({ lynchedPlayerName, lynchedPlayerAlignment, voteTally, personalNote }) => {
        if(lynchedPlayerName) {
          setEventNews(`${lynchedPlayerName} köylüler tarafından ${voteTally} oyla kuyuya fırlatıldı!`);
          setSystemNotes(prev => [...prev, { text: `${lynchedPlayerName} kuyuya atıldı. (Toplam Oy: ${voteTally})`, align: lynchedPlayerAlignment }]);
+         if (personalNote) {
+            setRevealedNotes(prev => [...prev, { playerName: lynchedPlayerName, note: personalNote }]);
+         }
        } else {
          setEventNews('Oylar eşit, kimse kuyuya atılmadı.');
        }
@@ -128,6 +135,7 @@ function App() {
       setGameResults(null);
       setEventNews(null);
       setSystemNotes([]);
+      setRevealedNotes([]);
       setMyRole(null);
     });
 
@@ -315,6 +323,8 @@ function App() {
            isDevMode={isDevMode}
            dayCount={dayCount}
            gameResults={gameResults}
+           revealedNotes={revealedNotes}
+           setRevealedNotes={setRevealedNotes}
            isSpectator={isSpectator}
            isHost={isHost}
            onLeave={handleLeave}

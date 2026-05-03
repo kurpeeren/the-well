@@ -372,7 +372,19 @@ io.on('connection', (socket) => {
        }
      }
   });
+
+  socket.on('savePersonalNote', ({ roomCode, note, impersonateId }) => {
+     const room = rooms[roomCode];
+     if (room) {
+        const actorId = getActorId(room, socket.id, impersonateId);
+        const player = room.players.find(p => p.socketId === actorId);
+        if (player) {
+           player.personalNote = note;
+        }
+     }
+  });
+
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = 3000;
 server.listen(PORT, () => { console.log(`[*] Backend dev port ${PORT}`); });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX } from 'lucide-react';
 
-function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, isSpectator, onLeave, isHost }) {
+function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost }) {
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
@@ -704,7 +704,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
                <div className="flex-1 flex flex-col">
                   <h4 className="text-sm font-bold text-yellow-500 tracking-wider uppercase mb-3 border-b border-slate-800 pb-2">Kişisel Gizli Notların</h4>
-                  <textarea value={personalNotesMap[activeSocketId] || ''} onChange={e => setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: e.target.value }))} placeholder="Şüphelendiğin durumları veya emin olduklarını buraya karala..." className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed" />
+                  <textarea 
+                     value={personalNotesMap[activeSocketId] || ''} 
+                     onChange={e => {
+                        const val = e.target.value;
+                        setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: val }));
+                        socket.emit('savePersonalNote', { roomCode, note: val, impersonateId: isDevMode ? impersonateId : null });
+                     }} 
+                     placeholder="Şüphelendiğin durumları veya emin olduklarını buraya karala..." 
+                     className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed" 
+                  />
                </div>
             </div>
           </div>
@@ -821,12 +830,42 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                 @keyframes slideDown {
                    0% { transform: translateY(-100%); opacity: 0; }
                    30% { transform: translateY(100vh); opacity: 1; }
-                   80% { transform: translateY(100vh); opacity: 1; }
+                      80% { transform: translateY(100vh); opacity: 1; }
                    100% { transform: translateY(200%); opacity: 0; }
                 }
              `}</style>
           </div>
-       )}
+        )}
+
+      {/* REVEALED DEATH NOTES MODAL */}
+      {revealedNotes && revealedNotes.length > 0 && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4 animate-in zoom-in duration-500 pointer-events-auto">
+           <div className="w-full max-w-lg bg-[#f4e4bc] text-slate-900 p-8 rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}>
+              <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-black/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-black/20 to-transparent"></div>
+              
+              <h2 className="text-3xl font-serif font-bold text-center mb-6 text-[#5c4033] border-b-2 border-[#5c4033]/30 pb-4">ÖLÜNÜN VASİYETİ</h2>
+              
+              <div className="max-h-[60vh] overflow-y-auto custom-scrollbar space-y-6 pr-2">
+                 {revealedNotes.map((rn, idx) => (
+                    <div key={idx} className="mb-4">
+                       <h3 className="font-bold text-xl text-[#3b2a21] mb-2">{rn.playerName} Tarafından Yazıldı:</h3>
+                       <p className="font-serif text-lg leading-relaxed whitespace-pre-wrap italic text-[#4a3628] bg-black/5 p-4 rounded-md border-l-4 border-[#8b5a2b]">
+                          {rn.note || "Sayfalar boş... Hiçbir not bırakmamış."}
+                       </p>
+                    </div>
+                 ))}
+              </div>
+
+              <div className="mt-8 text-center">
+                 <button onClick={() => setRevealedNotes([])} className="bg-[#8b5a2b] hover:bg-[#704214] text-[#f4e4bc] px-8 py-3 rounded shadow-lg font-bold uppercase tracking-widest transition-colors">
+                    Huzur İçinde Yatsın
+                 </button>
+              </div>
+           </div>
+        </div>
+      )}
+
     </div>
   );
 }

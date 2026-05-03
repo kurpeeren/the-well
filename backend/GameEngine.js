@@ -336,7 +336,7 @@ class GameEngine {
         const p = getPlayer(dId);
         if(p && p.isAlive) {
           p.isAlive = false;
-          killedInfos.push({ name: p.name, align: getColorAlignment(p.role) });
+          killedInfos.push({ name: p.name, align: getColorAlignment(p.role), personalNote: p.personalNote });
         }
       });
   
@@ -353,7 +353,7 @@ class GameEngine {
   
       if (killedInfos.length > 0) {
          killedInfos.forEach(info => {
-            this.io.to(roomCode).emit('morningNews', { killedPlayerName: info.name, killedPlayerAlignment: info.align });
+            this.io.to(roomCode).emit('morningNews', { killedPlayerName: info.name, killedPlayerAlignment: info.align, personalNote: info.personalNote });
          });
       } else {
          this.io.to(roomCode).emit('morningNews', { killedPlayerName: null });
@@ -399,7 +399,7 @@ class GameEngine {
          const lynched = room.players.find(p => p.socketId === topTarget);
          if (lynched) {
            lynched.isAlive = false;
-           this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role) });
+           this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote });
   
            if (lynched.role === 'Köy Delisi') {
               const guilty = Object.keys(room.votes).filter(id => room.votes[id].targetId === topTarget);
