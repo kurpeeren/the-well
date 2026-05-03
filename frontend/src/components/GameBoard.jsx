@@ -680,7 +680,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       {/* NOTLAR MODAL */}
       {showNotes && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
           <div className="w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col h-[80vh]" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 rounded-t-2xl">
               <div className="flex items-center gap-3">

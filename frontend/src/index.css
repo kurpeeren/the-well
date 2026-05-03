@@ -25,6 +25,11 @@ body {
   min-height: 100vh;
 }
 
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
