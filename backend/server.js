@@ -207,6 +207,31 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('returnToLobby', (roomCode) => {
+    const room = rooms[roomCode];
+    if (room && room.host === socket.id && room.status === 'END') {
+       room.status = 'LOBBY';
+       room.dayCount = 1;
+       room.timeRemaining = 0;
+       room.nightActions = {};
+       room.votes = {};
+       room.deadJesterVotes = [];
+       room.doused = {};
+       room.silenced = {};
+       room.skipDayVotes = [];
+       room.players.forEach(p => {
+           p.role = null;
+           p.isAlive = true;
+           p.uses = 0;
+           p.isMayorRevealed = false;
+           p.execTarget = null;
+           p.won = false;
+       });
+       io.to(roomCode).emit('returnedToLobby');
+       io.to(roomCode).emit('updateLobby', room.players);
+    }
+  });
+
   socket.on('disconnect', () => {
     for (const roomCode in rooms) {
       const room = rooms[roomCode];

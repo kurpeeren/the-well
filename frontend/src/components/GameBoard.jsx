@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info } from 'lucide-react';
 
-function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, isSpectator, onLeave }) {
+function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole, eventNews, systemNotes, isDevMode, dayCount, gameResults, isSpectator, onLeave, isHost }) {
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
@@ -517,9 +517,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
              </div>
              )}
              
-             <div className="mt-12 text-center pb-8">
-                 <p className="text-slate-500 text-sm tracking-widest mb-4">Bir sonraki oyun için odayı yeniden kurman gerekiyor...</p>
-                 <button onClick={() => onLeave ? onLeave() : window.location.reload()} className="px-8 py-4 bg-slate-800 text-white rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-amber-500 hover:border-amber-500 transition-all uppercase tracking-widest font-bold shadow-lg">Lobiye Dön</button>
+             <div className="mt-12 flex flex-col items-center gap-4 pb-8">
+                 <p className="text-slate-500 text-sm tracking-widest text-center max-w-lg mb-2">Oyun sona erdi. Aynı odada devam etmek için kurucunun lobiyi başlatmasını bekleyin veya tamamen çıkış yapın.</p>
+                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4">
+                    {isHost ? (
+                       <button onClick={() => socket.emit('returnToLobby', roomCode)} className="flex-1 sm:flex-none px-8 py-4 bg-slate-800 text-white rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-amber-500 hover:border-amber-500 transition-all uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(0,0,0,0.5)]">Odada Kal & Lobiye Dön</button>
+                    ) : (
+                       <div className="flex-1 sm:flex-none px-8 py-4 bg-slate-900/50 text-slate-500 rounded-xl border border-slate-800/50 uppercase tracking-widest font-bold text-center flex items-center justify-center">Kurucuyu Bekliyorsun...</div>
+                    )}
+                    <button onClick={() => onLeave ? onLeave() : window.location.reload()} className={`flex-1 sm:flex-none px-8 py-4 ${isHost ? 'bg-red-900/20 hover:bg-red-900/40 border-red-900/50' : 'bg-slate-800 hover:bg-slate-700 border-slate-700'} hover:text-red-400 text-slate-300 rounded-xl border transition-all uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(0,0,0,0.5)]`}>Çıkış Yap</button>
+                 </div>
              </div>
           </div>
         )}

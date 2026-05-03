@@ -122,6 +122,15 @@ function App() {
       setGameResults(results);
     });
 
+    socket.on('returnedToLobby', () => {
+      setGameState('LOBBY');
+      setGamePhase(null);
+      setGameResults(null);
+      setEventNews(null);
+      setSystemNotes([]);
+      setMyRole(null);
+    });
+
     return () => {
       socket.off('roomJoined');
       socket.off('updateLobby');
@@ -136,6 +145,7 @@ function App() {
       socket.off('gameOver');
       socket.off('settingsUpdated');
       socket.off('reconnectFailed');
+      socket.off('returnedToLobby');
     };
   }, []);
 
@@ -305,6 +315,7 @@ function App() {
            dayCount={dayCount}
            gameResults={gameResults}
            isSpectator={isSpectator}
+           isHost={isHost}
            onLeave={handleLeave}
          />
       )}
