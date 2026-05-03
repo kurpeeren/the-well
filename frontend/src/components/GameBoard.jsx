@@ -5,7 +5,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
-  const me = isSpectator ? { isSpectator: true, isAlive: false, role: 'İzleyici Ruh', name: 'Ruh' } : (players.find(p => p.socketId === activeSocketId) || {});
+  const me = isSpectator 
+    ? { isSpectator: true, isAlive: false, role: 'İzleyici Ruh', name: 'Ruh' } 
+    : (players.find(p => p.socketId === activeSocketId) || { isAlive: true, role: myRole, name: '' });
   const activeRole = isSpectator ? 'İzleyici Ruh' : ((isDevMode && impersonateId) ? me.role : myRole);
 
   useEffect(() => {
@@ -292,7 +294,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2">
 
-      <div className="flex-1 flex flex-col relative h-[75vh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
+      <div className="flex-1 flex flex-col relative overflow-hidden rounded-xl border border-slate-800/50 bg-black/20" style={{ minHeight: '75vh' }}>
 
 
         {/* GECE AŞAMASI */}
@@ -404,7 +406,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
                 </div>
              )}
 
-             {isMuhtar && !me.isMayorRevealed && me.isAlive && (
+             {isMuhtar && !me.isMayorRevealed && me.isAlive && !isSilenced && (
                 <div className="bg-slate-800/80 p-3 mb-2 rounded-xl border border-slate-700 flex justify-between items-center shadow-lg">
                    <span className="text-slate-300 text-sm">Gidişatı beğenmedin mi? Ağırlığını koyma vakti!</span>
                    <button onClick={() => socket.emit('mayorReveal', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg font-bold uppercase tracking-wider text-sm shadow-[0_0_15px_rgba(217,119,6,0.6)]">Mührü Vur</button>
