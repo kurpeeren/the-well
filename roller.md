@@ -24,7 +24,7 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Yeteneği:** Gece hiçbir şey yapmaz. Ancak gündüz tartışma sırasında "Mührü Vur" butonuna basarak Muhtar olduğunu tüm köye ilan edebilir. Bu andan itibaren oylamalarda oyu **3 oy** sayılır.
 - **Kısıtlama:** Kendini açıkladıktan sonra Şifacı onu gece koruyamaz.
 
-### 👁️ Dedikoducu *(Town of Salem: Lookout)*
+### 👁️ Gözcü *(Town of Salem: Lookout)*
 - **Hikayesi:** Geceleri uyku tutmaz, perde arkasından sokakları, komşuların kapısını dikizler.
 - **Gece Yeteneği:** Bir kişinin evini gözetler. O gece o eve kimlerin girip çıktığını (ziyaret ettiğini) isim isim görür ama içeride ne yaptıklarını bilemez.
 
@@ -84,7 +84,7 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
   2. Eline meşaleyi alıp önceden gazyağı döktüğü herkesin evini **aynı anda Ateşe Verir** (Ignite). 
 - **Kazanma Şartı:** Köydeki herkesi yakıp sona kalan tek kişi veya Kundakçı olmak.
 
-### 🛡️ Yanaşma *(Town of Salem: Survivor)*
+### 🛡️ Kaçak *(Town of Salem: Survivor)*
 - **Hikayesi:** Köye dışarıdan gelmiş, kimseye bulaşmadan sadece günü kurtarmaya çalışan zavallı biri.
 - **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp, katledilmeyip hayatta kalmak.
 - **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.
