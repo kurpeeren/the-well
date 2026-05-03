@@ -20,9 +20,25 @@ class GameEngine {
 
   assignRoles(room) {
     if (room.isDevMode) {
-        room.players.forEach((player) => {
+        let pool = [
+          'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Tefeci', 'Meyhaneci', 
+          'Kan Davalı', 'Kundakçı', 'Kaçak', 'Şifacı', 'Avcı', 'Bekçi', 
+          'Münafık', 'Eşkıya', 'Eşkıya Başı', 'Seri Katil'
+        ];
+        // Fisher-Yates Shuffle
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        
+        room.players.forEach((player, i) => {
+          player.role = pool[i % pool.length];
           player.uses = 0;
-          if (player.role === 'Kan Davalı' && !player.execTarget) {
+          player.execTarget = null;
+        });
+
+        room.players.forEach((player) => {
+          if (player.role === 'Kan Davalı') {
              const masumlar = room.players.filter(p => ROLES[p.role]?.team === 'Köylüler' && p.socketId !== player.socketId);
              if (masumlar.length > 0) player.execTarget = masumlar[Math.floor(Math.random() * masumlar.length)].socketId;
              else player.role = 'Köy Delisi';
@@ -70,8 +86,11 @@ class GameEngine {
         activeRoles = activeRoles.slice(0, count);
     }
   
-    // Karıştır
-    activeRoles.sort(() => Math.random() - 0.5);
+    // Fisher-Yates Shuffle ile Karıştır
+    for (let i = activeRoles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [activeRoles[i], activeRoles[j]] = [activeRoles[j], activeRoles[i]];
+    }
   
     // Atamalar ve Kan Davalı mantığı
     room.players.forEach((player, i) => {
