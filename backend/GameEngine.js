@@ -307,8 +307,8 @@ class GameEngine {
                      if (healer) healer.uses = (healer.uses || 0) + 1;
                   }
                   const sifTargetP = getPlayer(a.targetId);
-                  const wasAttacked = deaths.includes(a.targetId) || (mTargetId === a.targetId) || Object.values(actions).some(x => x.targetId === a.targetId && ['Eşkıya Başı','Eşkıya','Seri Katil'].includes(x.role));
-                  this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : `${sifTargetP?.name || 'Hedef'} adlı kişiyi korudun${healed[a.targetId] ? ' — iyi ki oradaydın, saldırı oldu ama kurtardın!' : ', gece boyunca güvende kaldı.'}`, align: 'Yeşil' });
+                  const wasAttacked = Object.values(actions).some(x => x.targetId === a.targetId && ['Eşkıya Başı','Eşkıya','Seri Katil'].includes(x.role));
+                  this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : `${sifTargetP?.name || 'Hedef'} adlı kişiyi korudun${wasAttacked ? ' — iyi ki oradaydın, saldırı oldu ama kurtardın!' : ', gece boyunca güvende kaldı.'}`, align: 'Yeşil' });
               }
           }
       });
