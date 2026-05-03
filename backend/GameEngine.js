@@ -202,7 +202,8 @@ class GameEngine {
                   this.sendPrivateNews(roomCode, a.actorId, { text: "Kendi takımından birini susturamazsın!", align: 'Kırmızı' });
               } else {
                   room.silenced[a.targetId] = true;
-                  this.sendPrivateNews(roomCode, a.actorId, { text: "Hedefine gözdağı verdin, yarın konuşamayacak.", align: 'Yeşil' });
+                  const tefTargetP = getPlayer(a.targetId);
+                  this.sendPrivateNews(roomCode, a.actorId, { text: `${tefTargetP?.name || 'Hedef'} susturuldu, yarın konuşamayacak.`, align: 'Yeşil' });
               }
           }
       });
@@ -215,7 +216,8 @@ class GameEngine {
                   this.sendPrivateNews(roomCode, a.actorId, { text: "Kendi adamına iftira atamazsın!", align: 'Kırmızı' });
               } else {
                   framed[a.targetId] = true;
-                  this.sendPrivateNews(roomCode, a.actorId, { text: "Hedefinin kapısına suç aletleri bıraktın.", align: 'Gri' });
+                  const munTargetP = getPlayer(a.targetId);
+                  this.sendPrivateNews(roomCode, a.actorId, { text: `${munTargetP?.name || 'Hedef'}'in kapısına suç aletleri bıraktın.`, align: 'Gri' });
               }
           }
       });
@@ -232,7 +234,8 @@ class GameEngine {
                      const healer = getPlayer(a.actorId);
                      if (healer) healer.uses = (healer.uses || 0) + 1;
                   }
-                  this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : "Bütün gece hedefini başarıyla korudun.", align: 'Yeşil' });
+                  const sifTargetP = getPlayer(a.targetId);
+                  this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : `${sifTargetP?.name || 'Hedef'}'i bütün gece başarıyla korudun.`, align: 'Yeşil' });
               }
           }
       });
@@ -291,7 +294,7 @@ class GameEngine {
                this.sendPrivateNews(roomCode, mKillerId, { text: "Hedefin gece saldırılarına karşı çok güçlü, ölmedi!", align: 'Kırmızı' });
              } else {
                deaths.push(mTargetId);
-               this.sendPrivateNews(roomCode, mKillerId, { text: "Saldırın başarılı oldu, hedefini ortadan kaldırdın.", align: 'Yeşil' });
+               this.sendPrivateNews(roomCode, mKillerId, { text: `${targetP?.name || 'Hedef'} ortadan kaldırıldı, saldırın başarılı oldu.`, align: 'Yeşil' });
                const killerP = getPlayer(mKillerId);
                if (killerP && killerP.role === 'Eşkıya Başı') killerP.hasBloodOnHands = true;
              }
@@ -311,7 +314,8 @@ class GameEngine {
                 this.sendPrivateNews(roomCode, a.actorId, { text: "Saldırdın ancak hedefin ölmedi! Bıçağın işe yaramadı.", align: 'Kırmızı' });
              } else {
                 deaths.push(a.targetId);
-                this.sendPrivateNews(roomCode, a.actorId, { text: "Hedefini vahşice katlettin.", align: 'Yeşil' });
+                const skTarget = getPlayer(a.targetId);
+                this.sendPrivateNews(roomCode, a.actorId, { text: `${skTarget?.name || 'Hedef'}'i vahşice katlettin.`, align: 'Yeşil' });
              }
           }
       });
