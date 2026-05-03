@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuyu - Admin Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="p-6">
+    <div id="login-screen" class="max-w-md mx-auto mt-20 bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-700">
+        <h1 class="text-2xl font-bold mb-6 text-center text-red-500 tracking-widest">KUYU YÖNETİM</h1>
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-2 text-slate-300">Admin Şifresi</label>
+            <input type="password" id="password" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:border-red-500" placeholder="Şifrenizi girin...">
+        </div>
+        <button onclick="login()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors">GİRİŞ YAP</button>
+        <p id="error-msg" class="text-red-400 mt-4 text-center hidden text-sm">Hatalı şifre!</p>
+    </div>
+
+    <div id="dashboard-screen" class="max-w-6xl mx-auto hidden">
+        <div class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-3xl font-bold text-red-500 tracking-widest">KUYU YÖNETİM PANELİ</h1>
+            <button onclick="logout()" class="text-slate-400 hover:text-white transition-colors">Çıkış Yap</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Toplam Aktif Oyuncu</h3>
+                <p id="stat-players" class="text-4xl font-bold text-white">0</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Aktif Odalar</h3>
+                <p id="stat-rooms" class="text-4xl font-bold text-green-400">0</p>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 text-sm font-bold uppercase tracking-wider mb-2">Toplam Soket Bağlantısı</h3>
+                <p id="stat-sockets" class="text-4xl font-bold text-yellow-500">0</p>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4 text-slate-300">Aktif Oyun Odaları</h2>
+        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-900 border-b border-slate-700">
+                    <tr>
+                        <th class="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oda Kodu</th>
+                        <th class="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Durum</th>
+                        <th class="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Oyuncu (Aktif/Bot)</th>
+                        <th class="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">İzleyici</th>
+                        <th class="p-4 text-sm font-bold text-slate-400 uppercase tracking-wider">Gün</th>
+                    </tr>
+                </thead>
+                <tbody id="rooms-table" class="divide-y divide-slate-700/50">
+                    <!-- Dinamik İçerik -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let adminToken = localStorage.getItem('kuyu_admin_token') || '';
+        let fetchInterval = null;
+
+        if (adminToken) {
+            checkAuthAndLoad();
+        }
+
+        async function login() {
+            const pass = document.getElementById('password').value;
+            adminToken = pass;
+            await checkAuthAndLoad();
+        }
+
+        function logout() {
+            localStorage.removeItem('kuyu_admin_token');
+            adminToken = '';
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            if (fetchInterval) clearInterval(fetchInterval);
+        }
+
+        async function checkAuthAndLoad() {
+            try {
+                const res = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': adminToken }
+                });
+                
+                if (res.ok) {
+                    localStorage.setItem('kuyu_admin_token', adminToken);
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('dashboard-screen').classList.remove('hidden');
+                    document.getElementById('error-msg').classList.add('hidden');
+                    
+                    const data = await res.json();
+                    renderDashboard(data);
+                    
+                    if (!fetchInterval) {
+                        fetchInterval = setInterval(fetchStats, 3000); // 3 saniyede bir güncelle
+                    }
+                } else {
+                    document.getElementById('error-msg').classList.remove('hidden');
+                    logout();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchStats() {
+            if (!adminToken) return;
+            try {
+                const res = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': adminToken }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    renderDashboard(data);
+                } else {
+                    logout();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('stat-players').innerText = data.totalRealPlayers;
+            document.getElementById('stat-rooms').innerText = data.totalRooms;
+            document.getElementById('stat-sockets').innerText = data.totalSockets;
+
+            const tbody = document.getElementById('rooms-table');
+            tbody.innerHTML = '';
+
+            if (data.rooms.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 italic">Şu an aktif bir oda bulunmuyor.</td></tr>`;
+                return;
+            }
+
+            data.rooms.forEach(r => {
+                const statusColor = r.status === 'LOBBY' ? 'text-blue-400' : 'text-red-400';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-700/30 transition-colors">
+                        <td class="p-4 font-mono font-bold tracking-widest">${r.id} ${r.isDevMode ? '<span class="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-1 rounded ml-2">DEV</span>' : ''}</td>
+                        <td class="p-4 font-bold ${statusColor}">${r.status}</td>
+                        <td class="p-4"><span class="text-white font-bold">${r.realPlayers}</span> / <span class="text-slate-500">${r.botPlayers} bot</span></td>
+                        <td class="p-4 text-slate-400">${r.spectators}</td>
+                        <td class="p-4 font-bold text-yellow-500">${r.dayCount}</td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

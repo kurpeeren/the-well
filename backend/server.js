@@ -4,8 +4,49 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const app = express();
+const path = require('path');
 app.use(cors());
 app.get('/', (req, res) => res.send('Kuyu Backend is running healthy!'));
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+});
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'kuyuadmin';
+
+app.get('/api/admin/stats', (req, res) => {
+    if (req.headers.authorization !== ADMIN_PASSWORD) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const roomKeys = Object.keys(rooms);
+    let totalRealPlayers = 0;
+    
+    const roomsData = roomKeys.map(key => {
+        const r = rooms[key];
+        const realPlayersCount = r.players.filter(p => !p.socketId.startsWith('dev_')).length;
+        const botPlayersCount = r.players.filter(p => p.socketId.startsWith('dev_')).length;
+        totalRealPlayers += realPlayersCount;
+        
+        return {
+            id: r.id,
+            status: r.status,
+            isDevMode: r.isDevMode,
+            dayCount: r.dayCount,
+            realPlayers: realPlayersCount,
+            botPlayers: botPlayersCount,
+            spectators: r.spectators.length
+        };
+    });
+
+    res.json({
+        totalRooms: roomKeys.length,
+        totalRealPlayers,
+        totalSockets: io.engine.clientsCount,
+        rooms: roomsData
+    });
+});
+
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 
