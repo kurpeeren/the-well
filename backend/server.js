@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
     }
     
     let fakePlayers = [];
+    console.log('[Dev] Karıştırılmış roller:', pool.join(', '));
     pool.forEach((role, idx) => {
        fakePlayers.push({
           socketId: idx === 0 ? socket.id : `dev_${idx}`, 

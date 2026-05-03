@@ -294,7 +294,6 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
 
       <div className="flex-1 flex flex-col relative h-[75vh] lg:h-full overflow-hidden rounded-xl border border-slate-800/50 bg-black/20">
 
-        <div className="absolute inset-0 z-10 pointer-events-none">
 
         {/* GECE AŞAMASI */}
         {gamePhase === 'NIGHT' && (
@@ -534,8 +533,6 @@ function GameBoard({ socket, roomCode, players, gamePhase, timeRemaining, myRole
              </div>
           </div>
         )}
-
-        </div>
 
       </div>
 
