@@ -26,6 +26,7 @@ class GameEngine {
             enabledRoles[r] = true;
         }
     });
+    console.log('[Dev] Enabled Roles for this game:', enabledRoles);
 
     if (room.isDevMode) {
         let pool = Object.keys(enabledRoles).filter(r => enabledRoles[r]);
@@ -61,13 +62,18 @@ class GameEngine {
         return;
     }
   
-    const poolEvil = Object.keys(enabledRoles).filter(r => enabledRoles[r] && (ROLES[r]?.team === 'Eşkıyalar' || r === 'Kundakçı'));
-    const poolNeutral = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Bireysel' && r !== 'Kundakçı' && r !== 'Seri Katil');
-    const poolTown = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Köylüler');
+    let poolEvil = Object.keys(enabledRoles).filter(r => enabledRoles[r] && (ROLES[r]?.team === 'Eşkıyalar' || r === 'Kundakçı'));
+    let poolNeutral = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Bireysel' && r !== 'Kundakçı' && r !== 'Seri Katil');
+    let poolTown = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Köylüler');
 
-    if (poolEvil.length === 0) poolEvil.push('Eşkıya');
-    if (poolNeutral.length === 0) poolNeutral.push('Köy Delisi');
-    if (poolTown.length === 0) poolTown.push('Muhtar');
+    // Eğer tamamen bütün roller kapatılmışsa fallback olarak tüm rolleri aç
+    if (poolEvil.length === 0 && poolNeutral.length === 0 && poolTown.length === 0) {
+        poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
+        poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Kaçak'];
+        poolTown = ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
+        enabledRoles['Eşkıya Başı'] = true;
+        enabledRoles['Seri Katil'] = true;
+    }
   
     let { kirmizi, gri, yesil } = room.settings;
     kirmizi = kirmizi ?? 4;
@@ -80,22 +86,31 @@ class GameEngine {
     for (let i = 0; i < kirmizi && activeRoles.length < count; i++) {
        if (i === 0 && enabledRoles['Eşkıya Başı']) activeRoles.push('Eşkıya Başı');
        else if (i === 1 && enabledRoles['Seri Katil']) activeRoles.push('Seri Katil');
-       else activeRoles.push(poolEvil[Math.floor(Math.random() * poolEvil.length)]);
+       else if (poolEvil.length > 0) activeRoles.push(poolEvil[Math.floor(Math.random() * poolEvil.length)]);
+       // Eğer kötü kalmadıysa ve kırmızı oranı isteniyorsa, pas geçilir. Aşağıdaki döngüler tamamlar.
     }
   
     // 2. Gri Takım (Tarafsızlar)
     for (let i = 0; i < gri && activeRoles.length < count; i++) {
-       activeRoles.push(poolNeutral[Math.floor(Math.random() * poolNeutral.length)]);
+       if (poolNeutral.length > 0) activeRoles.push(poolNeutral[Math.floor(Math.random() * poolNeutral.length)]);
     }
   
     // 3. Yeşil Takım (Masumlar)
     for (let i = 0; i < yesil && activeRoles.length < count; i++) {
-       activeRoles.push(poolTown[Math.floor(Math.random() * poolTown.length)]);
+       if (poolTown.length > 0) activeRoles.push(poolTown[Math.floor(Math.random() * poolTown.length)]);
     }
   
-    // Eğer toplam sayı oyuncu sayısına ulaşmadıysa eksikleri Yeşil (Masum) ile doldur
+    // Eğer toplam sayı oyuncu sayısına ulaşmadıysa eksikleri eldeki havuzlardan rastgele doldur
+    let allAvailable = [...poolTown, ...poolEvil, ...poolNeutral];
+    if (enabledRoles['Eşkıya Başı']) allAvailable.push('Eşkıya Başı');
+    if (enabledRoles['Seri Katil']) allAvailable.push('Seri Katil');
+    
     while (activeRoles.length < count) {
-        activeRoles.push(poolTown[Math.floor(Math.random() * poolTown.length)]);
+        if (allAvailable.length > 0) {
+            activeRoles.push(allAvailable[Math.floor(Math.random() * allAvailable.length)]);
+        } else {
+            activeRoles.push('Muhtar'); // Tamamen boş kalma durumuna son çare
+        }
     }
   
     // Eğer fazlalık varsa kırp
