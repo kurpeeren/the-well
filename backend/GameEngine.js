@@ -21,9 +21,11 @@ class GameEngine {
   assignRoles(room) {
     const count = room.players.length;
     let enabledRoles = room.settings?.roles || {};
-    if (Object.keys(enabledRoles).length === 0) {
-        Object.keys(ROLES).forEach(r => enabledRoles[r] = true);
-    }
+    Object.keys(ROLES).forEach(r => {
+        if (enabledRoles[r] === undefined) {
+            enabledRoles[r] = true;
+        }
+    });
 
     if (room.isDevMode) {
         let pool = Object.keys(enabledRoles).filter(r => enabledRoles[r]);
