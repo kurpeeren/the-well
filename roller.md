@@ -63,7 +63,7 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Hikayesi:** Köyde herkese borç vermiş, herkesin açığını bilen karanlık bir adamdır. Gözdağı vererek insanları susturur.
 - **Gece Yeteneği:** Bir kişiyi hedefler. Ertesi gün (Gündüz ve Oylama aşamasında) o kişi chat'e hiçbir şey yazamaz. Ekranda "Tefeci seni susturdu" yazar. Hedef sadece kuyuya adam atmak için oy kullanabilir.
 
-### 💃 Consort / Şarkıcı *(Town of Salem: Consort)*
+### 💃 Meyhaneci *(Town of Salem: Consort)*
 - **Hikayesi:** Eğlencesiyle, içkisiyle veya cazibesiyle insanların aklını başından alır, görevlerini unutturur.
 - **Gece Yeteneği:** Hedeflediği kişinin aklını çeler (Roleblock). Seçtiği kişi o gece yeteneğini kullanamaz (Örn: Şifacı koruyamaz, Katil vuramaz).
 
