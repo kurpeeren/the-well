@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuyu - Rol Rehberi</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --town-color: #10b981; /* Green */
+            --mafia-color: #ef4444; /* Red */
+            --neutral-color: #f59e0b; /* Yellow/Gray */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 70%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 1rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            margin: 0;
+            background: linear-gradient(120deg, #94a3b8 20%, #f8fafc 40%, #f8fafc 60%, #94a3b8 80%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+            opacity: 0;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, shimmer 6s linear infinite;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            max-width: 650px;
+            line-height: 1.7;
+            opacity: 0;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards;
+        }
+
+        .filter-container {
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            padding: 0.4rem;
+            margin: 2rem auto 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s forwards;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1.5rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-btn:hover {
+            color: #f8fafc;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .filter-btn.active {
+            background: var(--card-bg);
+            color: #f8fafc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .filter-btn.active[data-filter="masum"] { color: #34d399; }
+        .filter-btn.active[data-filter="eskiya"] { color: #f87171; }
+        .filter-btn.active[data-filter="tarafsiz"] { color: #fbbf24; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            height: 380px;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--card-bg);
+        }
+
+        .card-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        .card:hover .card-img {
+            transform: scale(1.06) translateZ(0);
+        }
+
+        .card-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            background: linear-gradient(to bottom, rgba(30, 41, 59, 0) 40%, var(--card-bg) 98%, var(--card-bg) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .card-header {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            right: 20px;
+            z-index: 3;
+        }
+
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .card-team {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .team-masum .card-team { color: var(--town-color); }
+        .team-eskiya .card-team { color: var(--mafia-color); }
+        .team-tarafsiz .card-team { color: var(--neutral-color); }
+
+        .team-masum { border-bottom: 3px solid var(--town-color); }
+        .team-eskiya { border-bottom: 3px solid var(--mafia-color); }
+        .team-tarafsiz { border-bottom: 3px solid var(--neutral-color); }
+
+        .card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .story {
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            border-left: 2px solid rgba(255,255,255,0.1);
+            padding-left: 1rem;
+        }
+
+        .ability-section {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .ability-title {
+            font-family: 'Cinzel', serif;
+            color: #fff;
+            font-size: 1.1rem;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ability-desc {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .constraint {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.08);
+            border-left: 3px solid #ef4444;
+            padding: 0.75rem 1rem;
+            border-radius: 0 4px 4px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            line-height: 1.5;
+        }
+
+        .constraint-title {
+            font-weight: 600;
+            color: #ef4444;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            h1 { font-size: 2.2rem; letter-spacing: 3px; }
+            p.subtitle { font-size: 0.95rem; padding: 0 1rem; }
+            .filter-container { margin-top: 1.5rem; padding: 0.4rem; border-radius: 999px; gap: 0.2rem; display: flex; flex-wrap: wrap; justify-content: center; }
+            .filter-btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; border-radius: 999px; flex-grow: 0; }
+        }
+
+        /* Staggered card animations */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s ease, opacity 0.6s ease;
+            will-change: transform, opacity;
+        }
+
+        .card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card.show:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Kuyu - Rol Rehberi</h1>
+        <p class="subtitle">Gece çöktüğünde masumların arasına karışan gölgeler uyanır. Kuyu'nun karanlık evrenindeki tüm karakterleri, gizli ittifakları ve ölümcül yetenekleri keşfet. Unutma; bu köyde hayatta kalmanın tek yolu, dostunu ve düşmanını kusursuzca tanımaktır.</p>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">Tümü</button>
+            <button class="filter-btn" data-filter="masum">Masumlar</button>
+            <button class="filter-btn" data-filter="eskiya">Eşkıyalar</button>
+            <button class="filter-btn" data-filter="tarafsiz">Tarafsızlar</button>
+        </div>
+    </header>
+
+    <div class="container" id="cards-container">
+        <!-- Cards will be injected by JS -->
+    </div>
+
+    <script>
+        const roles = [
+            // MASUMLAR
+            {
+                name: "Şifacı",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/sifaci.jpeg",
+                story: "Köyün otacısıdır, kimin kapısına dert gelse devasını bulur.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Her gece bir oyuncuyu seçer. Eğer düşmanlar o oyuncuya saldırırsa, Şifacı onu hayatta tutar.",
+                constraint: "Kendini oyun boyunca sadece 2 kez iyileştirebilir."
+            },
+            {
+                name: "Bekçi",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/bekci.jpeg",
+                story: "Geceleri elinde feneriyle sokakları arşınlar, kimin tekinsiz olduğunu anlamaya çalışır.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Her gece bir oyuncuyu kontrol eder. Sistem ona o kişinin 'Eşkıya' veya 'Masum' olup olmadığını söyler. (Eşkıya Başı hariç)."
+            },
+            {
+                name: "Avcı",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/avci.jpeg",
+                story: "Eski bir dağ adamıdır, tetikte uyur. Gözü karadır, kapısına geleni affetmez.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Gece 'Pusuya Yatma' kararı alabilir. Eğer pusuya yatarsa, o gece ölmez ve onu ziyarete gelen herkesi vurur.",
+                constraint: "Oyun boyunca sadece 3 kez pusuya yatabilir."
+            },
+            {
+                name: "Muhtar",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/muhtar.jpeg",
+                story: "Köyün mühürdarı, sözü geçen adamı. Önceleri saklansa da bıçak kemiğe dayanınca ağırlığını koyar.",
+                abilityTitle: "☀️ Gündüz Yeteneği",
+                abilityDesc: "Gündüz tartışma sırasında 'Mührü Vur' butonuna basarak Muhtar olduğunu tüm köye ilan edebilir. Bu andan itibaren oyu 3 oy sayılır.",
+                constraint: "Kendini açıkladıktan sonra Şifacı onu gece koruyamaz."
+            },
+            {
+                name: "Gözcü",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/gozcu.jpeg",
+                story: "Geceleri uyku tutmaz, perde arkasından sokakları, komşuların kapısını dikizler.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Bir kişinin evini gözetler. O gece o eve kimlerin girip çıktığını (ziyaret ettiğini) isim isim görür ama içeride ne yaptıklarını bilemez."
+            },
+            {
+                name: "Falcı",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/falci.jpeg",
+                story: "Kahve telvesinden, kurşun dökümünden insanların içini okur.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Birini hedefler. Sistem ona o kişinin olası üç rolünden oluşan bir kehanet sunar. (Örn: 'Bekçi, Kan Davalı veya Seri Katil')."
+            },
+            {
+                name: "Gassal",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/gassal.jpeg",
+                story: "Ölü yıkayıcısıdır, öte alemle bağı vardır. Kuyuya atılanların veya gece katledilenlerin son fısıltılarını duyar.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Geceleri ölülerin kendi aralarında yazıştığı 'Ölüler Boyutu' sohbetini canlı olarak görebilir. Ölülerden ipucu toplar."
+            },
+            {
+                name: "Eskort",
+                team: "masum",
+                teamName: "Masumlar",
+                image: "/roles/eskort.jpeg",
+                story: "Köyün en göz alıcı, neşeli şahsiyetidir. Sohbeti o kadar hoştur ki, onunla muhabbete dalan kişi asıl işini gücünü yapmayı unutur.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Her gece birini hedefler ve sabaha kadar onu oyalar (Roleblock). Seçilen kişi aklı o gece onda kalacağı için planladığı yeteneğini kullanamaz."
+            },
+
+            // EŞKIYALAR
+            {
+                name: "Eşkıya Başı",
+                team: "eskiya",
+                teamName: "Eşkıyalar",
+                image: "/roles/eskiya_basi.jpeg",
+                story: "Çetenin acımasız lideridir, köyün içinde sıradan biri gibi saklanmayı çok iyi bilir.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Çetenin kimi öldüreceğine son kararı o verir. Gece saldırılarına karşı bağışıklığı vardır (Seri Katil onu öldüremez).",
+                constraint: "Bekçi onu kontrol ettiğinde normalde 'Masum' görünür. Kendi cinayet işlerse 'Eşkıya' görünür."
+            },
+            {
+                name: "Münafık",
+                team: "eskiya",
+                teamName: "Eşkıyalar",
+                image: "/roles/munafik.jpeg",
+                story: "Fitne fesat peşindedir, masumların kapısına suç aletleri bırakarak hedefleri saptırır.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Gece birini hedefler. Eğer Bekçi veya Falcı o gece o kişiyi kontrol ederse, sistem o kişiyi 'Eşkıya' veya 'Münafık' mış gibi gösterir."
+            },
+            {
+                name: "Eşkıya",
+                team: "eskiya",
+                teamName: "Eşkıyalar",
+                image: "/roles/eskiya.jpeg",
+                story: "Ağa'nın (Eşkıya Başı'nın) sağ koludur, kirli işleri o yapar.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Eşkıya Başı'nın seçtiği hedefi öldürmeye gider. Eğer Eşkıya Başı birini seçmezse veya ölürse, inisiyatif alıp kendi seçtiği kişiyi vurur."
+            },
+            {
+                name: "Tefeci",
+                team: "eskiya",
+                teamName: "Eşkıyalar",
+                image: "/roles/tefeci.jpeg",
+                story: "Köyde herkese borç vermiş, herkesin açığını bilen karanlık bir adamdır. Gözdağı vererek insanları susturur.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Bir kişiyi hedefler. Ertesi gün o kişi chat'e hiçbir şey yazamaz. Hedef sadece kuyuya adam atmak için oy kullanabilir."
+            },
+            {
+                name: "Meyhaneci",
+                team: "eskiya",
+                teamName: "Eşkıyalar",
+                image: "/roles/meyhaneci.jpeg",
+                story: "Eğlencesiyle, içkisiyle veya cazibesiyle insanların aklını başından alır, görevlerini unutturur.",
+                abilityTitle: "🌙 Gece Yeteneği",
+                abilityDesc: "Hedeflediği kişinin aklını çeler (Roleblock). Seçtiği kişi o gece yeteneğini kullanamaz (Örn: Şifacı koruyamaz, Katil vuramaz)."
+            },
+
+            // TARAFSIZLAR
+            {
+                name: "Kan Davalı",
+                team: "tarafsiz",
+                teamName: "Tarafsız",
+                image: "/roles/kan_davali.jpeg",
+                story: "Gözünü intikam hırsı bürümüştür. Belirli bir köylüye kan davası gütmektedir ve gözü o kişiden başkasını görmez.",
+                abilityTitle: "⚖️ Kazanma Şartı",
+                abilityDesc: "Sistem ona rastgele bir köylüyü hedef olarak atar. Amacı o kişiyi yalanlarla suçlayıp gündüz oylamasıyla kuyuya attırmaktır.",
+                constraint: "Eğer hedefi gece başkası tarafından öldürülürse aklını yitirir ve anında Köy Delisi'ne dönüşür."
+            },
+            {
+                name: "Kundakçı",
+                team: "tarafsiz",
+                teamName: "Tarafsız",
+                image: "/roles/kundakci.jpeg",
+                story: "Köyden de köylüden de nefret eden, her yeri küle çevirmek isteyen tehlikeli bir manyak.",
+                abilityTitle: "🔥 Gece Yeteneği",
+                abilityDesc: "İki seçeneği vardır: 1) Birinin evine sessizce Gazyağı Döker. 2) Eline meşaleyi alıp önceden gazyağı döktüğü herkesin evini aynı anda Ateşe Verir."
+            },
+            {
+                name: "Kaçak",
+                team: "tarafsiz",
+                teamName: "Tarafsız",
+                image: "/roles/kacak.jpeg",
+                story: "Köye dışarıdan gelmiş, kimseye bulaşmadan sadece günü kurtarmaya çalışan zavallı biri.",
+                abilityTitle: "🛡️ Gece Yeteneği",
+                abilityDesc: "Oyun boyunca 'Saklan' diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.",
+                constraint: "Oyun boyunca sadece 4 kez saklanabilir."
+            },
+            {
+                name: "Köy Delisi",
+                team: "tarafsiz",
+                teamName: "Tarafsız",
+                image: "/roles/koy_delisi.jpeg",
+                story: "Aklını yitirmiş ve kuyunun dibindeki karanlığa takıntılı hale gelmiştir. Tek isteği o karanlığa kavuşmaktır.",
+                abilityTitle: "🤡 Kazanma Şartı",
+                abilityDesc: "Amacı yalan söyleyip köylüleri kışkırtarak kendini oylama sonucunda kuyuya attırmaktır.",
+                constraint: "Kuyuya atılırsa, ona 'Kuyuya İt' oyu verenlerden birini gece kuyunun dibine çeker (öldürür)."
+            },
+            {
+                name: "Seri Katil",
+                team: "tarafsiz",
+                teamName: "Tarafsız",
+                image: "/roles/seri_katil.jpeg",
+                story: "Gözünü kan bürümüş, yalnız hareket eden bir canidir. Gece saldırılarına karşı bağışıklığı vardır.",
+                abilityTitle: "🔪 Gece Yeteneği",
+                abilityDesc: "Her gece birini seçer ve acımasızca öldürür. Eşkıyalarla da düşmandır.",
+                constraint: "Herkesi katledip köyde hayatta kalan son kişi olmalıdır."
+            }
+        ];
+
+        const container = document.getElementById('cards-container');
+
+        function renderCards(filterTeam) {
+            container.innerHTML = '';
+            const filtered = filterTeam === 'all' ? roles : roles.filter(r => r.team === filterTeam);
+            
+            filtered.forEach((role, index) => {
+                const card = document.createElement('div');
+                card.className = `card team-${role.team}`;
+                
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${role.image}" alt="${role.name}" class="card-img">
+                        <div class="card-gradient"></div>
+                        <div class="card-header">
+                            <h2 class="card-title">${role.name}</h2>
+                            <div class="card-team">${role.teamName}</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="story">"${role.story}"</div>
+                        <div class="ability-section">
+                            <div class="ability-content">
+                                <h3 class="ability-title">${role.abilityTitle}</h3>
+                                <p class="ability-desc">${role.abilityDesc}</p>
+                            </div>
+                            ${role.constraint ? `
+                            <div class="constraint">
+                                <span class="constraint-title">⚠️ Önemli Uyarı</span>
+                                <span>${role.constraint}</span>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+                
+                setTimeout(() => {
+                    card.classList.add('show');
+                }, 40 * index);
+            });
+        }
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                renderCards(e.target.dataset.filter);
+            });
+        });
+
+        // Initial render
+        renderCards('all');
+    </script>
+</body>
+</html>
