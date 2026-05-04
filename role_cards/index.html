@@ -36,52 +36,69 @@
 
         h1 {
             font-family: 'Cinzel', serif;
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin: 0;
-            color: #ef4444;
-            letter-spacing: 4px;
+            background: linear-gradient(to bottom, #f8fafc, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 6px;
             text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
         }
 
         p.subtitle {
             color: var(--text-muted);
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             font-size: 1.1rem;
-            max-width: 600px;
+            max-width: 650px;
             margin-left: auto;
             margin-right: auto;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
         .filter-container {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem 0;
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 0.4rem;
+            margin: 2.5rem auto 1rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 10px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(12px);
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .filter-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 999px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.6rem 1.8rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-family: 'Cinzel', serif;
-            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .filter-btn:hover {
-            background: rgba(255,255,255,0.15);
+            color: #f8fafc;
+            background: rgba(255,255,255,0.03);
         }
 
-        .filter-btn.active[data-filter="all"] { background: #334155; border-color: #475569; }
-        .filter-btn.active[data-filter="masum"] { background: rgba(16, 185, 129, 0.2); border-color: var(--town-color); color: var(--town-color); }
-        .filter-btn.active[data-filter="eskiya"] { background: rgba(239, 68, 68, 0.2); border-color: var(--mafia-color); color: var(--mafia-color); }
-        .filter-btn.active[data-filter="tarafsiz"] { background: rgba(245, 158, 11, 0.2); border-color: var(--neutral-color); color: var(--neutral-color); }
+        .filter-btn.active {
+            background: var(--card-bg);
+            color: #f8fafc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .filter-btn.active[data-filter="masum"] { color: #34d399; }
+        .filter-btn.active[data-filter="eskiya"] { color: #f87171; }
+        .filter-btn.active[data-filter="tarafsiz"] { color: #fbbf24; }
 
         .container {
             max-width: 1400px;
