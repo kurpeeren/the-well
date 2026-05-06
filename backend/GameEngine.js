@@ -233,7 +233,7 @@ class GameEngine {
       actions.filter(a => (a.role === 'Meyhaneci' || a.role === 'Eskort') && a.targetId).forEach(a => {
           if (!alerts[a.targetId]) {
               roleblocked[a.targetId] = true;
-              this.sendPrivateNews(roomCode, a.targetId, { text: `${a.role} aklını çeldi! Bu gece görevini yapamadın.`, align: 'Kırmızı' });
+              this.sendPrivateNews(roomCode, a.targetId, { text: "Oldukça 'hareketli' bir gece geçirdin ve aklın başından gitti... Haliyle görevini de yapamadın!", align: 'Kırmızı' });
 
               // Seri Katil engelleyeni öldürür (Town of Salem mekaniği)
               const targetP = getPlayer(a.targetId);
