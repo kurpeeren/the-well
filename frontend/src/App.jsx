@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
+import { LogOut, AlertTriangle, BookOpen, X, Flame, VolumeX } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
@@ -15,11 +16,14 @@ const ROLES_LIST = [
 
 function App() {
   const videoRef = useRef(null);
+  const [showHeader, setShowHeader] = useState(false);
+
   const [gameState, setGameState] = useState(() => {
      if (window.location.search.includes('admin=true')) return 'ADMIN';
      return 'INTRO';
   }); // INTRO, JOIN, LOBBY, GAME, ADMIN
   const [introPhase, setIntroPhase] = useState('WAITING'); // WAITING, PLAYING, ENDED
+  const [introClicks, setIntroClicks] = useState(0);
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [isHost, setIsHost] = useState(false);
@@ -29,11 +33,11 @@ function App() {
   
   // Game Phase data
   const [gamePhase, setGamePhase] = useState('');
-  const [timeRemaining, setTimeRemaining] = useState(0);
   const [myRole, setMyRole] = useState(null);
   const [eventNews, setEventNews] = useState(null); 
   const [systemNotes, setSystemNotes] = useState([]);
   const [dayCount, setDayCount] = useState(1);
+  const [dousedList, setDousedList] = useState([]);
   const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, kirmizi: 4, gri: 2, yesil: 9 });
   const [isRatioManuallySet, setIsRatioManuallySet] = useState(false);
   const [gameResults, setGameResults] = useState(null);
@@ -111,19 +115,23 @@ function App() {
       if (me) setMyRole(me.role);
     });
 
-    socket.on('phaseChanged', ({ phase, timeRemaining, dayCount: newDay }) => {
+    socket.on('phaseChanged', ({ phase, dayCount: newDay, doused }) => {
       setGamePhase(phase);
-      setTimeRemaining(timeRemaining);
       if (newDay) setDayCount(newDay);
+      if (doused) setDousedList(doused);
       setEventNews(null); 
     });
 
-    socket.on('timerUpdate', (t) => setTimeRemaining(t));
-
-    socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment, personalNote }) => {
+    socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment, personalNote, cause }) => {
       if(killedPlayerName) {
-        setEventNews(`${killedPlayerName} gece karanlığında kurban gitti.`);
-        setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü.`, align: 'Bilinmiyor' }]);
+        if (cause === 'arsonist') {
+           setEventNews(`${killedPlayerName} gece evinde çıkan feci bir yangında kül oldu!`);
+           setSystemNotes(prev => [...prev, { text: `${killedPlayerName} yanarak can verdi.`, align: 'Kırmızı' }]);
+        } else {
+           setEventNews(`${killedPlayerName} gece karanlığında kurban gitti.`);
+           setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü.`, align: 'Bilinmiyor' }]);
+        }
+        
         if (personalNote) {
            setRevealedNotes(prev => [...prev, { playerName: killedPlayerName, note: personalNote }]);
         }
@@ -207,8 +215,17 @@ function App() {
       }} />;
   }
 
+  if (gameState === 'TEST') {
+      return <TestUI onExit={() => {
+          const url = new URL(window.location);
+          url.searchParams.delete('test');
+          window.history.pushState({}, '', url);
+          setGameState('INTRO');
+      }} />;
+  }
+
   return (
-    <div className="min-h-[100dvh] text-slate-100 font-sans flex flex-col items-center p-4">
+    <div className="min-h-[100dvh] text-slate-100 font-sans flex flex-col items-center p-4 bg-[#050505]" onClick={() => showHeader && setShowHeader(false)}>
       {toast && (
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
           {toast}
@@ -228,8 +245,17 @@ function App() {
                  Karanlığa Adım At
               </button>
            )}
-           <div className={`absolute inset-0 overflow-hidden flex items-center justify-center bg-black transition-opacity duration-1000 ${introPhase === 'WAITING' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <div className="relative w-full aspect-video md:w-full md:h-full md:aspect-auto flex items-center justify-center">
+           <div 
+              className={`absolute inset-0 overflow-hidden flex items-center justify-center bg-black transition-opacity duration-1000 ${introPhase === 'WAITING' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+              onClick={() => {
+                const nextClicks = introClicks + 1;
+                setIntroClicks(nextClicks);
+                if (nextClicks >= 3) {
+                   setIntroPhase('ENDED');
+                }
+              }}
+           >
+              <div className="relative w-full aspect-video md:w-full md:h-full md:aspect-auto flex items-center justify-center pointer-events-none">
                  <video 
                     ref={videoRef}
                     src="/intro.mp4" 
@@ -260,13 +286,48 @@ function App() {
       )}
 
       {gameState !== 'INTRO' && (
-        <div className="w-full flex flex-col items-center pt-8 md:pt-20 pb-20">
-          <header className="mb-8 mt-4 text-center relative w-full max-w-4xl">
-            <h1 className="text-5xl font-bold text-blood-red tracking-widest drop-shadow-lg font-serif">KUYU</h1>
-            <p className="text-sm text-slate-400 mt-2 tracking-wide text-opacity-80">Karanlık Bir Köyün Olayları</p>
-            {gameState !== 'JOIN' && (
-              <button onClick={handleLeave} className="absolute right-0 top-2 bg-red-900/50 hover:bg-red-800 text-red-200 px-4 py-2 rounded-lg text-xs tracking-widest uppercase transition border border-red-900/50 shadow-lg">
-                Çıkış Yap
+        <div className="w-full flex flex-col items-center pt-2 md:pt-6 pb-20 relative">
+          
+          {/* ÜST AÇILIR MENÜ SEKMESİ (Sadece Oyun İçinde) */}
+          {gameState === 'GAME' && (
+             <div 
+                className="absolute top-0 left-0 w-full h-8 bg-gradient-to-r from-red-950 via-blood-red to-red-950 border-b-2 border-red-700/50 cursor-pointer flex items-center justify-center z-50 shadow-[0_0_15px_rgba(220,38,38,0.5)] group"
+                onClick={(e) => { e.stopPropagation(); setShowHeader(!showHeader); }}
+                style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px)' }}
+             >
+                <div className="w-12 h-1 bg-white/50 rounded-full group-hover:bg-white transition-colors"></div>
+             </div>
+          )}
+
+          <header className={gameState === 'GAME' 
+             ? `transition-all duration-500 origin-top overflow-hidden w-full max-w-4xl text-center relative z-40 bg-black/80 backdrop-blur-md rounded-b-3xl border-b border-x border-slate-800/50 ${showHeader ? 'opacity-100 max-h-60 mt-8 pb-6 mb-6 shadow-2xl' : 'opacity-0 max-h-0 mt-8 mb-0 pb-0 border-transparent'}`
+             : "w-full max-w-4xl text-center relative z-40 mb-8 mt-2"}>
+            <div className="relative inline-block px-10 py-4 mt-2">
+               {/* Esrarengiz Başlık Tasarımı */}
+               <h1 className="text-5xl md:text-6xl font-black text-blood-red tracking-[0.4em] font-serif transition-all duration-1000 drop-shadow-[0_0_15px_rgba(127,29,29,0.7)] hover:drop-shadow-[0_0_30px_rgba(220,38,38,1)] cursor-default">
+                  KUYU
+               </h1>
+               <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-blood-red/40 to-transparent mt-2"></div>
+               <p className="text-[9px] md:text-[11px] text-slate-500 mt-2 tracking-[0.3em] uppercase font-bold italic opacity-60">Fısıltılar Köyü</p>
+            </div>
+
+            {gameState === 'GAME' && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleLeave(); }} 
+                className="mt-4 mx-auto group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-red-900 bg-red-950/40 hover:bg-red-900/60 hover:border-red-500 transition-all duration-500 shadow-[0_0_15px_rgba(127,29,29,0.5)]"
+              >
+                <LogOut size={14} className="text-red-400 group-hover:text-white transition-colors" />
+                <span className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-300 group-hover:text-white transition-colors">Kasabayı Terket</span>
+              </button>
+            )}
+
+            {gameState === 'LOBBY' && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleLeave(); }} 
+                className="absolute right-0 top-1/2 -translate-y-1/2 group flex items-center gap-2 px-4 py-2 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 transition-all duration-500 shadow-xl"
+              >
+                <LogOut size={14} className="text-red-400 group-hover:text-red-300 transition-colors" />
+                <span className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-400 group-hover:text-red-300 transition-colors hidden sm:inline">Çıkış</span>
               </button>
             )}
           </header>
@@ -362,12 +423,12 @@ function App() {
            roomCode={roomCode}
            players={players}
            gamePhase={gamePhase}
-           timeRemaining={timeRemaining}
            myRole={myRole}
            eventNews={eventNews}
            systemNotes={systemNotes}
            isDevMode={isDevMode}
            dayCount={dayCount}
+           dousedList={dousedList}
            gameResults={gameResults}
            revealedNotes={revealedNotes}
            setRevealedNotes={setRevealedNotes}
