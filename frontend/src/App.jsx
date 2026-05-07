@@ -130,10 +130,9 @@ function App() {
            setEventNews(`${killedPlayerName} gece karanlığında kurban gitti.`);
            setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü.`, align: 'Bilinmiyor' }]);
         }
-        
-        if (personalNote) {
-           setRevealedNotes(prev => [...prev, { playerName: killedPlayerName, note: personalNote }]);
-        }
+
+        /* Vasiyet boş olsa bile göster — kullanıcı Tamam'a basana kadar açık kalsın */
+        setRevealedNotes(prev => [...prev, { playerName: killedPlayerName, note: personalNote || '' }]);
       } else {
         setEventNews('Dün gece köye huzur hakimdi, kimse ölmedi.');
       }
@@ -147,9 +146,8 @@ function App() {
        if(lynchedPlayerName) {
          setEventNews(`${lynchedPlayerName} köylüler tarafından ${voteTally} oyla kuyuya fırlatıldı!`);
          setSystemNotes(prev => [...prev, { text: `${lynchedPlayerName} kuyuya atıldı. (Toplam Oy: ${voteTally})`, align: 'Bilinmiyor' }]);
-         if (personalNote) {
-            setRevealedNotes(prev => [...prev, { playerName: lynchedPlayerName, note: personalNote }]);
-         }
+         /* Vasiyet boş olsa bile göster */
+         setRevealedNotes(prev => [...prev, { playerName: lynchedPlayerName, note: personalNote || '' }]);
        } else {
          setEventNews('Oylar eşit, kimse kuyuya atılmadı.');
        }

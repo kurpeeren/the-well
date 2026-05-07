@@ -559,25 +559,48 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               <div ref={chatEndRef} />
            </div>
 
-           {/* SOHBET GİRDİSİ */}
-           <div className="p-2 bg-slate-900/60 border-t border-slate-800/50 shrink-0">
-              {isSpectator && gamePhase === 'DAY' ? (
-                 <div className="p-2 text-center"><p className="text-purple-400/80 text-[10px] font-serif uppercase">— İzleyici Modu —</p></div>
-              ) : canSendChat ? (
-                 <form onSubmit={sendChat} className="flex gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
-                    <input type="text" 
-                       value={currentMessage} 
-                       onChange={e => setCurrentMessage(e.target.value)} 
-                       disabled={isSilenced && gamePhase === 'DAY'}
-                       className="flex-1 min-w-0 bg-transparent text-white px-3 py-2 focus:outline-none text-sm" 
-                       placeholder={isSilenced && gamePhase === 'DAY' ? "Susturuldun!" : (gamePhase === 'NIGHT' ? (isEskiya ? "Çete ile konuş..." : "Ruhlarla fısılda...") : "Zanlıları tartış...")} 
-                    />
-                    <button type="submit" disabled={isSilenced && gamePhase === 'DAY'} className="bg-accent px-4 shrink-0 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center text-white disabled:opacity-50"><Send size={16} /></button>
-                 </form>
-              ) : (
-                 <div className="p-2 text-center opacity-50"><p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Sohbet Kapalı</p></div>
-              )}
-           </div>
+           {/* SOHBET GİRDİSİ — Channel'a göre tema */}
+           {(() => {
+              const chatChannel =
+                 gamePhase === 'NIGHT' && canSeeDeadChat ? 'dead' :
+                 gamePhase === 'NIGHT' && isEskiya && me.isAlive ? 'mafia' :
+                 gamePhase === 'DAY' ? 'day' : null;
+
+              const channelTheme = {
+                 dead:  { wrap: 'bg-purple-950/40 border-purple-900/50',  form: 'bg-purple-900/30 border-purple-800/50',  send: 'bg-purple-700 hover:bg-purple-600',  label: 'Ölüler Boyutu',     placeholder: 'Ruhlarla fısılda...',     text: 'text-purple-300' },
+                 mafia: { wrap: 'bg-red-950/40 border-red-900/50',        form: 'bg-red-900/30 border-red-800/50',        send: 'bg-red-700 hover:bg-red-600',        label: 'Çete Sohbeti',      placeholder: 'Çete ile konuş...',       text: 'text-red-300' },
+                 day:   { wrap: 'bg-slate-900/60 border-slate-800/50',    form: 'bg-slate-800 border-slate-700',          send: 'bg-accent hover:bg-amber-700',       label: null,                placeholder: 'Zanlıları tartış...',     text: 'text-slate-300' },
+              };
+              const t = channelTheme[chatChannel] || channelTheme.day;
+
+              return (
+                 <div className={`shrink-0 border-t ${t.wrap}`}>
+                    {chatChannel && channelTheme[chatChannel].label && (
+                       <div className={`px-3 py-1 text-center text-[9px] font-black uppercase tracking-[0.3em] ${t.text} border-b ${t.wrap.split(' ')[1]}`}>
+                          — {t.label} —
+                       </div>
+                    )}
+                    <div className="p-2">
+                       {isSpectator && gamePhase === 'DAY' ? (
+                          <div className="p-2 text-center"><p className="text-purple-400/80 text-[10px] font-serif uppercase">— İzleyici Modu —</p></div>
+                       ) : canSendChat ? (
+                          <form onSubmit={sendChat} className={`flex gap-2 p-1 rounded-xl border ${t.form}`}>
+                             <input type="text"
+                                value={currentMessage}
+                                onChange={e => setCurrentMessage(e.target.value)}
+                                disabled={isSilenced && gamePhase === 'DAY'}
+                                className="flex-1 min-w-0 bg-transparent text-white px-3 py-2 focus:outline-none text-sm"
+                                placeholder={isSilenced && gamePhase === 'DAY' ? "Susturuldun!" : t.placeholder}
+                             />
+                             <button type="submit" disabled={isSilenced && gamePhase === 'DAY'} className={`${t.send} px-4 shrink-0 rounded-lg transition-colors flex items-center justify-center text-white disabled:opacity-50`}><Send size={16} /></button>
+                          </form>
+                       ) : (
+                          <div className="p-2 text-center opacity-50"><p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Sohbet Kapalı</p></div>
+                       )}
+                    </div>
+                 </div>
+              );
+           })()}
         </div>
 
       </div>

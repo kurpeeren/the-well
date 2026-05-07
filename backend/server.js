@@ -8,10 +8,6 @@ const path = require('path');
 app.use(cors());
 app.get('/', (req, res) => res.send('Kuyu Backend is running healthy!'));
 
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin', 'index.html'));
-});
-
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'kuyuadmin';
 
 app.get('/api/admin/stats', (req, res) => {
@@ -75,8 +71,16 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
 
 const rooms = {};
-const generateRoomCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateRoomCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    return result;
+};
 const generateToken = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+// Simple rate limiter map: socketId -> lastMessageTime
+const chatRateLimitMap = {};
 
 const { ROLES } = require('./roles');
 const GameEngine = require('./GameEngine');
@@ -109,6 +113,7 @@ io.on('connection', (socket) => {
       dayCount: 1,
       peacefulDays: 0,
       createdAt: Date.now(),
+      lastActivity: Date.now(),
       spectators: [],
       settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30 }
     };
@@ -173,7 +178,7 @@ io.on('connection', (socket) => {
       peacefulDays: 0,
       createdAt: Date.now(),
       spectators: [],
-      settings: { nightTimer: 3, morningTimer: 3, dayTimer: 5, votingTimer: 3 }
+      settings: { nightTimer: 30, morningTimer: 10, dayTimer: 45, votingTimer: 25 }
     };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: true, token: hostToken, isDevMode: true, settings: rooms[roomCode].settings });
@@ -252,15 +257,18 @@ io.on('connection', (socket) => {
      if (!room) return;
      const playerIndex = room.players.findIndex(p => p.token === token);
      if (playerIndex !== -1) {
+        const socketId = room.players[playerIndex].socketId;
         if (room.status === 'LOBBY') {
-           const socketId = room.players[playerIndex].socketId;
            room.players.splice(playerIndex, 1);
            if (room.host === socketId && room.players.length > 0) room.host = room.players[0].socketId;
-           io.to(roomCode).emit('updateLobby', room.players);
         } else {
            room.players[playerIndex].connected = false;
-           io.to(roomCode).emit('updateLobby', room.players);
+           if (room.host === socketId) {
+               const nextHost = room.players.find(p => p.connected);
+               if (nextHost) room.host = nextHost.socketId;
+           }
         }
+        io.to(roomCode).emit('updateLobby', room.players);
      }
   });
 
@@ -353,6 +361,13 @@ io.on('connection', (socket) => {
            }
         } else {
            room.players[playerIndex].connected = false;
+           if (room.host === socket.id) {
+               const nextHost = room.players.find(p => p.connected);
+               if (nextHost) {
+                   room.host = nextHost.socketId;
+                   io.to(room.host).emit('hostChanged', true);
+               }
+           }
            io.to(roomCode).emit('updateLobby', room.players);
         }
       }
@@ -360,6 +375,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chatMessage', ({ roomCode, message, impersonateId }) => {
+    const now = Date.now();
+    if (chatRateLimitMap[socket.id] && now - chatRateLimitMap[socket.id] < 500) return;
+    chatRateLimitMap[socket.id] = now;
+
     const room = rooms[roomCode];
     if(room && room.status === 'DAY') {
       const actorId = getActorId(room, socket.id, impersonateId);
@@ -375,18 +394,43 @@ io.on('connection', (socket) => {
   });
 
   socket.on('deadChatMessage', ({ roomCode, message, impersonateId }) => {
+    const now = Date.now();
+    if (chatRateLimitMap[socket.id] && now - chatRateLimitMap[socket.id] < 500) return;
+    chatRateLimitMap[socket.id] = now;
+
     const room = rooms[roomCode];
     if(room) {
       const actorId = getActorId(room, socket.id, impersonateId);
       const player = room.players.find(p => p.socketId === actorId);
-      if (player && !player.isAlive) {
+      // Gassal hayatta olsa bile ölüler boyutuna mesaj gönderebilir
+      if (player && (!player.isAlive || player.role === 'Gassal')) {
+         const senderLabel = player.role === 'Gassal' && player.isAlive ? `[Gassal] ${player.name}` : `[Ölü] ${player.name}`;
          room.players.forEach(p => {
             if (!p.isAlive || p.role === 'Gassal') {
-               engine.sendPrivateNews(roomCode, p.socketId, { text: `[Ölü] ${player.name}: ${message}`, align: 'Gri', isDeadChatEvent: true });
-               socket.to(p.socketId).emit('deadChatMessage', { sender: `[Ölü] ${player.name}`, message });
+               io.to(p.socketId).emit('chatMessage', { sender: senderLabel, message, type: 'dead' });
             }
          });
-         if (room.isDevMode) io.to(room.host).emit('deadChatMessage', { sender: `[Ölü] ${player.name}`, message });
+         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: senderLabel, message, type: 'dead' });
+      }
+    }
+  });
+
+  socket.on('mafiaChatMessage', ({ roomCode, message, impersonateId }) => {
+    const now = Date.now();
+    if (chatRateLimitMap[socket.id] && now - chatRateLimitMap[socket.id] < 500) return;
+    chatRateLimitMap[socket.id] = now;
+
+    const room = rooms[roomCode];
+    if(room && room.status === 'NIGHT') {
+      const actorId = getActorId(room, socket.id, impersonateId);
+      const player = room.players.find(p => p.socketId === actorId);
+      if (player && player.isAlive && ROLES[player.role]?.team === 'Eşkıyalar') {
+         room.players.forEach(p => {
+            if (p.isAlive && ROLES[p.role]?.team === 'Eşkıyalar') {
+               io.to(p.socketId).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia' });
+            }
+         });
+         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia' });
       }
     }
   });
@@ -395,9 +439,11 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if(room && room.status === 'DAY') {
       const actorId = getActorId(room, socket.id, impersonateId);
+      if (room.silenced && room.silenced[actorId]) return; // Exploit önlemi: Susturulmuş muhtar mührünü vuramaz
       const player = room.players.find(p => p.socketId === actorId);
       if (player && player.role === 'Muhtar' && player.isAlive && !player.isMayorRevealed) {
          player.isMayorRevealed = true;
+         player.uses = 1; // 1 = Has Vest, 0 = Used Vest or None
          io.to(roomCode).emit('mayorRevealed', { playerName: player.name });
       }
     }
@@ -466,6 +512,26 @@ io.on('connection', (socket) => {
   });
 
 });
+
+// Garbage Collector: Remove old inactive rooms to prevent memory leaks
+setInterval(() => {
+   const now = Date.now();
+   const THREE_HOURS = 3 * 60 * 60 * 1000;
+   let deletedCount = 0;
+   
+   for (const roomCode in rooms) {
+      const room = rooms[roomCode];
+      // Oda 3 saatten eskiyse ve (LOBBY veya END durumundaysa ya da aktif kimse yoksa) sil
+      if (now - room.createdAt > THREE_HOURS) {
+         if (room.timerInterval) clearInterval(room.timerInterval);
+         delete rooms[roomCode];
+         deletedCount++;
+      }
+   }
+   if (deletedCount > 0) {
+      console.log(`[GC] Temizlendi: ${deletedCount} adet hayalet oda silindi. Mevcut oda sayısı: ${Object.keys(rooms).length}`);
+   }
+}, 60 * 60 * 1000); // Saatte bir çalışır
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => { console.log(`[*] Backend dev port ${PORT}`); });
