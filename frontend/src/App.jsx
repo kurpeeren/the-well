@@ -224,8 +224,9 @@ function App() {
       }} />;
   }
 
+  const isInGame = gameState === 'GAME';
   return (
-    <div className="min-h-[100dvh] text-slate-100 font-sans flex flex-col items-center p-4 bg-[#050505]" onClick={() => showHeader && setShowHeader(false)}>
+    <div className={`text-slate-100 font-sans flex flex-col items-center bg-[#050505] ${isInGame ? 'h-[100dvh] sm:h-auto sm:min-h-[100dvh] sm:p-4 overflow-hidden sm:overflow-visible' : 'min-h-[100dvh] p-4'}`} onClick={() => showHeader && setShowHeader(false)}>
       {toast && (
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
           {toast}
@@ -286,12 +287,12 @@ function App() {
       )}
 
       {gameState !== 'INTRO' && (
-        <div className="w-full flex flex-col items-center pt-2 md:pt-6 pb-20 relative">
-          
+        <div className={`w-full flex flex-col items-center relative ${isInGame ? 'h-full sm:h-auto pt-6 sm:pt-8 sm:pb-20 overflow-hidden sm:overflow-visible' : 'pt-2 md:pt-6 pb-20'}`}>
+
           {/* ÜST AÇILIR MENÜ SEKMESİ (Sadece Oyun İçinde) */}
           {gameState === 'GAME' && (
-             <div 
-                className="absolute top-0 left-0 w-full h-8 bg-gradient-to-r from-red-950 via-blood-red to-red-950 border-b-2 border-red-700/50 cursor-pointer flex items-center justify-center z-50 shadow-[0_0_15px_rgba(220,38,38,0.5)] group"
+             <div
+                className="absolute top-0 left-0 w-full h-6 sm:h-8 bg-gradient-to-r from-red-950 via-blood-red to-red-950 border-b-2 border-red-700/50 cursor-pointer flex items-center justify-center z-50 shadow-[0_0_15px_rgba(220,38,38,0.5)] group shrink-0"
                 onClick={(e) => { e.stopPropagation(); setShowHeader(!showHeader); }}
                 style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 20px)' }}
              >
@@ -299,8 +300,8 @@ function App() {
              </div>
           )}
 
-          <header className={gameState === 'GAME' 
-             ? `transition-all duration-500 origin-top overflow-hidden w-full max-w-4xl text-center relative z-40 bg-black/80 backdrop-blur-md rounded-b-3xl border-b border-x border-slate-800/50 ${showHeader ? 'opacity-100 max-h-60 mt-8 pb-6 mb-6 shadow-2xl' : 'opacity-0 max-h-0 mt-8 mb-0 pb-0 border-transparent'}`
+          <header className={gameState === 'GAME'
+             ? `transition-all duration-500 origin-top overflow-hidden w-full max-w-4xl text-center relative z-40 bg-black/90 backdrop-blur-md rounded-b-3xl border-b border-x border-slate-800/50 ${showHeader ? 'opacity-100 max-h-60 mt-6 sm:mt-8 pb-6 mb-2 sm:mb-6 shadow-2xl' : 'opacity-0 max-h-0 mt-6 sm:mt-8 mb-0 pb-0 border-transparent'}`
              : "w-full max-w-4xl text-center relative z-40 mb-8 mt-2"}>
             <div className="relative inline-block px-10 py-4 mt-2">
                {/* Esrarengiz Başlık Tasarımı */}

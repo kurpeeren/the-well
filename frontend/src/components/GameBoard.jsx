@@ -335,7 +335,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   };
 
   return (
-    <div className={`w-full max-w-4xl flex flex-col gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 h-[100dvh] sm:h-auto sm:min-h-[75vh]`}>
+    <div className={`w-full max-w-4xl flex flex-col gap-0 sm:gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 h-full sm:h-auto sm:min-h-[75vh] overflow-hidden`}>
       
       {isDevMode && (
          <div className="bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
@@ -360,7 +360,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
          </div>
       )}
 
-      <div className="flex justify-between items-center bg-slate-900/60 p-2 sm:p-4 rounded-xl border border-slate-800 backdrop-blur-sm gap-2">
+      <div className="flex justify-between items-center bg-slate-900/80 sm:bg-slate-900/60 px-3 py-2 sm:p-4 rounded-none sm:rounded-xl border-0 border-b sm:border border-slate-800 backdrop-blur-sm gap-2 shrink-0">
         <div className="flex gap-2 sm:gap-4 items-center flex-1 min-w-0">
            <div className="p-1.5 sm:p-2 bg-slate-800 rounded-full border border-slate-700 shadow-inner shrink-0">
              {getPhaseIcon()}
@@ -396,16 +396,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
       </div>
 
-      <div className={`overflow-hidden transition-all duration-500 ${eventNews ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="bg-gradient-to-r from-blood-red/80 to-transparent p-4 rounded-xl border-l-4 border-red-500 flex items-center gap-3 shadow-lg mb-4">
-          <AlertTriangle className="text-white shrink-0" />
-          <p className="text-lg font-medium text-white">{eventNews}</p>
+      <div className={`overflow-hidden transition-all duration-500 shrink-0 ${eventNews ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
+        <div className="bg-gradient-to-r from-blood-red/80 to-transparent p-3 sm:p-4 rounded-none sm:rounded-xl border-l-4 border-red-500 flex items-center gap-3 shadow-lg mb-0 sm:mb-4">
+          <AlertTriangle className="text-white shrink-0" size={18} />
+          <p className="text-sm sm:text-lg font-medium text-white">{eventNews}</p>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2 overflow-hidden h-full">
+      <div className="flex flex-col lg:flex-row gap-0 sm:gap-4 flex-1 mt-0 sm:mt-2 overflow-hidden min-h-0">
 
-      <div className="flex-1 flex flex-col relative sm:rounded-xl border-y sm:border border-slate-800/50 bg-black/10 overflow-hidden h-full">
+      <div className="flex-1 flex flex-col relative sm:rounded-xl border-0 sm:border border-slate-800/50 bg-black/10 overflow-hidden min-h-0">
         
         {/* ÜST: AKSİYON ALANI (Gece Seçimleri, Oylama, Haberler) */}
         <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'VOTING', 'MORNING'].includes(gamePhase) && !hasActioned ? 'min-h-[140px] max-h-[180px]' : 'max-h-[0px]'}`}>
@@ -569,12 +569,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       </div>
 
-      <div className="w-full lg:w-56 flex flex-col gap-4 min-h-[200px] lg:h-full shrink-0">
-
-        {/* ... (rest of the file) */}
-
-
-        {/* END */}
+        {/* END (fixed overlay — no layout wrapper needed) */}
         {gamePhase === 'END' && (
           <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col p-8 overflow-y-auto animate-in fade-in duration-1000 custom-scrollbar">
              <h2 className="text-5xl font-serif text-center mb-4 tracking-widest text-amber-500 uppercase drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">Oyun Sona Erdi</h2>
@@ -624,9 +619,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
           </div>
         )}
 
-      </div>
-
-      <div className="w-full lg:w-56 flex flex-col gap-4 min-h-[300px] lg:h-full shrink-0">
+      <div className="hidden lg:flex w-full lg:w-56 flex-col gap-4 lg:h-full shrink-0">
           <div className="flex flex-col bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex-1 overflow-hidden shadow-md">
              <h3 className="text-slate-400 font-bold border-b border-slate-700 pb-2 mb-2 text-center text-xs uppercase tracking-widest flex items-center justify-center gap-2">
                 Kuyunun Dibi
@@ -789,6 +782,60 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               >
                 Anladım
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MEZARLIK / KUYU MODALI (Mobile-only via Skull icon) */}
+      {showGraveyard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowGraveyard(false)}>
+          <div className="w-full h-full sm:h-[80vh] sm:max-w-md bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl shrink-0">
+              <div className="flex items-center gap-3">
+                <Skull className="text-slate-400" size={22} />
+                <h3 className="text-lg font-bold font-serif tracking-widest text-slate-200">Kuyunun Dibi</h3>
+              </div>
+              <button onClick={() => setShowGraveyard(false)} className="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700 transition"><X size={22} /></button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
+              <div>
+                <h4 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-2 border-b border-slate-800 pb-2">Ölüler</h4>
+                <ul className="space-y-2">
+                  {players.filter(p => !p.isAlive).map(p => {
+                    const roleToDisplay = p.displayRole || p.role;
+                    return (
+                      <li key={p.socketId} className="flex items-center justify-between bg-black/40 px-3 py-2.5 rounded-lg border border-slate-800">
+                        <span className="text-slate-300 font-medium text-sm line-through opacity-70">{p.name}</span>
+                        <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider`}>{roleToDisplay}</span>
+                      </li>
+                    );
+                  })}
+                  {players.filter(p => !p.isAlive).length === 0 && (
+                    <p className="text-slate-600 text-[11px] italic text-center py-6 uppercase tracking-widest">Kuyu Şimdilik Boş...</p>
+                  )}
+                </ul>
+              </div>
+
+              {gamePhase === 'VOTING' && (
+                <div>
+                  <h4 className="text-[10px] font-bold text-amber-500 tracking-widest uppercase mb-2 border-b border-slate-800 pb-2">Meydan Şahitleri</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(voteDetails).length > 0 ? (
+                      Object.entries(voteDetails).map(([voter, targetId], i) => (
+                        <div key={i} className="flex items-center gap-1.5 bg-black/50 px-2.5 py-1.5 rounded-md border border-slate-800/50 shadow-inner">
+                          <span className="text-slate-400 text-[10px] uppercase font-medium">{voter}</span>
+                          <span className="text-slate-600 text-[10px]">»</span>
+                          <span className="text-blood-red font-bold text-[10px] uppercase">{targetId === 'SKIP' ? 'PAS' : players.find(p => p.socketId === targetId)?.name}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-slate-600 text-[10px] italic text-center py-4 w-full uppercase tracking-widest">Henüz Ses Yok...</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
