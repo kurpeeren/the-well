@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull } from 'lucide-react';
+import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 
 function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost }) {
@@ -384,7 +384,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
            <button onClick={() => setShowGraveyard(true)} className="lg:hidden p-2 bg-slate-800 rounded-full border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white transition-all shadow-md relative">
              <Skull size={18} />
            </button>
@@ -393,6 +393,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              {systemNotes?.length > 0 && <span className="absolute -top-1 -right-1 bg-blood-red w-3 h-3 rounded-full animate-pulse border border-dark-bg"></span>}
            </button>
            <TimerDisplay socket={socket} />
+           <button
+              onClick={() => {
+                 if (window.confirm('Kasabayı terk etmek istediğine emin misin?')) {
+                    onLeave ? onLeave() : window.location.reload();
+                 }
+              }}
+              title="Kasabayı Terket"
+              className="p-2 bg-red-950/40 rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 text-red-400 hover:text-white transition-all shadow-md"
+           >
+             <LogOut size={18} />
+           </button>
         </div>
       </div>
 
