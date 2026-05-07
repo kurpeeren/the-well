@@ -15,7 +15,8 @@
 }
 
 html, body, #root {
-  height: 100dvh;
+  height: 100vh;
+  height: 100svh;
 }
 
 body {
@@ -31,7 +32,8 @@ body {
 @media (min-width: 640px) {
   html, body, #root {
     height: auto;
-    min-height: 100dvh;
+    min-height: 100vh;
+    min-height: 100svh;
   }
   body {
     overflow: auto;
