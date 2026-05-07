@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { UserPlus, LogIn, ArrowRight, Eye } from 'lucide-react';
 
 function Lobby({ socket, playerName, setPlayerName, showToast }) {
   const [mode, setMode] = useState(''); // 'CREATE', 'JOIN'
   const [joinCode, setJoinCode] = useState('');
+  const formRef = useRef(null);
+
+  const handleInputFocus = () => {
+    /* Klavye açılınca form üste kaysın ki butonlar kaybolmasın */
+    setTimeout(() => {
+      if (formRef.current) {
+        formRef.current.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
+    }, 300);
+  };
 
   const handleCreate = () => {
     if (!playerName.trim()) return showToast('Kasabaya girmek için bir isim seç.');
@@ -22,7 +32,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
   };
 
   return (
-    <div className="w-full max-w-sm flex flex-col gap-3 sm:gap-5 bg-dark-bg p-5 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden group transition-all duration-500 max-h-full">
+    <div ref={formRef} className="w-full max-w-sm flex flex-col gap-3 sm:gap-5 bg-dark-bg p-5 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden group transition-all duration-500 max-h-full">
 
       {/* Decorative gradient */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blood-red via-accent to-blood-red opacity-70"></div>
@@ -34,6 +44,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
           placeholder="İsmini fısılda..."
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
+          onFocus={handleInputFocus}
           className="w-full bg-slate-900 border border-slate-700 p-3 sm:p-4 rounded-xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white transition-all shadow-inner"
         />
       </div>
@@ -81,6 +92,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
              placeholder="Köy Mührü"
              value={joinCode}
              onChange={e => setJoinCode(e.target.value)}
+             onFocus={handleInputFocus}
              className="w-full bg-slate-900 border border-slate-700 p-3 sm:p-4 rounded-xl text-center text-xl sm:text-2xl tracking-[0.3em] font-mono focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent placeholder:text-slate-600 shadow-inner"
              maxLength={6}
           />
@@ -98,6 +110,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
              placeholder="Köy Mührü"
              value={joinCode}
              onChange={e => setJoinCode(e.target.value)}
+             onFocus={handleInputFocus}
              className="w-full bg-slate-900 border border-purple-900/50 p-3 sm:p-4 rounded-xl text-center text-xl sm:text-2xl tracking-[0.3em] font-mono focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 placeholder:text-slate-600 shadow-inner"
              maxLength={6}
           />
