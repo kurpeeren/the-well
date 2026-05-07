@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
-import { LogOut, AlertTriangle, BookOpen, X, Flame, VolumeX } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
@@ -42,7 +42,7 @@ function App() {
   const [gameResults, setGameResults] = useState(null);
   const [revealedNotes, setRevealedNotes] = useState([]);
   const [toast, setToast] = useState(null);
-  const [showRoleSettings, setShowRoleSettings] = useState(false);
+  const [lobbyTab, setLobbyTab] = useState('players'); // 'players' | 'settings' | 'roles'
 
   const showToast = (msg) => {
     setToast(msg);
@@ -286,22 +286,22 @@ function App() {
       )}
 
       {gameState !== 'INTRO' && (
-        <div className={`w-full flex flex-col items-center relative flex-1 min-h-0 ${isInGame ? 'overflow-hidden' : 'overflow-y-auto sm:overflow-visible custom-scrollbar p-4 pb-8 sm:p-0 sm:pb-20'}`}>
+        <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden sm:overflow-visible sm:pb-20">
 
           {!isInGame && (
-            <header className="w-full max-w-4xl text-center relative z-40 mb-6 sm:mb-8 mt-2 shrink-0">
-              <div className="relative inline-block px-6 sm:px-10 py-3 sm:py-4">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-blood-red tracking-[0.4em] font-serif drop-shadow-[0_0_15px_rgba(127,29,29,0.7)] cursor-default">
+            <header className="w-full max-w-4xl text-center relative z-40 mt-2 mb-3 sm:mb-8 shrink-0 px-4">
+              <div className="relative inline-block px-6 sm:px-10 py-2 sm:py-4">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-blood-red tracking-[0.4em] font-serif drop-shadow-[0_0_15px_rgba(127,29,29,0.7)] cursor-default">
                   KUYU
                 </h1>
                 <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-blood-red/40 to-transparent mt-2"></div>
-                <p className="text-[9px] md:text-[11px] text-slate-500 mt-2 tracking-[0.3em] uppercase font-bold italic opacity-60">Fısıltılar Köyü</p>
+                <p className="text-[9px] md:text-[11px] text-slate-500 mt-1 sm:mt-2 tracking-[0.3em] uppercase font-bold italic opacity-60">Fısıltılar Köyü</p>
               </div>
 
               {gameState === 'LOBBY' && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleLeave(); }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 group flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 transition-all duration-500 shadow-xl"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 group flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 transition-all duration-500 shadow-xl"
                 >
                   <LogOut size={14} className="text-red-400 group-hover:text-red-300 transition-colors" />
                   <span className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-400 group-hover:text-red-300 transition-colors hidden sm:inline">Çıkış</span>
@@ -309,89 +309,155 @@ function App() {
               )}
             </header>
           )}
-          
+
           {gameState === 'JOIN' && (
-            <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+            <div className="flex-1 min-h-0 w-full flex items-center justify-center px-4 pb-4 sm:pb-0">
+              <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+            </div>
           )}
       
       {gameState === 'LOBBY' && (
-         <div className="w-full max-w-md bg-dark-bg p-6 rounded-xl border border-slate-800 shadow-2xl transition-all">
-           <h2 className="text-2xl mb-6 font-semibold text-center text-accent tracking-widest">Oda: {roomCode}</h2>
-           <ul className="mb-6 space-y-3">
-             {players.map((p, i) => (
-               <li key={i} className="bg-slate-800 px-4 py-3 rounded-lg flex justify-between shadow-inner">
-                 <span className="font-medium text-slate-200">{p.name} {p.socketId === socket.id && <span className="text-slate-500 text-sm ml-2">(Sen)</span>}</span>
-                 {p.socketId === players[0]?.socketId && <span className="text-amber-500 text-xs font-bold mt-1 tracking-wider uppercase">Host</span>}
-               </li>
-             ))}
-             {players.length === 0 && <li className="text-slate-500 italic text-center">İzleyici modundasın. Oyuncular listeleniyor...</li>}
-           </ul>
+         <div className="w-full max-w-md flex-1 min-h-0 flex flex-col bg-dark-bg sm:rounded-xl border-y sm:border border-slate-800 shadow-2xl mx-0 sm:mx-4 sm:my-2">
+           {/* Oda kodu üst bar */}
+           <div className="shrink-0 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
+              <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest">Oda: {roomCode}</h2>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{players.length}/16</span>
+           </div>
 
-            <div className="bg-slate-900 p-4 rounded-xl mb-6 border border-slate-700">
-              <h3 className="text-yellow-500 font-bold mb-3 uppercase tracking-wider text-[11px] flex items-center justify-between">
-                 Oda Ayarları
-                 {!isHost && <span className="text-[10px] text-slate-400 normal-case">(Sadece Kurucu değiştirebilir)</span>}
-              </h3>
-              
-              <p className="text-[10px] text-slate-500 mb-2 font-medium uppercase tracking-wider border-b border-slate-800 pb-1">Süreler (Saniye)</p>
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                 {['nightTimer', 'morningTimer', 'dayTimer', 'votingTimer'].map(k => {
-                    const labelMap = { nightTimer: 'Gece', morningTimer: 'Sabah', dayTimer: 'Gün', votingTimer: 'Oylama' };
-                    return (
-                       <div key={k} className="flex flex-col">
-                          <label className="text-[10px] text-slate-400 mb-1 font-medium">{labelMap[k]}</label>
-                          <input type="number" disabled={!isHost} value={settings[k] || 0} 
-                             onChange={(e) => {
-                                const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
-                                setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
-                             }}
-                             className="bg-black border border-slate-700 rounded-lg p-2 text-white outline-none focus:border-yellow-500 focus:ring-1 text-sm w-full"
-                          />
+           {/* Sekme bar */}
+           <div className="shrink-0 grid grid-cols-3 border-b border-slate-800">
+              {[
+                 { id: 'players', label: 'Oyuncular' },
+                 { id: 'settings', label: 'Ayarlar' },
+                 { id: 'roles', label: 'Roller' },
+              ].map(t => (
+                 <button
+                    key={t.id}
+                    onClick={() => setLobbyTab(t.id)}
+                    className={`py-3 text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${
+                       lobbyTab === t.id
+                          ? 'text-accent border-accent bg-slate-900/40'
+                          : 'text-slate-500 border-transparent hover:text-slate-300'
+                    }`}
+                 >
+                    {t.label}
+                 </button>
+              ))}
+           </div>
+
+           {/* Sekme içeriği */}
+           <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-5">
+              {lobbyTab === 'players' && (
+                 <ul className="space-y-2">
+                    {players.map((p, i) => (
+                       <li key={i} className="bg-slate-800 px-4 py-3 rounded-lg flex justify-between items-center shadow-inner">
+                          <span className="font-medium text-slate-200">{p.name} {p.socketId === socket.id && <span className="text-slate-500 text-sm ml-2">(Sen)</span>}</span>
+                          {p.socketId === players[0]?.socketId && <span className="text-amber-500 text-xs font-bold tracking-wider uppercase">Host</span>}
+                       </li>
+                    ))}
+                    {players.length === 0 && <li className="text-slate-500 italic text-center py-4">İzleyici modundasın. Oyuncular listeleniyor...</li>}
+                    {isSpectator && (
+                       <p className="text-center text-accent/80 font-serif text-sm mt-4">Görünmez bir ruh olarak kasabayı izliyorsun.</p>
+                    )}
+                 </ul>
+              )}
+
+              {lobbyTab === 'settings' && (
+                 <div className="space-y-5">
+                    {!isHost && (
+                       <p className="text-[10px] text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
+                    )}
+
+                    <div>
+                       <p className="text-[10px] text-slate-500 mb-2 font-medium uppercase tracking-wider border-b border-slate-800 pb-1">Süreler (Saniye)</p>
+                       <div className="grid grid-cols-2 gap-3">
+                          {['nightTimer', 'morningTimer', 'dayTimer', 'votingTimer'].map(k => {
+                             const labelMap = { nightTimer: 'Gece', morningTimer: 'Sabah', dayTimer: 'Gün', votingTimer: 'Oylama' };
+                             return (
+                                <div key={k} className="flex flex-col">
+                                   <label className="text-[10px] text-slate-400 mb-1 font-medium">{labelMap[k]}</label>
+                                   <input type="number" disabled={!isHost} value={settings[k] || 0}
+                                      onChange={(e) => {
+                                         const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
+                                         setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                      }}
+                                      className="bg-black border border-slate-700 rounded-lg p-2 text-white outline-none focus:border-yellow-500 focus:ring-1 text-sm w-full"
+                                   />
+                                </div>
+                             )
+                          })}
                        </div>
-                    )
-                 })}
-              </div>
+                    </div>
 
-              <div className="flex justify-between items-end border-b border-slate-800 pb-1 mb-2">
-                 <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Rol Dağılımı (Altın Oran)</p>
-                 <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">Kırmızıda Eşkıya Başı ve Cinnetkar sabit</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                 {['kirmizi', 'gri', 'yesil'].map(k => {
-                    const labelMap = { kirmizi: 'Kırmızı', gri: 'Gri', yesil: 'Yeşil' };
-                    const colorMap = { kirmizi: 'text-blood-red', gri: 'text-slate-400', yesil: 'text-green-500' };
-                    return (
-                       <div key={k} className="flex flex-col">
-                          <label className={`text-[10px] ${colorMap[k]} font-bold mb-1 uppercase tracking-wider`}>{labelMap[k]}</label>
-                          <input type="number" disabled={!isHost} value={settings[k] || 0} 
-                             onChange={(e) => {
-                                setIsRatioManuallySet(true);
-                                const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
-                                setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
-                             }}
-                             className="bg-black border border-slate-700 shadow-inner rounded-lg p-2 text-white outline-none focus:border-yellow-500 focus:ring-1 text-sm w-full"
-                          />
+                    <div>
+                       <div className="flex justify-between items-end border-b border-slate-800 pb-1 mb-2">
+                          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Rol Dağılımı</p>
+                          <span className="text-[9px] text-slate-500">Eşkıya Başı + Cinnetkar sabit</span>
                        </div>
-                    )
-                 })}
-              </div>
-               <div className="mt-4 border-t border-slate-800 pt-3">
-                  <button onClick={() => isHost && setShowRoleSettings(true)} disabled={!isHost} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg transition-all text-xs font-bold uppercase tracking-widest border border-slate-700">
-                      Rol Havuzu Ayarları
-                  </button>
-               </div>
-            </div>
+                       <div className="grid grid-cols-3 gap-2">
+                          {['kirmizi', 'gri', 'yesil'].map(k => {
+                             const labelMap = { kirmizi: 'Kırmızı', gri: 'Gri', yesil: 'Yeşil' };
+                             const colorMap = { kirmizi: 'text-blood-red', gri: 'text-slate-400', yesil: 'text-green-500' };
+                             return (
+                                <div key={k} className="flex flex-col">
+                                   <label className={`text-[10px] ${colorMap[k]} font-bold mb-1 uppercase tracking-wider`}>{labelMap[k]}</label>
+                                   <input type="number" disabled={!isHost} value={settings[k] || 0}
+                                      onChange={(e) => {
+                                         setIsRatioManuallySet(true);
+                                         const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
+                                         setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                      }}
+                                      className="bg-black border border-slate-700 shadow-inner rounded-lg p-2 text-white outline-none focus:border-yellow-500 focus:ring-1 text-sm w-full"
+                                   />
+                                </div>
+                             )
+                          })}
+                       </div>
+                    </div>
+                 </div>
+              )}
 
-            {isHost ? (
-             <button onClick={() => socket.emit('startGame', roomCode)} className="w-full bg-blood-red hover:bg-red-800 text-white font-bold py-4 rounded-lg transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(127,29,29,0.4)]">
-               Oyunu Başlat ({players.length}/16)
-             </button>
-           ) : (
-             <p className="text-center text-slate-400 animate-pulse mt-4">Köyün kurucusu bekleniyor...</p>
-           )}
-           {isSpectator && (
-             <p className="text-center text-accent/80 font-serif text-sm mt-2">Görünmez bir ruh olarak kasabayı izliyorsun.</p>
-           )}
+              {lobbyTab === 'roles' && (
+                 <div className="space-y-5">
+                    {!isHost && (
+                       <p className="text-[10px] text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
+                    )}
+                    {['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
+                       <div key={group}>
+                          <h3 className={`text-[11px] font-bold mb-2 uppercase tracking-wider ${group === 'Masumlar' ? 'text-green-500' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
+                          <div className="grid grid-cols-2 gap-1.5">
+                             {ROLES_LIST.filter(r => r.group === group).map(r => (
+                                <label key={r.name} className="flex items-center space-x-2 text-slate-300 cursor-pointer hover:bg-slate-800 p-1.5 rounded transition-colors">
+                                   <input type="checkbox" checked={settings.roles ? settings.roles[r.name] !== false : true} disabled={!isHost}
+                                      onChange={(e) => {
+                                         const newRoles = { ...(settings.roles || {}) };
+                                         newRoles[r.name] = e.target.checked;
+                                         const newSettings = { ...settings, roles: newRoles };
+                                         setSettings(newSettings);
+                                         socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                      }}
+                                      className="w-4 h-4 rounded border-slate-600 text-blood-red focus:ring-blood-red focus:ring-1 bg-slate-800 shrink-0"
+                                   />
+                                   <span className="text-[12px] font-medium truncate">{r.name}</span>
+                                </label>
+                             ))}
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              )}
+           </div>
+
+           {/* Sticky CTA */}
+           <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40">
+              {isHost ? (
+                 <button onClick={() => socket.emit('startGame', roomCode)} className="w-full bg-blood-red hover:bg-red-800 text-white font-bold py-3 sm:py-4 rounded-lg transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(127,29,29,0.4)]">
+                    Oyunu Başlat ({players.length}/16)
+                 </button>
+              ) : (
+                 <p className="text-center text-slate-400 animate-pulse text-sm">Köyün kurucusu bekleniyor...</p>
+              )}
+           </div>
          </div>
       )}
 
@@ -416,42 +482,6 @@ function App() {
          />
       )}
         </div>
-      )}
-
-      {showRoleSettings && (
-         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 relative">
-               <button onClick={() => setShowRoleSettings(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
-               <h2 className="text-xl font-bold text-white mb-4 uppercase tracking-widest border-b border-slate-800 pb-2">Rol Havuzu Seçimi</h2>
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
-                     <div key={group}>
-                        <h3 className={`text-sm font-bold mb-3 uppercase tracking-wider ${group === 'Masumlar' ? 'text-green-500' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
-                        <div className="space-y-2">
-                           {ROLES_LIST.filter(r => r.group === group).map(r => (
-                              <label key={r.name} className="flex items-center space-x-3 text-slate-300 cursor-pointer hover:bg-slate-800 p-1 rounded transition-colors">
-                                 <input type="checkbox" checked={settings.roles ? settings.roles[r.name] !== false : true} disabled={!isHost}
-                                    onChange={(e) => {
-                                       const newRoles = { ...(settings.roles || {}) };
-                                       newRoles[r.name] = e.target.checked;
-                                       const newSettings = { ...settings, roles: newRoles };
-                                       setSettings(newSettings);
-                                       socket.emit('updateSettings', { roomCode, settings: newSettings });
-                                    }}
-                                    className="w-4 h-4 rounded border-slate-600 text-blood-red focus:ring-blood-red focus:ring-1 bg-slate-800"
-                                 />
-                                 <span className="text-sm font-medium">{r.name}</span>
-                              </label>
-                           ))}
-                        </div>
-                     </div>
-                  ))}
-               </div>
-               <div className="mt-6 border-t border-slate-800 pt-4 flex justify-end">
-                  <button onClick={() => setShowRoleSettings(false)} className="bg-blood-red hover:bg-red-800 text-white px-6 py-2 rounded-xl font-bold transition-colors">Tamam</button>
-               </div>
-            </div>
-         </div>
       )}
     </div>
   );

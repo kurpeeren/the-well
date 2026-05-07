@@ -26,6 +26,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const [currentMessage, setCurrentMessage] = useState('');
   const [hasActioned, setHasActioned] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
+  const [notesTab, setNotesTab] = useState('events'); // 'events' | 'will'
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showImpersonateMenu, setShowImpersonateMenu] = useState(false);
   const [personalNotesMap, setPersonalNotesMap] = useState({});
   const [isRoleVisible, setIsRoleVisible] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
@@ -344,18 +347,21 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                <button onClick={() => socket.emit('forceNextPhase', roomCode)} title="Mevcut süreyi atla" className="bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-3 py-1 text-[9px] uppercase tracking-wider rounded-lg border border-yellow-500 transition-all shadow-md whitespace-nowrap">
                  Faza Geç ⏭
                </button>
-               <select 
-                  className="bg-black text-yellow-500 border border-yellow-700 rounded-lg py-1 px-2 focus:outline-none focus:ring-1 focus:ring-yellow-500 w-[120px] md:w-auto text-[10px]"
-                  value={impersonateId || ''}
-                  onChange={(e) => {
-                     setImpersonateId(e.target.value);
-                     setHasActioned(false); 
-                  }}
-               >
-                  {players.map(p => (
-                     <option key={p.socketId} value={p.socketId}>{p.name} {p.isAlive ? '' : '(ÖLÜ)'}</option>
-                  ))}
-               </select>
+               <div className="relative">
+                  <button
+                     type="button"
+                     onClick={() => setShowImpersonateMenu(true)}
+                     className="bg-black text-yellow-500 border border-yellow-700 rounded-lg py-1 px-2 focus:outline-none focus:ring-1 focus:ring-yellow-500 w-[120px] md:w-auto text-[10px] flex items-center justify-between gap-2 hover:bg-yellow-950/40 transition-colors"
+                  >
+                     <span className="truncate">
+                        {(() => {
+                           const p = players.find(pl => pl.socketId === impersonateId);
+                           return p ? `${p.name}${p.isAlive ? '' : ' (ÖLÜ)'}` : 'Seç';
+                        })()}
+                     </span>
+                     <span className="text-yellow-700 text-[8px]">▼</span>
+                  </button>
+               </div>
             </div>
          </div>
       )}
@@ -394,11 +400,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            </button>
            <TimerDisplay socket={socket} />
            <button
-              onClick={() => {
-                 if (window.confirm('Kasabayı terk etmek istediğine emin misin?')) {
-                    onLeave ? onLeave() : window.location.reload();
-                 }
-              }}
+              onClick={() => setShowLeaveConfirm(true)}
               title="Kasabayı Terket"
               className="p-2 bg-red-950/40 rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 text-red-400 hover:text-white transition-all shadow-md"
            >
@@ -678,57 +680,74 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       </div>
 
-      {/* NOTLAR MODAL */}
+      {/* NOTLAR MODAL — Sekmeli */}
       {showNotes && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
           <div className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl">
+            <div className="shrink-0 flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl">
               <div className="flex items-center gap-3">
-                 <BookOpen className="text-accent" size={24} />
-                 <h3 className="text-xl font-bold font-serif tracking-widest text-slate-200">Köy Defteri</h3>
+                 <BookOpen className="text-accent" size={22} />
+                 <h3 className="text-lg sm:text-xl font-bold font-serif tracking-widest text-slate-200">Köy Defteri</h3>
               </div>
-              <button onClick={() => setShowNotes(false)} className="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700 transition"><X size={24} /></button>
+              <button onClick={() => setShowNotes(false)} className="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700 transition"><X size={22} /></button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
-               <div>
-                  <h4 className="text-sm font-bold text-accent tracking-wider uppercase mb-3 border-b border-slate-800 pb-2">Otomatik Sistem Notları</h4>
-                  <ul className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2 border-b border-transparent">
-                    {systemNotes?.length > 0 ? systemNotes.map((note, i) => {
-                      let borderClass = 'border-slate-600';
-                      if(note.align === 'Kırmızı') borderClass = 'border-blood-red';
-                      if(note.align === 'Yeşil') borderClass = 'border-green-500';
-                      if(note.align === 'Gri') borderClass = 'border-gray-400';
-                      if(note.align === 'Yarı') borderClass = 'border-amber-500';
-                      
-                      return (
-                        <li key={i} className={`bg-slate-800 p-3 rounded-lg border-l-4 ${borderClass} shadow-inner text-[13px] flex items-center gap-4`}>
-                          <span className="text-slate-300">{note.text}</span>
-                        </li>
-                      );
-                    }) : (
-                      <li className="text-slate-500 italic text-sm">Henüz bir olay gerçekleşmedi...</li>
-                    )}
-                  </ul>
-               </div>
 
-               <div className="flex-1 flex flex-col">
-                  <div className="flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
-                     <h4 className="text-sm font-bold text-yellow-500 tracking-wider uppercase">Vasiyetin (Gizli Notların)</h4>
-                     <span className="text-[9px] text-yellow-500/70 italic uppercase tracking-widest hidden sm:inline">Öldüğünde tüm köye okunacaktır</span>
+            {/* Sekme bar */}
+            <div className="shrink-0 grid grid-cols-2 border-b border-slate-800">
+               {[
+                  { id: 'events', label: 'Olaylar' },
+                  { id: 'will', label: 'Vasiyetim' },
+               ].map(t => (
+                  <button
+                     key={t.id}
+                     onClick={() => setNotesTab(t.id)}
+                     className={`py-3 text-[11px] font-bold uppercase tracking-widest transition-all border-b-2 ${
+                        notesTab === t.id
+                           ? (t.id === 'will' ? 'text-yellow-500 border-yellow-500 bg-yellow-900/10' : 'text-accent border-accent bg-slate-900/40')
+                           : 'text-slate-500 border-transparent hover:text-slate-300'
+                     }`}
+                  >
+                     {t.label}
+                  </button>
+               ))}
+            </div>
+
+            {/* Sekme içeriği */}
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+               {notesTab === 'events' && (
+                  <ul className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
+                     {systemNotes?.length > 0 ? systemNotes.map((note, i) => {
+                       let borderClass = 'border-slate-600';
+                       if(note.align === 'Kırmızı') borderClass = 'border-blood-red';
+                       if(note.align === 'Yeşil') borderClass = 'border-green-500';
+                       if(note.align === 'Gri') borderClass = 'border-gray-400';
+                       if(note.align === 'Yarı') borderClass = 'border-amber-500';
+                       return (
+                         <li key={i} className={`bg-slate-800 p-3 rounded-lg border-l-4 ${borderClass} shadow-inner text-[13px] flex items-center gap-4`}>
+                           <span className="text-slate-300">{note.text}</span>
+                         </li>
+                       );
+                     }) : (
+                       <li className="text-slate-500 italic text-sm text-center mt-6">Henüz bir olay gerçekleşmedi...</li>
+                     )}
+                  </ul>
+               )}
+
+               {notesTab === 'will' && (
+                  <div className="flex-1 min-h-0 flex flex-col p-4 gap-2">
+                     <textarea
+                        value={personalNotesMap[activeSocketId] || ''}
+                        onChange={e => {
+                           const val = e.target.value;
+                           setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: val }));
+                           socket.emit('savePersonalNote', { roomCode, note: val, impersonateId: isDevMode ? impersonateId : null });
+                        }}
+                        placeholder="Öldüğünde köyün bilmesini istediğin şüphelerini buraya yaz..."
+                        className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed"
+                     />
+                     <p className="shrink-0 text-[10px] text-yellow-500/70 italic text-center uppercase tracking-widest">Öldüğünde tüm köye okunacaktır</p>
                   </div>
-                  <textarea 
-                     value={personalNotesMap[activeSocketId] || ''} 
-                     onChange={e => {
-                        const val = e.target.value;
-                        setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: val }));
-                        socket.emit('savePersonalNote', { roomCode, note: val, impersonateId: isDevMode ? impersonateId : null });
-                     }} 
-                     placeholder="Öldüğünde köyün bilmesini istediğin şüphelerini buraya yaz..." 
-                     className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed" 
-                  />
-                  <p className="text-[10px] text-slate-500 italic mt-2 sm:hidden text-center">Bu notlar öldüğünde tüm köye okunacaktır.</p>
-               </div>
+               )}
             </div>
           </div>
         </div>
@@ -871,6 +890,75 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
       )}
 
+       {/* AYRILMA ONAYI MODAL */}
+       {showLeaveConfirm && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setShowLeaveConfirm(false)}>
+             <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                <div className="p-6 flex flex-col items-center text-center">
+                   <LogOut size={48} className="text-red-500 mb-3" />
+                   <h3 className="font-serif tracking-widest uppercase text-xl text-red-500 font-bold mb-2">Kasabayı Terket?</h3>
+                   <p className="text-slate-300 text-sm leading-relaxed">
+                      Çıkarsan oyuna geri dönemezsin. Emin misin?
+                   </p>
+                </div>
+                <div className="grid grid-cols-2 border-t border-slate-800">
+                   <button
+                      onClick={() => setShowLeaveConfirm(false)}
+                      className="py-4 text-slate-300 hover:bg-slate-800 font-bold tracking-widest uppercase text-sm transition-colors border-r border-slate-800"
+                   >
+                      Vazgeç
+                   </button>
+                   <button
+                      onClick={() => {
+                         setShowLeaveConfirm(false);
+                         onLeave ? onLeave() : window.location.reload();
+                      }}
+                      className="py-4 text-red-100 bg-red-900/40 hover:bg-red-800/60 font-bold tracking-widest uppercase text-sm transition-colors"
+                   >
+                      Terket
+                   </button>
+                </div>
+             </div>
+          </div>
+       )}
+
+       {/* IMPERSONATE DROPDOWN MODAL (Dev) */}
+       {showImpersonateMenu && (
+          <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setShowImpersonateMenu(false)}>
+             <div className="w-full sm:max-w-sm bg-slate-900 border-t sm:border border-yellow-700/50 rounded-t-2xl sm:rounded-2xl shadow-[0_0_40px_rgba(202,138,4,0.3)] flex flex-col max-h-[70vh]" onClick={(e) => e.stopPropagation()}>
+                <div className="shrink-0 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                   <h3 className="text-yellow-500 font-bold uppercase tracking-widest text-sm">Oyuncu Seç</h3>
+                   <button onClick={() => setShowImpersonateMenu(false)} className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-700 transition">
+                      <X size={20} />
+                   </button>
+                </div>
+                <ul className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                   {players.map(p => (
+                      <li key={p.socketId}>
+                         <button
+                            onClick={() => {
+                               setImpersonateId(p.socketId);
+                               setHasActioned(false);
+                               setShowImpersonateMenu(false);
+                            }}
+                            className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center justify-between ${
+                               p.socketId === impersonateId
+                                  ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-700/50'
+                                  : 'text-slate-300 hover:bg-slate-800 border border-transparent'
+                            }`}
+                         >
+                            <span className="font-medium">{p.name}</span>
+                            <span className={`text-[10px] uppercase tracking-widest ${p.isAlive ? 'text-green-500/70' : 'text-red-500/70'}`}>
+                               {p.isAlive ? 'Hayatta' : 'Ölü'}
+                            </span>
+                         </button>
+                      </li>
+                   ))}
+                </ul>
+             </div>
+          </div>
+       )}
+
        {/* KİŞİSEL ANİMASYONLAR (Ölüm ve Kuyu) */}
        {animEffect === 'death' && (
           <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center bg-red-950/80 animate-[flash_0.2s_ease-out_3]">
@@ -905,37 +993,87 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
           </div>
         )}
 
-      {/* REVEALED DEATH NOTES MODAL */}
+      {/* REVEALED DEATH NOTES MODAL — Carousel */}
       {revealedNotes && revealedNotes.length > 0 && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-0 sm:p-4 animate-in zoom-in duration-500 pointer-events-auto" onClick={() => setRevealedNotes([])}>
-           <div className="w-full h-full sm:h-auto sm:max-w-lg bg-[#f4e4bc] text-slate-900 p-8 sm:rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative flex flex-col" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }} onClick={(e) => e.stopPropagation()}>
-              <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-black/20 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-black/20 to-transparent"></div>
-              
-              <h2 className="text-3xl font-serif font-bold text-center mb-6 text-[#5c4033] border-b-2 border-[#5c4033]/30 pb-4 shrink-0">ÖLÜNÜN VASİYETİ</h2>
-              
-              <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-2 max-h-none sm:max-h-[60vh]">
-                 {revealedNotes.map((rn, idx) => (
-                    <div key={idx} className="mb-4">
-                       <h3 className="font-bold text-xl text-[#3b2a21] mb-2">{rn.playerName} Tarafından Yazıldı:</h3>
-                       <p className="font-serif text-lg leading-relaxed whitespace-pre-wrap italic text-[#4a3628] bg-black/5 p-4 rounded-md border-l-4 border-[#8b5a2b]">
-                          {rn.note || "Sayfalar boş... Hiçbir not bırakmamış."}
-                       </p>
-                    </div>
-                 ))}
-              </div>
-
-              <div className="mt-8 text-center shrink-0">
-                 <button onClick={() => setRevealedNotes([])} className="bg-[#8b5a2b] hover:bg-[#704214] text-[#f4e4bc] px-8 py-3 rounded shadow-lg font-bold uppercase tracking-widest transition-colors">
-                    Huzur İçinde Yatsın
-                 </button>
-              </div>
-           </div>
-        </div>
+        <RevealedNotesModal revealedNotes={revealedNotes} onClose={() => setRevealedNotes([])} />
       )}
 
     </div>
   );
+}
+
+function RevealedNotesModal({ revealedNotes, onClose }) {
+   const trackRef = useRef(null);
+   const [activeIdx, setActiveIdx] = useState(0);
+   const total = revealedNotes.length;
+   const isMulti = total > 1;
+
+   const handleScroll = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const idx = Math.round(el.scrollLeft / el.clientWidth);
+      if (idx !== activeIdx) setActiveIdx(idx);
+   };
+
+   const goTo = (i) => {
+      const el = trackRef.current;
+      if (!el) return;
+      el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+   };
+
+   return (
+      <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-0 sm:p-4 animate-in zoom-in duration-500 pointer-events-auto" onClick={onClose}>
+         <div
+            className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-[#f4e4bc] text-slate-900 sm:rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative flex flex-col overflow-hidden"
+            style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}
+            onClick={(e) => e.stopPropagation()}
+         >
+            <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-black/20 to-transparent pointer-events-none z-10"></div>
+            <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-10"></div>
+
+            <div className="shrink-0 px-6 pt-6 pb-4 border-b-2 border-[#5c4033]/30 flex items-center justify-between">
+               <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#5c4033]">ÖLÜNÜN VASİYETİ</h2>
+               {isMulti && (
+                  <span className="text-[#5c4033]/70 font-bold text-sm font-serif tracking-widest">{activeIdx + 1}/{total}</span>
+               )}
+            </div>
+
+            <div
+               ref={trackRef}
+               onScroll={handleScroll}
+               className="flex-1 min-h-0 flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory no-scrollbar"
+            >
+               {revealedNotes.map((rn, idx) => (
+                  <div key={idx} className="snap-center shrink-0 w-full h-full overflow-y-auto custom-scrollbar p-6 sm:p-8">
+                     <h3 className="font-bold text-lg sm:text-xl text-[#3b2a21] mb-3">{rn.playerName} Tarafından Yazıldı:</h3>
+                     <p className="font-serif text-base sm:text-lg leading-relaxed whitespace-pre-wrap italic text-[#4a3628] bg-black/5 p-4 rounded-md border-l-4 border-[#8b5a2b]">
+                        {rn.note || "Sayfalar boş... Hiçbir not bırakmamış."}
+                     </p>
+                  </div>
+               ))}
+            </div>
+
+            {isMulti && (
+               <div className="shrink-0 flex items-center justify-center gap-2 py-2">
+                  {revealedNotes.map((_, i) => (
+                     <button
+                        key={i}
+                        onClick={() => goTo(i)}
+                        className={`w-2 h-2 rounded-full transition-all ${i === activeIdx ? 'bg-[#5c4033] w-6' : 'bg-[#5c4033]/30'}`}
+                        aria-label={`Vasiyet ${i + 1}`}
+                     />
+                  ))}
+               </div>
+            )}
+
+            <div className="shrink-0 p-4 sm:p-6 text-center border-t border-[#5c4033]/20">
+               <button onClick={onClose} className="bg-[#8b5a2b] hover:bg-[#704214] text-[#f4e4bc] px-8 py-3 rounded shadow-lg font-bold uppercase tracking-widest transition-colors">
+                  Huzur İçinde Yatsın
+               </button>
+            </div>
+         </div>
+      </div>
+   );
 }
 
 function PlayerList({ players, selected, onSelect, isNight, isDevMode, dousedList = [] }) {

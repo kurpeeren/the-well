@@ -14,15 +14,29 @@
   50% { box-shadow: inset 0 0 100px rgba(127, 29, 29, 0.7); }
 }
 
+html, body, #root {
+  height: 100dvh;
+}
+
 body {
   margin: 0;
   padding: 0;
   background-color: var(--color-kuyu-dark);
   color: #f8fafc;
-  overflow-x: hidden;
+  overflow: hidden;
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   animation: bloodPulse 6s ease-in-out infinite;
-  min-height: 100vh;
+}
+
+@media (min-width: 640px) {
+  html, body, #root {
+    height: auto;
+    min-height: 100dvh;
+  }
+  body {
+    overflow: auto;
+    overflow-x: hidden;
+  }
 }
 
 input, textarea {
@@ -44,5 +58,13 @@ input, textarea {
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569; 
+  background: #475569;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
