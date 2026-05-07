@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX } from 'lucide-react';
+import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 
 function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost }) {
@@ -29,6 +29,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const [personalNotesMap, setPersonalNotesMap] = useState({});
   const [isRoleVisible, setIsRoleVisible] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showGraveyard, setShowGraveyard] = useState(false);
   const [voteDetails, setVoteDetails] = useState({});
   const [isSilenced, setIsSilenced] = useState(false);
   const [showSilencedModal, setShowSilencedModal] = useState(false);
@@ -72,7 +73,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   }, [chatMessages]);
 
   useEffect(() => {
-    const isModalOpen = showNotes || showRoleModal || showSilencedModal || (revealedNotes && revealedNotes.length > 0) || gamePhase === 'END';
+    const isModalOpen = showNotes || showRoleModal || showSilencedModal || showGraveyard || (revealedNotes && revealedNotes.length > 0) || gamePhase === 'END';
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -334,7 +335,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   };
 
   return (
-    <div className={`w-full max-w-4xl flex flex-col gap-2 p-3 sm:p-6 rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border border-slate-800 min-h-[75vh]`}>
+    <div className={`w-full max-w-4xl flex flex-col gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 h-[100dvh] sm:h-auto sm:min-h-[75vh]`}>
       
       {isDevMode && (
          <div className="bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
@@ -384,6 +385,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+           <button onClick={() => setShowGraveyard(true)} className="lg:hidden p-2 bg-slate-800 rounded-full border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white transition-all shadow-md relative">
+             <Skull size={18} />
+           </button>
            <button onClick={() => setShowNotes(true)} className="p-2 bg-slate-800 rounded-full border border-slate-700 hover:border-accent text-slate-400 hover:text-white transition-all shadow-md relative">
              <BookOpen size={18} />
              {systemNotes?.length > 0 && <span className="absolute -top-1 -right-1 bg-blood-red w-3 h-3 rounded-full animate-pulse border border-dark-bg"></span>}
@@ -399,9 +403,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2 overflow-hidden">
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 mt-2 overflow-hidden h-full">
 
-      <div className="flex-1 flex flex-col relative rounded-xl border border-slate-800/50 bg-black/10 overflow-hidden" style={{ minHeight: '70vh' }}>
+      <div className="flex-1 flex flex-col relative sm:rounded-xl border-y sm:border border-slate-800/50 bg-black/10 overflow-hidden h-full">
         
         {/* ÜST: AKSİYON ALANI (Gece Seçimleri, Oylama, Haberler) */}
         <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'VOTING', 'MORNING'].includes(gamePhase) && !hasActioned ? 'min-h-[140px] max-h-[180px]' : 'max-h-[0px]'}`}>
