@@ -341,10 +341,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     <div className={`w-full max-w-4xl flex flex-col gap-0 sm:gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 h-full sm:h-auto sm:min-h-[75vh] overflow-hidden`}>
       
       {isDevMode && (
-         <div className="bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
+         <div className="shrink-0 relative z-10 bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
             <span className="text-yellow-500 font-bold tracking-wider uppercase text-[10px] hidden md:inline">Geliştirici Kumandası</span>
             <div className="flex items-center gap-2 ml-auto">
-               <button onClick={() => socket.emit('forceNextPhase', roomCode)} title="Mevcut süreyi atla" className="bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-3 py-1 text-[9px] uppercase tracking-wider rounded-lg border border-yellow-500 transition-all shadow-md whitespace-nowrap">
+               <button type="button" onClick={() => socket.emit('forceNextPhase', roomCode)} title="Mevcut süreyi atla" className="bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 text-white font-bold px-3 py-1.5 text-[10px] uppercase tracking-wider rounded-lg border border-yellow-500 transition-all shadow-md whitespace-nowrap">
                  Faza Geç ⏭
                </button>
                <div className="relative">
@@ -391,20 +391,20 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-           <button onClick={() => setShowGraveyard(true)} className="lg:hidden p-2 bg-slate-800 rounded-full border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-white transition-all shadow-md relative">
-             <Skull size={18} />
+           <button onClick={() => setShowGraveyard(true)} className="lg:hidden p-2.5 bg-slate-800 rounded-full border border-slate-700 hover:border-slate-500 active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative">
+             <Skull size={20} />
            </button>
-           <button onClick={() => setShowNotes(true)} className="p-2 bg-slate-800 rounded-full border border-slate-700 hover:border-accent text-slate-400 hover:text-white transition-all shadow-md relative">
-             <BookOpen size={18} />
+           <button onClick={() => setShowNotes(true)} className="p-2.5 bg-slate-800 rounded-full border border-slate-700 hover:border-accent active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative">
+             <BookOpen size={20} />
              {systemNotes?.length > 0 && <span className="absolute -top-1 -right-1 bg-blood-red w-3 h-3 rounded-full animate-pulse border border-dark-bg"></span>}
            </button>
            <TimerDisplay socket={socket} />
            <button
               onClick={() => setShowLeaveConfirm(true)}
               title="Kasabayı Terket"
-              className="p-2 bg-red-950/40 rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 text-red-400 hover:text-white transition-all shadow-md"
+              className="p-2.5 bg-red-950/40 rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 active:bg-red-900/60 text-red-400 hover:text-white transition-all shadow-md"
            >
-             <LogOut size={18} />
+             <LogOut size={20} />
            </button>
         </div>
       </div>
