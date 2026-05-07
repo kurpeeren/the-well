@@ -289,7 +289,7 @@ function App() {
         <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden sm:overflow-visible sm:pb-20">
 
           {!isInGame && (
-            <header className="w-full max-w-4xl text-center relative z-40 mt-2 mb-3 sm:mb-8 shrink-0 px-4">
+            <header className={`w-full max-w-4xl text-center relative z-40 mt-2 mb-3 sm:mb-8 shrink-0 px-4 ${gameState === 'LOBBY' ? 'hidden sm:block' : ''}`}>
               <div className="relative inline-block px-6 sm:px-10 py-2 sm:py-4">
                 <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-blood-red tracking-[0.4em] font-serif drop-shadow-[0_0_15px_rgba(127,29,29,0.7)] cursor-default">
                   KUYU
@@ -311,17 +311,28 @@ function App() {
           )}
 
           {gameState === 'JOIN' && (
-            <div className="flex-1 min-h-0 w-full flex items-center justify-center px-4 pb-4 sm:pb-0">
-              <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+            <div className="flex-1 min-h-0 w-full flex flex-col items-center px-4 pb-4 sm:pb-0 overflow-y-auto custom-scrollbar">
+              <div className="my-auto w-full max-w-sm flex justify-center py-2">
+                <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+              </div>
             </div>
           )}
       
       {gameState === 'LOBBY' && (
          <div className="w-full max-w-md flex-1 min-h-0 flex flex-col bg-dark-bg sm:rounded-xl border-y sm:border border-slate-800 shadow-2xl mx-0 sm:mx-4 sm:my-2">
            {/* Oda kodu üst bar */}
-           <div className="shrink-0 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
-              <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest">Oda: {roomCode}</h2>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{players.length}/16</span>
+           <div className="shrink-0 px-4 py-3 border-b border-slate-800 flex items-center justify-between gap-2">
+              <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest truncate">Oda: {roomCode}</h2>
+              <div className="flex items-center gap-2 shrink-0">
+                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{players.length}/16</span>
+                 <button
+                    onClick={(e) => { e.stopPropagation(); handleLeave(); }}
+                    className="sm:hidden p-1.5 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 transition-all"
+                    title="Çıkış"
+                 >
+                    <LogOut size={14} className="text-red-400" />
+                 </button>
+              </div>
            </div>
 
            {/* Sekme bar */}
@@ -449,7 +460,7 @@ function App() {
            </div>
 
            {/* Sticky CTA */}
-           <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40">
+           <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
               {isHost ? (
                  <button onClick={() => socket.emit('startGame', roomCode)} className="w-full bg-blood-red hover:bg-red-800 text-white font-bold py-3 sm:py-4 rounded-lg transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(127,29,29,0.4)]">
                     Oyunu Başlat ({players.length}/16)
