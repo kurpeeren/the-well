@@ -564,9 +564,40 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
            {/* SABAH DURUMU */}
            {gamePhase === 'MORNING' && (
-              <div className="h-full flex flex-col items-center justify-center text-yellow-500 animate-pulse">
-                 <Sun size={24} className="mb-1" />
-                 <p className="text-[10px] font-black uppercase tracking-[0.2em]">Haberler Bekleniyor</p>
+              <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
+                 <div className="flex items-center gap-3 bg-amber-950/30 border border-amber-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(251,191,36,0.10)] max-w-sm w-full">
+                    <Sun className="text-amber-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 animate-spin-slow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                       <p className="text-amber-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Sabah</p>
+                       <p className="text-slate-200 text-sm sm:text-xs font-serif italic">Haberler hazırlanıyor...</p>
+                    </div>
+                 </div>
+              </div>
+           )}
+
+           {/* GECE — aksiyon yok (ekstra rol veya dead/spectator) */}
+           {gamePhase === 'NIGHT' && !hasActioned && (isSpectator || !me.isAlive || (!hasNightTargetAction && !isAvci && !isKundakci && !isYanasma)) && (
+              <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
+                 <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-700/60 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(148,163,184,0.06)] max-w-sm w-full">
+                    <Moon className="text-slate-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                       <p className="text-slate-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Gece</p>
+                       <p className="text-slate-200 text-sm sm:text-xs font-serif italic">{isSpectator ? 'Ruh olarak köyü izliyorsun...' : !me.isAlive ? 'Mezarından olanları izliyorsun...' : 'Köy uykuda, gölgeler hareketleniyor...'}</p>
+                    </div>
+                 </div>
+              </div>
+           )}
+
+           {/* OYLAMA — dead/spectator için bekleme */}
+           {gamePhase === 'VOTING' && (isSpectator || !me.isAlive) && (
+              <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
+                 <div className="flex items-center gap-3 bg-red-950/30 border border-red-900/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(127,29,29,0.12)] max-w-sm w-full">
+                    <AlertTriangle className="text-red-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                       <p className="text-red-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Hüküm</p>
+                       <p className="text-slate-200 text-sm sm:text-xs font-serif italic">Köy oyunu kullanıyor, sonuç bekleniyor...</p>
+                    </div>
+                 </div>
               </div>
            )}
         </div>
