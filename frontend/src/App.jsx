@@ -384,7 +384,7 @@ function App() {
 
                   <div className="relative">
                     <h1
-                      className="relative font-serif font-black text-6xl sm:text-6xl md:text-7xl uppercase leading-none"
+                      className="relative font-serif font-black text-7xl sm:text-7xl md:text-8xl uppercase leading-none"
                       style={{
                         letterSpacing: '0.4em',
                         paddingLeft: '0.4em',

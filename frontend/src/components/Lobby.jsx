@@ -62,9 +62,6 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
   return (
     <div ref={formRef} className="w-full max-w-sm flex flex-col gap-3 sm:gap-5 bg-dark-bg p-5 sm:p-8 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden group transition-all duration-500 max-h-full">
 
-      {/* Decorative gradient */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blood-red via-accent to-blood-red opacity-70"></div>
-
       <div className="flex flex-col gap-2 relative z-10 items-center">
         <label className="text-slate-400 text-xs sm:text-sm font-semibold tracking-wider uppercase text-center w-full block">Adın Ne Yabancı?</label>
         <input
