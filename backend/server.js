@@ -2,41 +2,104 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const crypto = require('crypto');
 
 const app = express();
 const path = require('path');
 app.use(cors());
+app.use(express.json({ limit: '64kb' }));
 app.get('/', (req, res) => res.send('Kuyu Backend is running healthy!'));
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'kuyuadmin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+if (!ADMIN_PASSWORD) {
+    console.warn('[admin] UYARI: ADMIN_PASSWORD env değişkeni tanımlı değil — admin paneline erişim DEVRE DIŞI.');
+}
 
-app.get('/api/admin/stats', (req, res) => {
-    if (req.headers.authorization !== ADMIN_PASSWORD) {
+// Sabit-zamanlı (timing-safe) şifre karşılaştırma — brute force timing attack'ı engeller
+function checkAdminAuth(req) {
+    if (!ADMIN_PASSWORD) return false;
+    const provided = req.headers.authorization || '';
+    const a = Buffer.from(provided);
+    const b = Buffer.from(ADMIN_PASSWORD);
+    if (a.length !== b.length) return false;
+    return crypto.timingSafeEqual(a, b);
+}
+
+// Basit in-memory rate limiter: IP başına 60s pencerede 10 başarısız deneme = 5dk lock
+const failedAttempts = new Map(); // ip -> { count, lockedUntil }
+function rateLimit(req) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    const entry = failedAttempts.get(ip) || { count: 0, lockedUntil: 0 };
+    if (entry.lockedUntil > now) return { allowed: false, retryAfter: Math.ceil((entry.lockedUntil - now) / 1000) };
+    return { allowed: true, ip, entry };
+}
+function recordFailedAuth(req) {
+    const { ip, entry } = rateLimit(req);
+    if (!ip) return;
+    entry.count += 1;
+    if (entry.count >= 10) {
+        entry.lockedUntil = Date.now() + 5 * 60 * 1000;
+        entry.count = 0;
+    }
+    failedAttempts.set(ip, entry);
+}
+
+// Server health & traffic metrics
+const startTime = Date.now();
+let lastCpuUsage = process.cpuUsage();
+let lastCpuTime = Date.now();
+const metrics = {
+    socketEmitCount: 0,
+    socketReceiveCount: 0,
+    errorCount: 0,
+    adminAuthFailures: 0,
+};
+
+function adminAuth(req, res, next) {
+    const rl = rateLimit(req);
+    if (!rl.allowed) {
+        res.set('Retry-After', String(rl.retryAfter));
+        return res.status(429).json({ error: 'Rate limited', retryAfter: rl.retryAfter });
+    }
+    if (!checkAdminAuth(req)) {
+        recordFailedAuth(req);
+        metrics.adminAuthFailures += 1;
         return res.status(401).json({ error: 'Unauthorized' });
     }
-    
+    next();
+}
+
+app.get('/api/admin/stats', adminAuth, (req, res) => {
     const roomKeys = Object.keys(rooms);
     let totalRealPlayers = 0;
-    
+
     const roomsData = roomKeys.map(key => {
         const r = rooms[key];
         const realPlayersCount = r.players.filter(p => !p.socketId.startsWith('dev_')).length;
         const botPlayersCount = r.players.filter(p => p.socketId.startsWith('dev_')).length;
         totalRealPlayers += realPlayersCount;
-        
+
         return {
             id: r.id,
             status: r.status,
+            phase: r.phase || null,
+            timeRemaining: r.timeRemaining || 0,
             isDevMode: r.isDevMode,
             dayCount: r.dayCount,
             realPlayers: realPlayersCount,
             botPlayers: botPlayersCount,
             spectators: r.spectators.length,
             createdAt: r.createdAt,
+            lastActivity: r.lastActivity,
+            host: r.host,
             playersList: r.players.filter(p => !p.socketId.startsWith('dev_')).map(p => ({
+                socketId: p.socketId,
                 name: p.name,
                 role: p.role,
-                isAlive: p.isAlive
+                isAlive: p.isAlive,
+                connected: p.connected,
+                ping: pingMap.get(p.socketId) || null,
             }))
         };
     });
@@ -49,18 +112,98 @@ app.get('/api/admin/stats', (req, res) => {
     });
 });
 
+// Server health metrics — CPU, memory, uptime, traffic
+app.get('/api/admin/health', adminAuth, (req, res) => {
+    const now = Date.now();
+    const memUsage = process.memoryUsage();
+    const cpuDiff = process.cpuUsage(lastCpuUsage);
+    const elapsedMs = now - lastCpuTime;
+    const cpuPercent = elapsedMs > 0
+        ? ((cpuDiff.user + cpuDiff.system) / 1000) / elapsedMs * 100
+        : 0;
+    lastCpuUsage = process.cpuUsage();
+    lastCpuTime = now;
+
+    res.json({
+        uptimeSeconds: Math.floor((now - startTime) / 1000),
+        memory: {
+            rssMB: +(memUsage.rss / 1024 / 1024).toFixed(1),
+            heapUsedMB: +(memUsage.heapUsed / 1024 / 1024).toFixed(1),
+            heapTotalMB: +(memUsage.heapTotal / 1024 / 1024).toFixed(1),
+            externalMB: +(memUsage.external / 1024 / 1024).toFixed(1),
+        },
+        cpuPercent: +cpuPercent.toFixed(1),
+        traffic: {
+            emitCount: metrics.socketEmitCount,
+            receiveCount: metrics.socketReceiveCount,
+        },
+        errorCount: metrics.errorCount,
+        adminAuthFailures: metrics.adminAuthFailures,
+        totalSockets: io.engine.clientsCount,
+        totalRooms: Object.keys(rooms).length,
+        nodeVersion: process.version,
+        platform: process.platform,
+    });
+});
+
+// Admin aksiyon: oda kapat
+app.post('/api/admin/rooms/:code/close', adminAuth, (req, res) => {
+    const code = req.params.code;
+    const room = rooms[code];
+    if (!room) return res.status(404).json({ error: 'Oda bulunamadı' });
+    io.to(code).emit('error', 'Oda yönetici tarafından kapatıldı.');
+    io.to(code).emit('returnedToLobby');
+    if (room.timer) clearInterval(room.timer);
+    delete rooms[code];
+    console.log(`[admin] Oda ${code} kapatıldı`);
+    res.json({ ok: true });
+});
+
+// Admin aksiyon: oyuncu at
+app.post('/api/admin/rooms/:code/kick', adminAuth, (req, res) => {
+    const code = req.params.code;
+    const { socketId } = req.body || {};
+    const room = rooms[code];
+    if (!room) return res.status(404).json({ error: 'Oda bulunamadı' });
+    if (!socketId) return res.status(400).json({ error: 'socketId gerekli' });
+
+    const idx = room.players.findIndex(p => p.socketId === socketId);
+    if (idx === -1) return res.status(404).json({ error: 'Oyuncu odada değil' });
+
+    const playerName = room.players[idx].name;
+    room.players.splice(idx, 1);
+    const targetSocket = io.sockets.sockets.get(socketId);
+    if (targetSocket) {
+        targetSocket.emit('error', 'Yönetici tarafından odadan atıldın.');
+        targetSocket.leave(code);
+    }
+    io.to(code).emit('updateLobby', room.players);
+    console.log(`[admin] ${playerName} (${socketId}) ${code} odasından atıldı`);
+    res.json({ ok: true });
+});
+
+// Admin aksiyon: tüm aktif odalara duyuru
+app.post('/api/admin/broadcast', adminAuth, (req, res) => {
+    const { message } = req.body || {};
+    if (!message || typeof message !== 'string' || message.length > 280) {
+        return res.status(400).json({ error: 'Geçerli mesaj gerekli (max 280 karakter)' });
+    }
+    io.emit('adminBroadcast', { message, timestamp: Date.now() });
+    console.log(`[admin] Duyuru gönderildi: ${message}`);
+    res.json({ ok: true, deliveredTo: io.engine.clientsCount });
+});
+
 const supabase = require('./db');
 
-app.get('/api/admin/history', async (req, res) => {
-    if (req.headers.authorization !== ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
+app.get('/api/admin/history', adminAuth, async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const offset = parseInt(req.query.offset) || 0;
     const { data, error } = await supabase
         .from('game_history')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(50);
-    
+        .range(offset, offset + limit - 1);
+
     if (error) {
         return res.status(500).json({ error: error.message });
     }
@@ -93,7 +236,47 @@ function getActorId(room, socketId, impersonateId) {
    return socketId;
 }
 
+// Per-socket ping tracking (manuel RTT — Socket.IO yerleşik pingi latency expose etmiyor)
+const pingMap = new Map(); // socketId -> { ms, ts }
+const pingPending = new Map(); // socketId -> sendTimestamp
+function startPingTracking(socket) {
+    const interval = setInterval(() => {
+        if (!io.sockets.sockets.has(socket.id)) {
+            clearInterval(interval);
+            return;
+        }
+        const ts = Date.now();
+        pingPending.set(socket.id, ts);
+        socket.emit('adminPing', ts);
+    }, 5000);
+    socket.on('disconnect', () => {
+        clearInterval(interval);
+        pingMap.delete(socket.id);
+        pingPending.delete(socket.id);
+    });
+    socket.on('adminPong', (ts) => {
+        const sent = pingPending.get(socket.id);
+        if (sent && sent === ts) {
+            pingMap.set(socket.id, { ms: Date.now() - sent, ts: Date.now() });
+            pingPending.delete(socket.id);
+        }
+    });
+}
+
+// Traffic metrics — emit ve receive sayaçları
+const _origIoEmit = io.emit.bind(io);
+io.emit = (...args) => { metrics.socketEmitCount += 1; return _origIoEmit(...args); };
+
 io.on('connection', (socket) => {
+  startPingTracking(socket);
+
+  // Her gelen event'i say
+  socket.onAny(() => { metrics.socketReceiveCount += 1; });
+
+  // Per-socket emit sayacı için override
+  const _socketEmit = socket.emit.bind(socket);
+  socket.emit = (...args) => { metrics.socketEmitCount += 1; return _socketEmit(...args); };
+
   socket.on('createRoom', (playerName) => {
     const existingRoom = Object.values(rooms).find(r => r.host === socket.id && r.status === 'LOBBY');
     if (existingRoom) {

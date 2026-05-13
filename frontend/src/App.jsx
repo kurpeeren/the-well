@@ -95,6 +95,14 @@ function App() {
        socket.emit('reconnectRoom', { roomCode: savedRoom, token: savedToken });
     }
 
+    // Admin RTT ping — sunucu timestamp gönderir, biz echo ederiz
+    socket.on('adminPing', (ts) => socket.emit('adminPong', ts));
+
+    // Admin broadcast — tüm aktif kullanıcılara duyuru
+    socket.on('adminBroadcast', ({ message }) => {
+      showToast('📢 ' + message);
+    });
+
     socket.on('roomJoined', ({ roomCode, isHost, isDevMode, settings: roomSettings, isSpectator, token, reconnected }) => {
       setRoomCode(roomCode);
       setIsHost(isHost);
