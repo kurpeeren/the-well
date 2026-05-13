@@ -1,10 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UserPlus, LogIn, ArrowRight, Eye } from 'lucide-react';
 
 function Lobby({ socket, playerName, setPlayerName, showToast }) {
   const [mode, setMode] = useState(''); // 'CREATE', 'JOIN'
   const [joinCode, setJoinCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef(null);
+
+  useEffect(() => {
+    const unlock = () => setIsSubmitting(false);
+    socket.on('error', unlock);
+    return () => { socket.off('error', unlock); };
+  }, [socket]);
 
   const handleInputFocus = () => {
     /* Klavye açılınca form üste kaysın ki butonlar kaybolmasın */
@@ -15,20 +22,31 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
     }, 300);
   };
 
+  const submitOnce = (fn) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    fn();
+    setTimeout(() => setIsSubmitting(false), 1500);
+  };
+
   const handleCreate = () => {
     if (!playerName.trim()) return showToast('Kasabaya girmek için bir isim seç.');
-    socket.emit('createRoom', playerName);
+    submitOnce(() => socket.emit('createRoom', playerName));
   };
 
   const handleJoin = () => {
      if (!playerName.trim()) return showToast('Kasabaya girmek için bir isim seç.');
      if (!joinCode.trim()) return showToast('Oda kodu eksik!');
-     socket.emit('joinRoom', { playerName, roomCode: joinCode });
+     submitOnce(() => socket.emit('joinRoom', { playerName, roomCode: joinCode }));
   };
 
   const handleSpectate = () => {
      if (!joinCode.trim()) return showToast('Oda kodu eksik!');
-     socket.emit('joinAsSpectator', { playerName: playerName || 'İzleyici', roomCode: joinCode });
+     submitOnce(() => socket.emit('joinAsSpectator', { playerName: playerName || 'İzleyici', roomCode: joinCode }));
+  };
+
+  const handleDev = () => {
+     submitOnce(() => socket.emit('createDevRoom'));
   };
 
   return (
@@ -69,7 +87,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
       </div>
 
       {mode === 'CREATE' && (
-         <button onClick={handleCreate} className="mt-2 flex items-center justify-center gap-2 w-full bg-blood-red hover:bg-red-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(127,29,29,0.5)] hover:shadow-[0_0_30px_rgba(127,29,29,0.7)] hover:scale-[1.02]">
+         <button onClick={handleCreate} disabled={isSubmitting} className="mt-2 flex items-center justify-center gap-2 w-full bg-blood-red hover:bg-red-800 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(127,29,29,0.5)] hover:shadow-[0_0_30px_rgba(127,29,29,0.7)] hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
            Köyü İnşa Et
            <ArrowRight size={20} />
          </button>
@@ -78,7 +96,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
       {mode === 'DEV' && (
          <div className="mt-2">
            <p className="text-yellow-500 text-[11px] sm:text-xs text-center mb-2">Tüm 16 rolün test edilebileceği sanal bir kasaba oluşturulacak.</p>
-           <button onClick={() => socket.emit('createDevRoom')} className="flex items-center justify-center gap-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(202,138,4,0.5)] hover:scale-[1.02]">
+           <button onClick={handleDev} disabled={isSubmitting} className="flex items-center justify-center gap-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(202,138,4,0.5)] hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
              Simülasyonu Başlat
              <ArrowRight size={20} />
            </button>
@@ -96,7 +114,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
              className="w-full bg-slate-900 border border-slate-700 p-3 sm:p-4 rounded-xl text-center text-xl sm:text-2xl tracking-[0.3em] font-mono focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent placeholder:text-slate-600 shadow-inner"
              maxLength={6}
           />
-          <button onClick={handleJoin} className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-amber-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(217,119,6,0.5)] hover:shadow-[0_0_30px_rgba(217,119,6,0.7)] hover:scale-[1.02]">
+          <button onClick={handleJoin} disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 bg-accent hover:bg-amber-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(217,119,6,0.5)] hover:shadow-[0_0_30px_rgba(217,119,6,0.7)] hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
             Kapıyı Çal
             <ArrowRight size={20} />
           </button>
@@ -114,7 +132,7 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
              className="w-full bg-slate-900 border border-purple-900/50 p-3 sm:p-4 rounded-xl text-center text-xl sm:text-2xl tracking-[0.3em] font-mono focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 placeholder:text-slate-600 shadow-inner"
              maxLength={6}
           />
-          <button onClick={handleSpectate} className="w-full flex items-center justify-center gap-2 bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(126,34,206,0.5)] hover:shadow-[0_0_30px_rgba(126,34,206,0.7)] hover:scale-[1.02]">
+          <button onClick={handleSpectate} disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(126,34,206,0.5)] hover:shadow-[0_0_30px_rgba(126,34,206,0.7)] hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed">
             Ruh Olarak Sız
             <Eye size={20} />
           </button>

@@ -95,6 +95,12 @@ function getActorId(room, socketId, impersonateId) {
 
 io.on('connection', (socket) => {
   socket.on('createRoom', (playerName) => {
+    const existingRoom = Object.values(rooms).find(r => r.host === socket.id && r.status === 'LOBBY');
+    if (existingRoom) {
+      const hostPlayer = existingRoom.players.find(p => p.socketId === socket.id);
+      socket.emit('roomJoined', { roomCode: existingRoom.id, isHost: true, token: hostPlayer?.token, settings: existingRoom.settings, isDevMode: existingRoom.isDevMode });
+      return;
+    }
     const roomCode = generateRoomCode();
     const token = generateToken();
     rooms[roomCode] = {
@@ -123,6 +129,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createDevRoom', () => {
+    const existingRoom = Object.values(rooms).find(r => r.host === socket.id && r.status === 'LOBBY');
+    if (existingRoom) {
+      const hostPlayer = existingRoom.players.find(p => p.socketId === socket.id);
+      socket.emit('roomJoined', { roomCode: existingRoom.id, isHost: true, token: hostPlayer?.token, settings: existingRoom.settings, isDevMode: existingRoom.isDevMode });
+      return;
+    }
     const roomCode = generateRoomCode();
     const hostToken = generateToken();
     let pool = [
@@ -188,6 +200,14 @@ io.on('connection', (socket) => {
   socket.on('joinRoom', ({ playerName, roomCode }) => {
     if (!rooms[roomCode]) return socket.emit('error', 'Oda bulunamadı.');
     if (rooms[roomCode].status !== 'LOBBY') return socket.emit('error', 'Oyun zaten başlamış.');
+
+    const existing = rooms[roomCode].players.find(p => p.socketId === socket.id);
+    if (existing) {
+      socket.join(roomCode);
+      socket.emit('roomJoined', { roomCode, isHost: rooms[roomCode].host === socket.id, token: existing.token, settings: rooms[roomCode].settings, isSpectator: false });
+      return;
+    }
+
     if (rooms[roomCode].players.length >= 16) return socket.emit('error', 'Oda dolu.');
 
     const token = generateToken();
@@ -199,8 +219,15 @@ io.on('connection', (socket) => {
 
   socket.on('joinAsSpectator', ({ playerName, roomCode }) => {
     if (!rooms[roomCode]) return socket.emit('error', 'Oda bulunamadı.');
-    
+
     if(!rooms[roomCode].spectators) rooms[roomCode].spectators = [];
+
+    if (rooms[roomCode].spectators.some(s => s.socketId === socket.id)) {
+      socket.join(roomCode);
+      socket.emit('roomJoined', { roomCode, isHost: false, settings: rooms[roomCode].settings, isSpectator: true, isDevMode: rooms[roomCode].isDevMode });
+      return;
+    }
+
     rooms[roomCode].spectators.push({ socketId: socket.id, name: playerName || 'İzleyici' });
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: false, settings: rooms[roomCode].settings, isSpectator: true, isDevMode: rooms[roomCode].isDevMode });

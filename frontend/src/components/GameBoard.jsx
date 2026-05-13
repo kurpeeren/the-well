@@ -366,15 +366,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
          </div>
       )}
 
-      <div className="flex justify-between items-center bg-slate-900/80 sm:bg-slate-900/60 px-3 py-2 sm:p-4 rounded-none sm:rounded-xl border-0 border-b sm:border border-slate-800 backdrop-blur-sm gap-2 shrink-0">
-        <div className="flex gap-2 sm:gap-4 items-center flex-1 min-w-0">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-slate-900/80 sm:bg-slate-900/60 px-3 py-2 sm:p-4 rounded-none sm:rounded-xl border-0 border-b sm:border border-slate-800 backdrop-blur-sm gap-2 sm:gap-2 shrink-0">
+
+        <div className="flex gap-2 sm:gap-4 items-center flex-1 min-w-0 w-full sm:w-auto">
            <div className="p-1.5 sm:p-2 bg-slate-800 rounded-full border border-slate-700 shadow-inner shrink-0">
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
              <h2 className="text-sm sm:text-xl font-bold tracking-tight font-serif text-slate-200 truncate leading-tight">{getPhaseNameTR()}</h2>
-             <div className="text-[9px] sm:text-xs font-medium mt-0.5 text-slate-400 flex items-center gap-1">
-               <span 
+             <div className="text-[9px] sm:text-xs font-medium mt-0.5 text-slate-400 flex items-center gap-1 flex-wrap">
+               <span
                  className={`uppercase tracking-widest cursor-pointer select-none px-1.5 py-0.5 rounded transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
                  onClick={() => !isSpectator && setIsRoleVisible(!isRoleVisible)}
                >
@@ -388,23 +389,31 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                </button>
              </div>
            </div>
+           <div className="sm:hidden shrink-0">
+             <TimerDisplay socket={socket} />
+           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-           <button onClick={() => setShowGraveyard(true)} className="lg:hidden p-2.5 bg-slate-800 rounded-full border border-slate-700 hover:border-slate-500 active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative">
-             <Skull size={20} />
+        <div className="flex items-stretch sm:items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
+           <button onClick={() => setShowGraveyard(true)} className="lg:hidden flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 py-3 sm:p-2.5 px-2 sm:px-0 bg-slate-800 rounded-2xl sm:rounded-full border border-slate-700 hover:border-slate-500 active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative min-h-[64px] sm:min-h-0">
+             <Skull className="w-7 h-7 sm:w-5 sm:h-5" />
+             <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Mezarlık</span>
            </button>
-           <button onClick={() => setShowNotes(true)} className="p-2.5 bg-slate-800 rounded-full border border-slate-700 hover:border-accent active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative">
-             <BookOpen size={20} />
-             {systemNotes?.length > 0 && <span className="absolute -top-1 -right-1 bg-blood-red w-3 h-3 rounded-full animate-pulse border border-dark-bg"></span>}
+           <button onClick={() => setShowNotes(true)} className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 py-3 sm:p-2.5 px-2 sm:px-0 bg-slate-800 rounded-2xl sm:rounded-full border border-slate-700 hover:border-accent active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative min-h-[64px] sm:min-h-0">
+             <BookOpen className="w-7 h-7 sm:w-5 sm:h-5" />
+             <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Notlar</span>
+             {systemNotes?.length > 0 && <span className="absolute top-2 right-2 sm:-top-1 sm:-right-1 bg-blood-red w-3.5 h-3.5 sm:w-3 sm:h-3 rounded-full animate-pulse border border-dark-bg"></span>}
            </button>
-           <TimerDisplay socket={socket} />
+           <div className="hidden sm:block">
+             <TimerDisplay socket={socket} />
+           </div>
            <button
               onClick={() => setShowLeaveConfirm(true)}
               title="Kasabayı Terket"
-              className="p-2.5 bg-red-950/40 rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 active:bg-red-900/60 text-red-400 hover:text-white transition-all shadow-md"
+              className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 py-3 sm:p-2.5 px-2 sm:px-0 bg-red-950/40 rounded-2xl sm:rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 active:bg-red-900/60 text-red-400 hover:text-white transition-all shadow-md min-h-[64px] sm:min-h-0"
            >
-             <LogOut size={20} />
+             <LogOut className="w-7 h-7 sm:w-5 sm:h-5" />
+             <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Çıkış</span>
            </button>
         </div>
       </div>
