@@ -230,6 +230,17 @@ function App() {
         </div>
       )}
 
+      {['INTRO', 'JOIN'].includes(gameState) && (
+        <div
+          className="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-[101] select-none"
+          style={{ paddingBottom: 'max(2px, env(safe-area-inset-bottom))' }}
+        >
+          <span className="text-[9px] text-slate-700 font-mono tracking-[0.3em] uppercase">
+            v{__APP_VERSION__}
+          </span>
+        </div>
+      )}
+
       {gameState === 'INTRO' && (
         <div className="fixed inset-0 bg-black z-[100] flex items-center justify-center overflow-hidden">
            {introPhase === 'WAITING' && (
