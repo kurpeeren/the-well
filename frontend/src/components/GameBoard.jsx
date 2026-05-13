@@ -144,11 +144,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   const getPhaseIcon = () => {
     switch(gamePhase) {
-       case 'NIGHT': return <Moon size={24} className="text-slate-400" />;
-       case 'MORNING': return <Sun size={24} className="text-yellow-500 animate-spin-slow" />;
-       case 'DAY': return <MessageSquare size={24} className="text-blue-400" />;
-       case 'VOTING': return <AlertTriangle size={24} className="text-blood-red animate-pulse" />;
-       case 'END': return <ShieldAlert size={24} className="text-accent" />;
+       case 'NIGHT': return <Moon className="w-8 h-8 sm:w-6 sm:h-6 text-slate-300 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />;
+       case 'MORNING': return <Sun className="w-8 h-8 sm:w-6 sm:h-6 text-amber-300 animate-spin-slow drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />;
+       case 'DAY': return <MessageSquare className="w-8 h-8 sm:w-6 sm:h-6 text-blue-300 drop-shadow-[0_0_6px_rgba(96,165,250,0.4)]" />;
+       case 'VOTING': return <AlertTriangle className="w-8 h-8 sm:w-6 sm:h-6 text-red-300 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />;
+       case 'END': return <ShieldAlert className="w-8 h-8 sm:w-6 sm:h-6 text-accent drop-shadow-[0_0_8px_rgba(217,119,6,0.4)]" />;
        default: return null;
     }
   }
@@ -409,7 +409,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-slate-900/80 sm:bg-slate-900/60 px-3 py-2 sm:p-4 rounded-none sm:rounded-xl border-0 border-b sm:border border-slate-800 backdrop-blur-sm gap-2 sm:gap-2 shrink-0">
 
         <div className="flex gap-2 sm:gap-4 items-center flex-1 min-w-0 w-full sm:w-auto">
-           <div className="p-1.5 sm:p-2 bg-slate-800 rounded-full border border-slate-700 shadow-inner shrink-0">
+           <div className={`p-3 sm:p-2.5 rounded-full border shadow-inner shrink-0 transition-colors duration-700 ${getPhasePillClass()}`}>
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
