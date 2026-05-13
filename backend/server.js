@@ -691,7 +691,7 @@ io.on('connection', (socket) => {
             engine.sendPrivateNews(roomCode, actorId, { text: "Tefeci seni susturduğu için konuşamazsın!", align: 'Kırmızı' });
             return;
          }
-         io.to(roomCode).emit('chatMessage', { sender: player.name, message });
+         io.to(roomCode).emit('chatMessage', { sender: player.name, message, ts: now });
       }
     }
   });
@@ -710,30 +710,31 @@ io.on('connection', (socket) => {
          const senderLabel = player.role === 'Gassal' && player.isAlive ? `[Gassal] ${player.name}` : `[Ölü] ${player.name}`;
          room.players.forEach(p => {
             if (!p.isAlive || p.role === 'Gassal') {
-               io.to(p.socketId).emit('chatMessage', { sender: senderLabel, message, type: 'dead' });
+               io.to(p.socketId).emit('chatMessage', { sender: senderLabel, message, type: 'dead', ts: now });
             }
          });
-         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: senderLabel, message, type: 'dead' });
+         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: senderLabel, message, type: 'dead', ts: now });
       }
     }
   });
 
+  // Çete chat artık her fazda açık (gündüz de gizli çete mesajları gönderilebilir)
   socket.on('mafiaChatMessage', ({ roomCode, message, impersonateId }) => {
     const now = Date.now();
     if (chatRateLimitMap[socket.id] && now - chatRateLimitMap[socket.id] < 500) return;
     chatRateLimitMap[socket.id] = now;
 
     const room = rooms[roomCode];
-    if(room && room.status === 'NIGHT') {
+    if(room) {
       const actorId = getActorId(room, socket.id, impersonateId);
       const player = room.players.find(p => p.socketId === actorId);
       if (player && player.isAlive && ROLES[player.role]?.team === 'Eşkıyalar') {
          room.players.forEach(p => {
             if (p.isAlive && ROLES[p.role]?.team === 'Eşkıyalar') {
-               io.to(p.socketId).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia' });
+               io.to(p.socketId).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
             }
          });
-         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia' });
+         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
       }
     }
   });

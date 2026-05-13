@@ -134,22 +134,32 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   const sendChat = (e) => {
     e.preventDefault();
-    if(currentMessage.trim()) {
-      const payload = { roomCode, message: currentMessage, impersonateId: isDevMode ? impersonateId : null };
-      // Ölü/spectator: her fazda ölü boyutuna yaz (gündüz de gece de)
-      if (!me.isAlive || isSpectator) {
-         socket.emit('deadChatMessage', payload);
-      } else if (gamePhase === 'DAY') {
-         socket.emit('chatMessage', payload);
-      } else if (gamePhase === 'NIGHT') {
-         if (activeRole === 'Gassal') {
-            socket.emit('deadChatMessage', payload);
-         } else if (isEskiya) {
-            socket.emit('mafiaChatMessage', payload);
-         }
-      }
+    const trimmed = currentMessage.trim();
+    if (!trimmed) return;
+
+    const baseOpts = { roomCode, impersonateId: isDevMode ? impersonateId : null };
+
+    // /c shortcut — alive eşkıya gündüz çete'ye gizli mesaj atar
+    if (me.isAlive && isEskiya && (trimmed.startsWith('/c ') || trimmed === '/c')) {
+      const msg = trimmed.replace(/^\/c\s*/, '').trim();
+      if (msg) socket.emit('mafiaChatMessage', { ...baseOpts, message: msg });
       setCurrentMessage('');
+      return;
     }
+
+    // Ölü/spectator: her fazda ölü boyutuna yaz
+    if (!me.isAlive || isSpectator) {
+       socket.emit('deadChatMessage', { ...baseOpts, message: trimmed });
+    } else if (gamePhase === 'DAY') {
+       socket.emit('chatMessage', { ...baseOpts, message: trimmed });
+    } else if (gamePhase === 'NIGHT') {
+       if (activeRole === 'Gassal') {
+          socket.emit('deadChatMessage', { ...baseOpts, message: trimmed });
+       } else if (isEskiya) {
+          socket.emit('mafiaChatMessage', { ...baseOpts, message: trimmed });
+       }
+    }
+    setCurrentMessage('');
   };
 
   const getPhaseIcon = () => {
@@ -695,9 +705,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                      senderClass = 'text-blue-200';
                   }
 
+                  const time = c.ts ? new Date(c.ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '';
                   return (
                     <div key={i} className={`p-2.5 rounded-2xl max-w-[85%] shadow-md border ${bubbleClass} ${isMe ? 'ml-auto rounded-br-sm' : 'mr-auto rounded-bl-sm'}`}>
-                      <span className={`text-[9px] block mb-0.5 font-bold uppercase tracking-wider ${senderClass}`}>{c.sender}</span>
+                      <div className="flex justify-between items-baseline gap-2 mb-0.5">
+                         <span className={`text-[9px] font-bold uppercase tracking-wider ${senderClass} truncate`}>{c.sender}</span>
+                         {time && <span className={`text-[9px] tabular-nums shrink-0 ${senderClass} opacity-60`}>{time}</span>}
+                      </div>
                       <span className="text-sm leading-relaxed selectable">{c.message}</span>
                     </div>
                   );
@@ -712,7 +726,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  mafia: { wrap: 'bg-red-950/40 border-red-900/50',        form: 'bg-red-900/30 border-red-800/50',        send: 'bg-blood-red hover:bg-red-800',      label: 'Çete Sohbeti',      placeholder: 'Çete ile konuş...',       text: 'text-red-300' },
                  day:   { wrap: 'bg-slate-900/60 border-slate-800/50',    form: 'bg-slate-800 border-slate-700',          send: 'bg-accent hover:bg-amber-700',       label: null,                placeholder: 'Zanlıları tartış...',     text: 'text-slate-300' },
               };
-              const t = channelTheme[chatChannel] || channelTheme.day;
+              const canMafiaShortcut = me.isAlive && isEskiya && gamePhase === 'DAY';
+              // Eşkıya gündüz /c ile yazarken input kırmızı tema'ya geçer
+              const isMafiaShortcut = canMafiaShortcut && currentMessage.trim().startsWith('/c');
+              const t = isMafiaShortcut ? channelTheme.mafia : (channelTheme[chatChannel] || channelTheme.day);
+              if (canMafiaShortcut && !isMafiaShortcut) t.placeholder = 'Zanlıları tartış...  ·  /c ile çete';
 
               return (
                  <div className={`shrink-0 border-t ${t.wrap}`}>
