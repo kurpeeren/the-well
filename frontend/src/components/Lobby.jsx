@@ -66,10 +66,20 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
         <label className="text-slate-400 text-xs sm:text-sm font-semibold tracking-wider uppercase text-center w-full block">Adın Ne Yabancı?</label>
         <input
           type="text"
+          name="playerNickname"
           placeholder="İsmini fısılda..."
           value={playerName}
           onChange={e => setPlayerName(e.target.value)}
           onFocus={handleInputFocus}
+          autoComplete="nickname"
+          autoCorrect="off"
+          autoCapitalize="words"
+          spellCheck="false"
+          inputMode="text"
+          maxLength={20}
+          data-lpignore="true"
+          data-1p-ignore="true"
+          data-form-type="other"
           className="w-full bg-slate-900 border border-slate-700 p-3 sm:p-4 rounded-xl focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-white transition-all shadow-inner"
         />
       </div>
