@@ -233,12 +233,13 @@ function App() {
       {gameState === 'INTRO' && (
         <div className="fixed inset-0 bg-black z-[100] flex items-center justify-center overflow-hidden">
            {introPhase === 'WAITING' && (
-              <button 
+              <button
                  onClick={() => {
                      setIntroPhase('PLAYING');
                      if (videoRef.current) videoRef.current.play().catch(e => console.error("Video error:", e));
-                 }} 
-                 className="text-slate-400 uppercase tracking-[0.5em] hover:text-white transition-colors duration-1000 animate-pulse text-sm z-20"
+                 }}
+                 className="text-slate-400 uppercase tracking-[0.5em] hover:text-white transition-colors duration-1000 animate-pulse text-sm z-20 select-none"
+                 style={{ WebkitTouchCallout: 'none' }}
               >
                  Karanlığa Adım At
               </button>
@@ -268,8 +269,9 @@ function App() {
               </div>
            </div>
            {introPhase === 'ENDED' && (
-              <div 
-                 className="relative z-10 flex flex-col items-center cursor-pointer group animate-pulse"
+              <div
+                 className="relative z-10 flex flex-col items-center cursor-pointer group animate-pulse select-none"
+                 style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                  onClick={() => setGameState('JOIN')}
               >
                  <h1 className="text-7xl md:text-9xl font-bold text-blood-red tracking-[0.3em] font-serif group-hover:text-red-500 transition-all duration-700 drop-shadow-[0_0_40px_rgba(220,38,38,1)]">
@@ -286,14 +288,14 @@ function App() {
       {gameState !== 'INTRO' && (
         <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden sm:overflow-visible sm:pb-20">
 
-          {!isInGame && (
+          {!isInGame && gameState !== 'JOIN' && (
             <header className={`w-full max-w-4xl text-center relative z-40 mt-2 mb-3 sm:mb-8 shrink-0 px-4 ${gameState === 'LOBBY' ? 'hidden sm:block' : ''}`}>
               <div className="relative inline-block px-6 sm:px-10 py-2 sm:py-4">
-                <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-blood-red tracking-[0.4em] font-serif drop-shadow-[0_0_15px_rgba(127,29,29,0.7)] cursor-default">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-blood-red tracking-[0.4em] font-serif drop-shadow-[0_0_15px_rgba(127,29,29,0.7)] cursor-default select-none">
                   KUYU
                 </h1>
                 <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-blood-red/40 to-transparent mt-2"></div>
-                <p className="text-[9px] md:text-[11px] text-slate-500 mt-1 sm:mt-2 tracking-[0.3em] uppercase font-bold italic opacity-60">Fısıltılar Köyü</p>
+                <p className="text-[9px] md:text-[11px] text-slate-500 mt-1 sm:mt-2 tracking-[0.3em] uppercase font-bold italic opacity-60 select-none">Fısıltılar Köyü</p>
               </div>
 
               {gameState === 'LOBBY' && (
@@ -310,11 +312,37 @@ function App() {
 
           {gameState === 'JOIN' && (
             <div className="flex-1 min-h-0 w-full flex flex-col items-center px-4 pb-4 sm:pb-0 overflow-y-auto custom-scrollbar">
-              <div className="my-auto w-full max-w-sm flex flex-col items-center gap-4 py-2">
+              <div className="my-auto w-full max-w-sm flex flex-col items-center gap-3 sm:gap-5 py-3">
+                {/* Stylized KUYU logo — directly above the form */}
+                <div
+                  className="relative flex flex-col items-center select-none cursor-default"
+                  style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
+                >
+                  <div className="h-px w-24 sm:w-32 bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-3"></div>
+
+                  <h1
+                    className="font-serif font-black text-blood-red text-5xl sm:text-6xl md:text-7xl uppercase animate-title-glow animate-title-flicker leading-none"
+                    style={{ letterSpacing: '0.4em', paddingLeft: '0.4em' }}
+                  >
+                    KUYU
+                  </h1>
+
+                  <div className="flex items-center gap-3 mt-3">
+                    <div className="h-px w-16 sm:w-20 bg-gradient-to-r from-transparent to-blood-red/50"></div>
+                    <span className="text-blood-red/70 text-[10px] tracking-widest">✦</span>
+                    <div className="h-px w-16 sm:w-20 bg-gradient-to-l from-transparent to-blood-red/50"></div>
+                  </div>
+
+                  <p className="text-[10px] sm:text-[11px] italic text-slate-500 tracking-[0.45em] uppercase mt-2 font-serif">
+                    Fısıltılar Köyü
+                  </p>
+                </div>
+
                 <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+
                 <a
                   href="/bilgi/"
-                  className="group flex items-center gap-2 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors"
+                  className="group flex items-center gap-2 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors select-none"
                 >
                   <span className="text-base group-hover:scale-110 transition-transform">📜</span>
                   Köyü Gez
