@@ -39,6 +39,21 @@ export default function Admin({ onExit }) {
         return () => { cancelled = true; clearInterval(interval); };
     }, [token]);
 
+    // Mobilde body overflow hidden — admin sayfasındayken scroll'a izin ver
+    useEffect(() => {
+        const prevBodyOverflow = document.body.style.overflow;
+        const prevHtmlOverflow = document.documentElement.style.overflow;
+        const prevBodyHeight = document.body.style.height;
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.height = 'auto';
+        return () => {
+            document.body.style.overflow = prevBodyOverflow;
+            document.documentElement.style.overflow = prevHtmlOverflow;
+            document.body.style.height = prevBodyHeight;
+        };
+    }, []);
+
     const showToastMsg = (m, ms = 2500) => {
         setToast(m);
         setTimeout(() => setToast(null), ms);
