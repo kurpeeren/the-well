@@ -6,7 +6,12 @@ import Admin from './components/Admin';
 import { LogOut } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-const socket = io(BACKEND_URL);
+const socket = io(BACKEND_URL, {
+  transports: ['websocket'], // Polling adımını atla — ilk bağlantı hızlanır
+  reconnection: true,
+  reconnectionDelay: 500,
+  reconnectionDelayMax: 3000,
+});
 
 /* Global koruma — tıklamalı eventler için 500ms throttle.
    Bir butona hızlı 2-3 kez basılırsa sadece ilki geçer, geri kalanı sessizce düşer.

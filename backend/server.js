@@ -211,7 +211,16 @@ app.get('/api/admin/history', adminAuth, async (req, res) => {
 });
 
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
+const io = new Server(server, {
+    cors: { origin: '*', methods: ['GET', 'POST'] },
+    // Hızlı disconnect algılama — default 25s/20s yerine
+    pingInterval: 10000,   // 10s'de bir ping
+    pingTimeout: 8000,     // 8s pong beklenir, sonra disconnect
+    // Sadece WebSocket — long-polling upgrade adımını atla (ilk bağlantı 30-50ms hızlanır)
+    transports: ['websocket'],
+    // Sıkıştırma — büyük payload'larda etkin, küçük olanlarda bypass
+    perMessageDeflate: { threshold: 1024 },
+});
 
 const rooms = {};
 const generateRoomCode = () => {
