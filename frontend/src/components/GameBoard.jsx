@@ -1039,6 +1039,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                        <ul className="space-y-2">
                          {groups.get(day).map(p => {
                            const roleToDisplay = p.displayRole || p.role;
+                           const teamLabel = ROLE_INFO[roleToDisplay]?.team || 'Bilinmiyor';
                            return (
                              <li key={p.socketId} className="flex items-center justify-between bg-black/40 px-3 py-2.5 rounded-lg border border-slate-800">
                                <div className="flex items-center gap-2 min-w-0">
@@ -1046,7 +1047,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                                  {p.diedPhase === 'NIGHT' && <Moon size={11} className="text-slate-500 shrink-0" />}
                                  {p.diedPhase === 'VOTING' && <AlertTriangle size={11} className="text-amber-500/70 shrink-0" />}
                                </div>
-                               <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider shrink-0 ml-2`}>{roleToDisplay}</span>
+                               <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider shrink-0 ml-2`}>{teamLabel}</span>
                              </li>
                            );
                          })}
