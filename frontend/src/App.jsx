@@ -331,14 +331,43 @@ function App() {
            </div>
            {introPhase === 'ENDED' && (
               <div
-                 className="relative z-10 flex flex-col items-center cursor-pointer group animate-pulse select-none"
+                 className="relative z-10 flex flex-col items-center cursor-pointer group select-none"
                  style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                  onClick={() => setGameState('JOIN')}
               >
-                 <h1 className="text-7xl md:text-9xl font-bold text-blood-red tracking-[0.3em] font-serif group-hover:text-red-500 transition-all duration-700 drop-shadow-[0_0_40px_rgba(220,38,38,1)]">
-                    KUYU
-                 </h1>
-                 <p className="text-slate-400 mt-8 tracking-[0.5em] text-xs uppercase group-hover:text-slate-200 transition-colors">
+                 <div className="h-px bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-4" style={{ width: 'clamp(8rem, 30vw, 14rem)' }}></div>
+
+                 <div className="relative">
+                    <h1
+                       className="relative font-serif font-black uppercase leading-none md:text-9xl"
+                       style={{
+                          fontSize: 'clamp(5rem, 22vw, 9rem)',
+                          letterSpacing: '0.4em',
+                          paddingLeft: '0.4em',
+                          backgroundImage: 'linear-gradient(110deg, #b91c1c 0%, #dc2626 30%, #fca5a5 50%, #dc2626 70%, #b91c1c 100%)',
+                          backgroundSize: '250% 100%',
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          animation: 'titleFlicker 7s ease-in-out infinite, bloodShimmer 6s linear infinite, bloodGlow 4s ease-in-out infinite',
+                       }}
+                    >
+                       KUYU
+                    </h1>
+
+                    {/* Kan damlaları — harflerin altından staggered düşer */}
+                    <span aria-hidden="true" className="absolute left-[18%] top-full w-[4px] h-[5px] rounded-full bg-blood-red origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '0s', boxShadow: '0 0 8px rgba(127,29,29,0.8)' }}></span>
+                    <span aria-hidden="true" className="absolute left-[44%] top-full w-[3px] h-[4px] rounded-full bg-red-800 origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '1.8s', boxShadow: '0 0 7px rgba(127,29,29,0.7)' }}></span>
+                    <span aria-hidden="true" className="absolute left-[72%] top-full w-[4px] h-[5px] rounded-full bg-blood-red origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '3.4s', boxShadow: '0 0 8px rgba(127,29,29,0.8)' }}></span>
+                 </div>
+
+                 <div className="flex items-center gap-3 mt-6">
+                    <div className="h-px bg-gradient-to-r from-transparent to-blood-red/50" style={{ width: 'clamp(5rem, 18vw, 8rem)' }}></div>
+                    <span className="text-blood-red/70 tracking-widest" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)' }}>✦</span>
+                    <div className="h-px bg-gradient-to-l from-transparent to-blood-red/50" style={{ width: 'clamp(5rem, 18vw, 8rem)' }}></div>
+                 </div>
+
+                 <p className="text-slate-400 mt-3 tracking-[0.5em] uppercase font-serif italic group-hover:text-slate-200 transition-colors animate-pulse" style={{ fontSize: 'clamp(0.7rem, 2.5vw, 0.95rem)' }}>
                     Kasabaya Girmek İçin Tıkla
                  </p>
               </div>
