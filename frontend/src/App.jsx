@@ -335,13 +335,13 @@ function App() {
                  style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                  onClick={() => setGameState('JOIN')}
               >
-                 <div className="h-px bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-4" style={{ width: 'clamp(8rem, 30vw, 14rem)' }}></div>
+                 <div className="h-px bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-3" style={{ width: 'clamp(6rem, 25vw, 9rem)' }}></div>
 
                  <div className="relative">
                     <h1
-                       className="relative font-serif font-black uppercase leading-none md:text-9xl"
+                       className="relative font-serif font-black uppercase leading-none md:text-8xl"
                        style={{
-                          fontSize: 'clamp(5rem, 22vw, 9rem)',
+                          fontSize: 'clamp(3.5rem, 17vw, 6rem)',
                           letterSpacing: '0.4em',
                           paddingLeft: '0.4em',
                           backgroundImage: 'linear-gradient(110deg, #b91c1c 0%, #dc2626 30%, #fca5a5 50%, #dc2626 70%, #b91c1c 100%)',
@@ -355,19 +355,19 @@ function App() {
                        KUYU
                     </h1>
 
-                    {/* Kan damlaları — harflerin altından staggered düşer */}
-                    <span aria-hidden="true" className="absolute left-[18%] top-full w-[4px] h-[5px] rounded-full bg-blood-red origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '0s', boxShadow: '0 0 8px rgba(127,29,29,0.8)' }}></span>
-                    <span aria-hidden="true" className="absolute left-[44%] top-full w-[3px] h-[4px] rounded-full bg-red-800 origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '1.8s', boxShadow: '0 0 7px rgba(127,29,29,0.7)' }}></span>
-                    <span aria-hidden="true" className="absolute left-[72%] top-full w-[4px] h-[5px] rounded-full bg-blood-red origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '3.4s', boxShadow: '0 0 8px rgba(127,29,29,0.8)' }}></span>
+                    {/* Kan damlaları — JOIN ekranıyla birebir aynı */}
+                    <span aria-hidden="true" className="absolute left-[18%] top-full w-[3px] h-[4px] rounded-full bg-blood-red origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '0s', boxShadow: '0 0 6px rgba(127,29,29,0.7)' }}></span>
+                    <span aria-hidden="true" className="absolute left-[44%] top-full w-[2.5px] h-[3px] rounded-full bg-red-800 origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '1.8s', boxShadow: '0 0 5px rgba(127,29,29,0.6)' }}></span>
+                    <span aria-hidden="true" className="absolute left-[72%] top-full w-[3px] h-[4px] rounded-full bg-blood-red origin-top animate-blood-drip pointer-events-none" style={{ animationDelay: '3.4s', boxShadow: '0 0 6px rgba(127,29,29,0.7)' }}></span>
                  </div>
 
-                 <div className="flex items-center gap-3 mt-6">
-                    <div className="h-px bg-gradient-to-r from-transparent to-blood-red/50" style={{ width: 'clamp(5rem, 18vw, 8rem)' }}></div>
-                    <span className="text-blood-red/70 tracking-widest" style={{ fontSize: 'clamp(0.75rem, 3vw, 1rem)' }}>✦</span>
-                    <div className="h-px bg-gradient-to-l from-transparent to-blood-red/50" style={{ width: 'clamp(5rem, 18vw, 8rem)' }}></div>
+                 <div className="flex items-center gap-3 mt-3">
+                    <div className="h-px bg-gradient-to-r from-transparent to-blood-red/50" style={{ width: 'clamp(3.5rem, 15vw, 5.5rem)' }}></div>
+                    <span className="text-blood-red/70 tracking-widest" style={{ fontSize: 'clamp(0.65rem, 2.5vw, 0.85rem)' }}>✦</span>
+                    <div className="h-px bg-gradient-to-l from-transparent to-blood-red/50" style={{ width: 'clamp(3.5rem, 15vw, 5.5rem)' }}></div>
                  </div>
 
-                 <p className="text-slate-400 mt-3 tracking-[0.5em] uppercase font-serif italic group-hover:text-slate-200 transition-colors animate-pulse" style={{ fontSize: 'clamp(0.7rem, 2.5vw, 0.95rem)' }}>
+                 <p className="text-slate-400 mt-2 tracking-[0.45em] uppercase font-serif italic group-hover:text-slate-200 transition-colors animate-pulse" style={{ fontSize: 'clamp(0.65rem, 2.5vw, 0.8rem)' }}>
                     Kasabaya Girmek İçin Tıkla
                  </p>
               </div>
