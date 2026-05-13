@@ -153,6 +153,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     }
   }
 
+  const getPhaseTextClass = () => {
+    switch(gamePhase) {
+      case 'NIGHT':   return 'text-slate-100 drop-shadow-[0_0_12px_rgba(148,163,184,0.45)]';
+      case 'MORNING': return 'text-amber-200 drop-shadow-[0_0_12px_rgba(251,191,36,0.45)]';
+      case 'DAY':     return 'text-slate-100 drop-shadow-[0_0_8px_rgba(96,165,250,0.35)]';
+      case 'VOTING':  return 'text-red-200 drop-shadow-[0_0_12px_rgba(127,29,29,0.6)]';
+      case 'END':     return 'text-amber-300 drop-shadow-[0_0_12px_rgba(217,119,6,0.5)]';
+      default:        return 'text-slate-200';
+    }
+  };
+
   const getPhaseNameTR = () => {
     switch(gamePhase) {
       case 'NIGHT': return `${dayCount}. Gece Çöktü`;
@@ -391,7 +402,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
-             <h2 className="text-base sm:text-xl font-bold tracking-tight font-serif text-slate-200 truncate leading-tight">{getPhaseNameTR()}</h2>
+             <h2 className={`text-base sm:text-xl font-bold tracking-[0.15em] sm:tracking-[0.2em] font-serif uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
              <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-0.5 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
                <span
                  className={`uppercase tracking-widest cursor-pointer select-none px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
@@ -437,9 +448,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       </div>
 
       <div className={`overflow-hidden transition-all duration-500 shrink-0 ${eventNews ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="bg-gradient-to-r from-blood-red/80 to-transparent p-3 sm:p-4 rounded-none sm:rounded-xl border-l-4 border-red-500 flex items-center gap-3 shadow-lg mb-0 sm:mb-4">
-          <AlertTriangle className="text-white shrink-0" size={18} />
-          <p className="text-sm sm:text-lg font-medium text-white">{eventNews}</p>
+        <div className="relative bg-gradient-to-r from-blood-red/70 via-blood-red/30 to-transparent p-3 sm:p-4 rounded-none sm:rounded-xl border-l-4 border-red-500 flex items-center gap-3 shadow-[0_0_25px_rgba(127,29,29,0.4)] mb-0 sm:mb-4 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(127,29,29,0.4),transparent_60%)] pointer-events-none"></div>
+          <AlertTriangle className="text-red-300 shrink-0 drop-shadow-[0_0_8px_rgba(248,113,113,0.6)] relative z-10" size={20} />
+          <p className="relative z-10 text-sm sm:text-lg font-medium text-slate-50 italic font-serif tracking-wide leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">{eventNews}</p>
         </div>
       </div>
 
