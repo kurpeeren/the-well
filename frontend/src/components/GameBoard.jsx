@@ -617,7 +617,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                   return (
                     <div key={i} className={`p-2.5 rounded-2xl max-w-[85%] shadow-md border ${bubbleClass} ${isMe ? 'ml-auto rounded-br-sm' : 'mr-auto rounded-bl-sm'}`}>
                       <span className={`text-[9px] block mb-0.5 font-bold uppercase tracking-wider ${senderClass}`}>{c.sender}</span>
-                      <span className="text-sm leading-relaxed">{c.message}</span>
+                      <span className="text-sm leading-relaxed selectable">{c.message}</span>
                     </div>
                   );
               })}

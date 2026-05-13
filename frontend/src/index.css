@@ -89,6 +89,15 @@ body {
   overflow: hidden;
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
   animation: bloodPulse 6s ease-in-out infinite;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 @media (min-width: 640px) {
@@ -103,9 +112,65 @@ body {
   }
 }
 
-input, textarea {
+input, textarea, .selectable, .selectable * {
   user-select: text;
   -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* Custom checkbox — sistem default'unu ezer, tutarlı tüm cihazlarda */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #475569;
+  border-radius: 4px;
+  background-color: #0f172a;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  margin: 0;
+}
+input[type="checkbox"]:hover:not(:disabled) {
+  border-color: #7f1d1d;
+}
+input[type="checkbox"]:checked {
+  background-color: #7f1d1d;
+  border-color: #b91c1c;
+  box-shadow: 0 0 8px rgba(127, 29, 29, 0.4);
+}
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 6px;
+  height: 11px;
+  border: solid #fef2f2;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+input[type="checkbox"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+input[type="checkbox"]:focus-visible {
+  outline: 2px solid #d97706;
+  outline-offset: 2px;
+}
+
+/* Number input spinner'ları gizle — her tarayıcıda farklı görünüyordu */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Custom Scrollbar */

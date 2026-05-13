@@ -382,7 +382,7 @@ function App() {
          <div className="w-full max-w-md flex-1 min-h-0 flex flex-col bg-dark-bg sm:rounded-xl border-y sm:border border-slate-800 shadow-2xl mx-0 sm:mx-4 sm:my-2">
            {/* Oda kodu üst bar */}
            <div className="shrink-0 px-4 py-3 border-b border-slate-800 flex items-center justify-between gap-2">
-              <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest truncate">Oda: {roomCode}</h2>
+              <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest truncate">Oda: <span className="selectable">{roomCode}</span></h2>
               <div className="flex items-center gap-2 shrink-0">
                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{players.length}/16</span>
                  <button
@@ -507,7 +507,6 @@ function App() {
                                          setSettings(newSettings);
                                          socket.emit('updateSettings', { roomCode, settings: newSettings });
                                       }}
-                                      className="w-4 h-4 rounded border-slate-600 text-blood-red focus:ring-blood-red focus:ring-1 bg-slate-800 shrink-0"
                                    />
                                    <span className="text-[12px] font-medium truncate">{r.name}</span>
                                 </label>
