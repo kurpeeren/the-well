@@ -515,25 +515,25 @@ function App() {
               )}
 
               {lobbyTab === 'settings' && (
-                 <div className="space-y-5">
+                 <div className="space-y-6">
                     {!isHost && (
-                       <p className="text-[10px] text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
+                       <p className="text-xs text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
                     )}
 
                     <div>
-                       <p className="text-[10px] text-slate-500 mb-2 font-medium uppercase tracking-wider border-b border-slate-800 pb-1">Süreler (Saniye)</p>
+                       <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider border-b border-slate-800 pb-2">Süreler (Saniye)</p>
                        <div className="grid grid-cols-2 gap-3">
                           {['nightTimer', 'morningTimer', 'dayTimer', 'votingTimer'].map(k => {
                              const labelMap = { nightTimer: 'Gece', morningTimer: 'Sabah', dayTimer: 'Gün', votingTimer: 'Oylama' };
                              return (
                                 <div key={k} className="flex flex-col">
-                                   <label className="text-[10px] text-slate-400 mb-1 font-medium">{labelMap[k]}</label>
+                                   <label className="text-xs text-slate-300 mb-1.5 font-medium">{labelMap[k]}</label>
                                    <input type="number" disabled={!isHost} value={settings[k] || 0}
                                       onChange={(e) => {
                                          const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
                                          setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
                                       }}
-                                      className="bg-black border border-slate-700 rounded-lg p-2 text-white outline-none focus:border-yellow-500 focus:ring-1 text-sm w-full"
+                                      className="bg-black border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-yellow-500 focus:ring-1 text-base w-full"
                                    />
                                 </div>
                              )
@@ -542,9 +542,9 @@ function App() {
                     </div>
 
                     <div>
-                       <div className="flex justify-between items-end border-b border-slate-800 pb-1 mb-2">
-                          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Rol Dağılımı</p>
-                          <span className="text-[9px] text-slate-500">Eşkıya Başı + Cinnetkar sabit</span>
+                       <div className="flex flex-wrap justify-between items-end gap-2 border-b border-slate-800 pb-2 mb-3">
+                          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Rol Dağılımı</p>
+                          <span className="text-[10px] text-slate-500 italic">Eşkıya Başı + Seri Katil sabit</span>
                        </div>
                        <div className="grid grid-cols-3 gap-2">
                           {['kirmizi', 'gri', 'yesil'].map(k => {
@@ -552,14 +552,14 @@ function App() {
                              const colorMap = { kirmizi: 'text-blood-red', gri: 'text-slate-400', yesil: 'text-emerald-300' };
                              return (
                                 <div key={k} className="flex flex-col">
-                                   <label className={`text-[10px] ${colorMap[k]} font-bold mb-1 uppercase tracking-wider`}>{labelMap[k]}</label>
+                                   <label className={`text-xs ${colorMap[k]} font-bold mb-1.5 uppercase tracking-wider`}>{labelMap[k]}</label>
                                    <input type="number" disabled={!isHost} value={settings[k] || 0}
                                       onChange={(e) => {
                                          setIsRatioManuallySet(true);
                                          const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
                                          setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
                                       }}
-                                      className="bg-black border border-slate-700 shadow-inner rounded-lg p-2 text-white outline-none focus:border-yellow-500 focus:ring-1 text-sm w-full"
+                                      className="bg-black border border-slate-700 shadow-inner rounded-lg p-2.5 text-white outline-none focus:border-yellow-500 focus:ring-1 text-base w-full"
                                    />
                                 </div>
                              )
@@ -572,14 +572,14 @@ function App() {
               {lobbyTab === 'roles' && (
                  <div className="space-y-5">
                     {!isHost && (
-                       <p className="text-[10px] text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
+                       <p className="text-xs text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
                     )}
                     {['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
                        <div key={group}>
-                          <h3 className={`text-[11px] font-bold mb-2 uppercase tracking-wider ${group === 'Masumlar' ? 'text-emerald-300' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
-                          <div className="grid grid-cols-2 gap-1.5">
+                          <h3 className={`text-sm font-bold mb-3 uppercase tracking-widest ${group === 'Masumlar' ? 'text-emerald-300' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
+                          <div className="grid grid-cols-2 gap-2">
                              {ROLES_LIST.filter(r => r.group === group).map(r => (
-                                <label key={r.name} className="flex items-center space-x-2 text-slate-300 cursor-pointer hover:bg-slate-800 p-1.5 rounded transition-colors">
+                                <label key={r.name} className="flex items-center gap-3 text-slate-300 cursor-pointer hover:bg-slate-800 px-2.5 py-2 rounded-lg transition-colors">
                                    <input type="checkbox" checked={settings.roles ? settings.roles[r.name] !== false : true} disabled={!isHost}
                                       onChange={(e) => {
                                          const newRoles = { ...(settings.roles || {}) };
@@ -589,7 +589,7 @@ function App() {
                                          socket.emit('updateSettings', { roomCode, settings: newSettings });
                                       }}
                                    />
-                                   <span className="text-[12px] font-medium truncate">{r.name}</span>
+                                   <span className="text-sm font-medium truncate">{r.name}</span>
                                 </label>
                              ))}
                           </div>
