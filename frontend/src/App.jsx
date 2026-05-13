@@ -331,12 +331,28 @@ function App() {
                 >
                   <div className="h-px w-24 sm:w-32 bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-3"></div>
 
-                  <h1
-                    className="font-serif font-black text-blood-red text-5xl sm:text-6xl md:text-7xl uppercase animate-title-glow animate-title-flicker leading-none"
-                    style={{ letterSpacing: '0.4em', paddingLeft: '0.4em' }}
-                  >
-                    KUYU
-                  </h1>
+                  <div className="relative">
+                    <h1
+                      className="relative font-serif font-black text-6xl sm:text-6xl md:text-7xl uppercase animate-title-glow animate-title-flicker leading-none"
+                      style={{
+                        letterSpacing: '0.4em',
+                        paddingLeft: '0.4em',
+                        backgroundImage: 'linear-gradient(110deg, #7f1d1d 25%, #b91c1c 45%, #ef4444 50%, #b91c1c 55%, #7f1d1d 75%)',
+                        backgroundSize: '300% 100%',
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        animation: 'titleGlow 5s ease-in-out infinite, titleFlicker 7s ease-in-out infinite, bloodShimmer 6s linear infinite',
+                      }}
+                    >
+                      KUYU
+                    </h1>
+
+                    {/* Kan damlaları — harflerin altından staggered düşer */}
+                    <span aria-hidden="true" className="absolute left-[18%] top-full w-[3px] h-[4px] rounded-full bg-blood-red origin-top animate-blood-drip" style={{ animationDelay: '0s', boxShadow: '0 0 6px rgba(127,29,29,0.7)' }}></span>
+                    <span aria-hidden="true" className="absolute left-[44%] top-full w-[2.5px] h-[3px] rounded-full bg-red-800 origin-top animate-blood-drip" style={{ animationDelay: '1.8s', boxShadow: '0 0 5px rgba(127,29,29,0.6)' }}></span>
+                    <span aria-hidden="true" className="absolute left-[72%] top-full w-[3px] h-[4px] rounded-full bg-blood-red origin-top animate-blood-drip" style={{ animationDelay: '3.4s', boxShadow: '0 0 6px rgba(127,29,29,0.7)' }}></span>
+                  </div>
 
                   <div className="flex items-center gap-3 mt-3">
                     <div className="h-px w-16 sm:w-20 bg-gradient-to-r from-transparent to-blood-red/50"></div>

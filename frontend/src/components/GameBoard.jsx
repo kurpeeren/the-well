@@ -164,6 +164,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     }
   };
 
+  const getPhasePillClass = () => {
+    switch(gamePhase) {
+      case 'NIGHT':   return 'bg-slate-900/70 border-slate-700/80 shadow-[inset_0_0_18px_rgba(148,163,184,0.08)]';
+      case 'MORNING': return 'bg-amber-950/40 border-amber-800/50 shadow-[inset_0_0_18px_rgba(251,191,36,0.12)]';
+      case 'DAY':     return 'bg-slate-900/60 border-slate-700/70 shadow-[inset_0_0_14px_rgba(96,165,250,0.08)]';
+      case 'VOTING':  return 'bg-red-950/50 border-red-900/60 shadow-[inset_0_0_20px_rgba(127,29,29,0.20)]';
+      case 'END':     return 'bg-amber-950/40 border-amber-800/50 shadow-[inset_0_0_18px_rgba(217,119,6,0.15)]';
+      default:        return 'bg-slate-900/50 border-slate-800';
+    }
+  };
+
   const getPhaseNameTR = () => {
     switch(gamePhase) {
       case 'NIGHT': return `${dayCount}. Gece Çöktü`;
@@ -402,7 +413,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
-             <h2 className={`text-base sm:text-xl font-bold tracking-[0.15em] sm:tracking-[0.2em] font-serif uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
+             <div className={`inline-flex max-w-full items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border backdrop-blur-sm transition-all duration-700 ${getPhasePillClass()}`}>
+               <h2 className={`text-sm sm:text-lg font-bold tracking-[0.2em] sm:tracking-[0.25em] font-serif uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
+             </div>
              <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-0.5 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
                <span
                  className={`uppercase tracking-widest cursor-pointer select-none px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
