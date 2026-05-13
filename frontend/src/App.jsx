@@ -78,6 +78,7 @@ function App() {
   const [eventNews, setEventNews] = useState(null); 
   const [systemNotes, setSystemNotes] = useState([]);
   const [dayCount, setDayCount] = useState(1);
+  const dayCountRef = useRef(1);
   const [dousedList, setDousedList] = useState([]);
   const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, kirmizi: 4, gri: 2, yesil: 9 });
   const [isRatioManuallySet, setIsRatioManuallySet] = useState(false);
@@ -85,6 +86,8 @@ function App() {
   const [revealedNotes, setRevealedNotes] = useState([]);
   const [toast, setToast] = useState(null);
   const [lobbyTab, setLobbyTab] = useState('players'); // 'players' | 'settings' | 'roles'
+
+  useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -172,13 +175,14 @@ function App() {
     });
 
     socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment, personalNote, cause }) => {
+      const d = dayCountRef.current;
       if(killedPlayerName) {
         if (cause === 'arsonist') {
            setEventNews(`${killedPlayerName} gece evinde çıkan feci bir yangında kül oldu!`);
-           setSystemNotes(prev => [...prev, { text: `${killedPlayerName} yanarak can verdi.`, align: 'Kırmızı' }]);
+           setSystemNotes(prev => [...prev, { text: `${killedPlayerName} yanarak can verdi.`, align: 'Kırmızı', day: d }]);
         } else {
            setEventNews(`${killedPlayerName} gece karanlığında kurban gitti.`);
-           setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü.`, align: 'Bilinmiyor' }]);
+           setSystemNotes(prev => [...prev, { text: `${killedPlayerName} gece öldürüldü.`, align: 'Bilinmiyor', day: d }]);
         }
 
         /* Vasiyet boş olsa bile göster — kullanıcı Tamam'a basana kadar açık kalsın */
@@ -189,13 +193,14 @@ function App() {
     });
 
     socket.on('privateNews', (newsObj) => {
-      setSystemNotes(prev => [...prev, newsObj]);
+      setSystemNotes(prev => [...prev, { ...newsObj, day: dayCountRef.current }]);
     });
 
     socket.on('voteResult', ({ lynchedPlayerName, lynchedPlayerAlignment, voteTally, personalNote }) => {
+       const d = dayCountRef.current;
        if(lynchedPlayerName) {
          setEventNews(`${lynchedPlayerName} köylüler tarafından ${voteTally} oyla kuyuya fırlatıldı!`);
-         setSystemNotes(prev => [...prev, { text: `${lynchedPlayerName} kuyuya atıldı. (Toplam Oy: ${voteTally})`, align: 'Bilinmiyor' }]);
+         setSystemNotes(prev => [...prev, { text: `${lynchedPlayerName} kuyuya atıldı. (Toplam Oy: ${voteTally})`, align: 'Bilinmiyor', day: d }]);
          /* Vasiyet boş olsa bile göster */
          setRevealedNotes(prev => [...prev, { playerName: lynchedPlayerName, note: personalNote || '' }]);
        } else {

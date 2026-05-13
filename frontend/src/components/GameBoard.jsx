@@ -880,18 +880,34 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
             <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
                {notesTab === 'events' && (
                   <ul className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
-                     {systemNotes?.length > 0 ? systemNotes.map((note, i) => {
-                       let borderClass = 'border-slate-600';
-                       if(note.align === 'Kırmızı') borderClass = 'border-blood-red';
-                       if(note.align === 'Yeşil') borderClass = 'border-emerald-500';
-                       if(note.align === 'Gri') borderClass = 'border-gray-400';
-                       if(note.align === 'Yarı') borderClass = 'border-amber-500';
-                       return (
-                         <li key={i} className={`bg-slate-800 p-3 rounded-lg border-l-4 ${borderClass} shadow-inner text-[13px] flex items-center gap-4`}>
-                           <span className="text-slate-300">{note.text}</span>
-                         </li>
-                       );
-                     }) : (
+                     {systemNotes?.length > 0 ? (() => {
+                       const items = [];
+                       let lastDay = null;
+                       systemNotes.forEach((note, i) => {
+                          const noteDay = note.day ?? 1;
+                          if (noteDay !== lastDay) {
+                             items.push(
+                                <li key={`sep-${noteDay}-${i}`} className="flex items-center gap-2 my-1 select-none">
+                                   <div className="flex-1 h-px bg-slate-800"></div>
+                                   <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600 px-2 py-0.5 rounded-full bg-slate-900/60 border border-slate-800">{noteDay}. Gün</span>
+                                   <div className="flex-1 h-px bg-slate-800"></div>
+                                </li>
+                             );
+                             lastDay = noteDay;
+                          }
+                          let borderClass = 'border-slate-600';
+                          if(note.align === 'Kırmızı') borderClass = 'border-blood-red';
+                          if(note.align === 'Yeşil') borderClass = 'border-emerald-500';
+                          if(note.align === 'Gri') borderClass = 'border-gray-400';
+                          if(note.align === 'Yarı') borderClass = 'border-amber-500';
+                          items.push(
+                             <li key={i} className={`bg-slate-800 p-3 rounded-lg border-l-4 ${borderClass} shadow-inner text-[13px] flex items-center gap-4`}>
+                                <span className="text-slate-300">{note.text}</span>
+                             </li>
+                          );
+                       });
+                       return items;
+                     })() : (
                        <li className="text-slate-500 italic text-sm text-center mt-6">Henüz bir olay gerçekleşmedi...</li>
                      )}
                   </ul>
@@ -996,20 +1012,48 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
               <div>
                 <h4 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-2 border-b border-slate-800 pb-2">Ölüler</h4>
-                <ul className="space-y-2">
-                  {players.filter(p => !p.isAlive).map(p => {
-                    const roleToDisplay = p.displayRole || p.role;
-                    return (
-                      <li key={p.socketId} className="flex items-center justify-between bg-black/40 px-3 py-2.5 rounded-lg border border-slate-800">
-                        <span className="text-slate-300 font-medium text-sm line-through opacity-70">{p.name}</span>
-                        <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider`}>{roleToDisplay}</span>
-                      </li>
-                    );
-                  })}
-                  {players.filter(p => !p.isAlive).length === 0 && (
-                    <p className="text-slate-600 text-[11px] italic text-center py-6 uppercase tracking-widest">Kuyu Şimdilik Boş...</p>
-                  )}
-                </ul>
+                {(() => {
+                   const dead = players.filter(p => !p.isAlive);
+                   if (dead.length === 0) {
+                     return <p className="text-slate-600 text-[11px] italic text-center py-6 uppercase tracking-widest">Kuyu Şimdilik Boş...</p>;
+                   }
+                   // Güne göre gruplandır — diedDay yoksa "Bilinmiyor" kovasına
+                   const groups = new Map();
+                   dead.forEach(p => {
+                     const key = p.diedDay ?? '?';
+                     if (!groups.has(key)) groups.set(key, []);
+                     groups.get(key).push(p);
+                   });
+                   const sortedKeys = [...groups.keys()].sort((a, b) => {
+                     if (a === '?') return 1;
+                     if (b === '?') return -1;
+                     return a - b;
+                   });
+                   return sortedKeys.map(day => (
+                     <div key={day} className="mb-3">
+                       <div className="flex items-center gap-2 my-2 select-none">
+                         <div className="flex-1 h-px bg-slate-800"></div>
+                         <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600 px-2 py-0.5 rounded-full bg-slate-900/60 border border-slate-800">{day === '?' ? 'Önceden' : `${day}. Gün`}</span>
+                         <div className="flex-1 h-px bg-slate-800"></div>
+                       </div>
+                       <ul className="space-y-2">
+                         {groups.get(day).map(p => {
+                           const roleToDisplay = p.displayRole || p.role;
+                           return (
+                             <li key={p.socketId} className="flex items-center justify-between bg-black/40 px-3 py-2.5 rounded-lg border border-slate-800">
+                               <div className="flex items-center gap-2 min-w-0">
+                                 <span className="text-slate-300 font-medium text-sm line-through opacity-70 truncate">{p.name}</span>
+                                 {p.diedPhase === 'NIGHT' && <Moon size={11} className="text-slate-500 shrink-0" />}
+                                 {p.diedPhase === 'VOTING' && <AlertTriangle size={11} className="text-amber-500/70 shrink-0" />}
+                               </div>
+                               <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider shrink-0 ml-2`}>{roleToDisplay}</span>
+                             </li>
+                           );
+                         })}
+                       </ul>
+                     </div>
+                   ));
+                })()}
               </div>
 
               {gamePhase === 'VOTING' && (

@@ -469,8 +469,10 @@ class GameEngine {
           }
           
           p.isAlive = false;
+          p.diedDay = room.dayCount;
+          p.diedPhase = 'NIGHT';
           if (p.framedDay !== undefined && room.dayCount <= p.framedDay + 1) p.displayRole = 'Eşkıya';
-          
+
           killedInfos.push({ name: p.name, align: getColorAlignment(p.role), personalNote: p.personalNote, cause });
         }
       });
@@ -545,6 +547,8 @@ class GameEngine {
          const lynched = room.players.find(p => p.socketId === topTarget);
          if (lynched) {
            lynched.isAlive = false;
+           lynched.diedDay = room.dayCount;
+           lynched.diedPhase = 'VOTING';
            room.peacefulDays = 0; // Birisi linç edilerek öldü
            if (lynched.framedDay !== undefined && room.dayCount <= lynched.framedDay + 1) lynched.displayRole = 'Eşkıya';
            this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote, voteTally: max });
