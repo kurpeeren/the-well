@@ -380,12 +380,13 @@ function App() {
                   className="relative flex flex-col items-center select-none cursor-default"
                   style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                 >
-                  <div className="h-px w-24 sm:w-32 bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-3"></div>
+                  <div className="h-px bg-gradient-to-r from-transparent via-blood-red/60 to-transparent mb-3" style={{ width: 'clamp(6rem, 25vw, 9rem)' }}></div>
 
                   <div className="relative">
                     <h1
-                      className="relative font-serif font-black text-7xl sm:text-7xl md:text-8xl uppercase leading-none"
+                      className="relative font-serif font-black uppercase leading-none md:text-8xl"
                       style={{
+                        fontSize: 'clamp(3.5rem, 17vw, 6rem)',
                         letterSpacing: '0.4em',
                         paddingLeft: '0.4em',
                         backgroundImage: 'linear-gradient(110deg, #b91c1c 0%, #dc2626 30%, #fca5a5 50%, #dc2626 70%, #b91c1c 100%)',
@@ -406,12 +407,12 @@ function App() {
                   </div>
 
                   <div className="flex items-center gap-3 mt-3">
-                    <div className="h-px w-16 sm:w-20 bg-gradient-to-r from-transparent to-blood-red/50"></div>
-                    <span className="text-blood-red/70 text-[10px] tracking-widest">✦</span>
-                    <div className="h-px w-16 sm:w-20 bg-gradient-to-l from-transparent to-blood-red/50"></div>
+                    <div className="h-px bg-gradient-to-r from-transparent to-blood-red/50" style={{ width: 'clamp(3.5rem, 15vw, 5.5rem)' }}></div>
+                    <span className="text-blood-red/70 tracking-widest" style={{ fontSize: 'clamp(0.65rem, 2.5vw, 0.85rem)' }}>✦</span>
+                    <div className="h-px bg-gradient-to-l from-transparent to-blood-red/50" style={{ width: 'clamp(3.5rem, 15vw, 5.5rem)' }}></div>
                   </div>
 
-                  <p className="text-[10px] sm:text-[11px] italic text-slate-500 tracking-[0.45em] uppercase mt-2 font-serif">
+                  <p className="italic text-slate-500 tracking-[0.45em] uppercase mt-2 font-serif" style={{ fontSize: 'clamp(0.65rem, 2.5vw, 0.8rem)' }}>
                     Fısıltılar Köyü
                   </p>
                 </div>
