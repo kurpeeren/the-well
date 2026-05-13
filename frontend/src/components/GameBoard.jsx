@@ -373,19 +373,19 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
-             <h2 className="text-sm sm:text-xl font-bold tracking-tight font-serif text-slate-200 truncate leading-tight">{getPhaseNameTR()}</h2>
-             <div className="text-[9px] sm:text-xs font-medium mt-0.5 text-slate-400 flex items-center gap-1 flex-wrap">
+             <h2 className="text-base sm:text-xl font-bold tracking-tight font-serif text-slate-200 truncate leading-tight">{getPhaseNameTR()}</h2>
+             <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-0.5 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
                <span
-                 className={`uppercase tracking-widest cursor-pointer select-none px-1.5 py-0.5 rounded transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
+                 className={`uppercase tracking-widest cursor-pointer select-none px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
                  onClick={() => !isSpectator && setIsRoleVisible(!isRoleVisible)}
                >
                  {isSpectator ? 'İzleyici' : (isRoleVisible ? activeRole : 'ROLÜN')}
                </span>
-               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[8px] sm:text-[9px] bg-green-900/50 text-green-400 px-1.5 py-0.5 rounded font-bold border border-green-700/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[8px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-1.5 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[8px] sm:text-[9px] bg-emerald-900/50 text-emerald-400 px-1.5 py-0.5 rounded font-bold border border-emerald-700/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
-               <button onClick={() => setShowRoleModal(true)} className="text-slate-600 hover:text-yellow-500 transition-colors">
-                 <Info size={14} />
+               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-green-900/50 text-green-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-green-700/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
+               {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[10px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
+               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-900/50 text-emerald-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-700/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
+               <button onClick={() => setShowRoleModal(true)} className="text-slate-500 hover:text-yellow-500 active:text-yellow-400 transition-colors p-1 sm:p-0 -m-1 sm:m-0">
+                 <Info className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
                </button>
              </div>
            </div>
