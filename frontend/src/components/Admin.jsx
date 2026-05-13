@@ -259,10 +259,20 @@ export default function Admin({ onExit }) {
                             <ArrowLeft size={20} />
                         </button>
                         <div className="min-w-0">
-                            <h1 className="text-xl sm:text-3xl font-bold text-blood-red tracking-[0.3em] sm:tracking-[0.4em] font-serif truncate drop-shadow-[0_0_15px_rgba(127,29,29,0.45)]">
+                            <h1
+                                className="text-xl sm:text-3xl font-bold tracking-[0.3em] sm:tracking-[0.4em] font-serif truncate leading-tight uppercase animate-in fade-in slide-in-from-bottom-2 duration-1000"
+                                style={{
+                                    backgroundImage: 'linear-gradient(110deg, #7f1d1d 0%, #b91c1c 25%, #fca5a5 50%, #b91c1c 75%, #7f1d1d 100%)',
+                                    backgroundSize: '300% 100%',
+                                    WebkitBackgroundClip: 'text',
+                                    backgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    animation: 'bloodShimmer 8s linear infinite, bloodGlow 4s ease-in-out infinite, titleFlicker 9s ease-in-out infinite',
+                                }}
+                            >
                                 KARANLIK KONSEY
                             </h1>
-                            <p className="text-[9px] sm:text-[10px] text-slate-600 uppercase tracking-[0.4em] italic mt-0.5">Kuyu Komuta Kulesi</p>
+                            <p className="text-[9px] sm:text-[10px] text-slate-600 uppercase tracking-[0.4em] italic mt-1 animate-in fade-in duration-1000 delay-200">Kuyu Komuta Kulesi</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">

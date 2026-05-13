@@ -37,6 +37,22 @@ const ROLES_LIST = [
 
 function App() {
   const videoRef = useRef(null);
+  const kuyuClickRef = useRef({ count: 0, timer: null });
+
+  const handleKuyuSecretClick = () => {
+    const k = kuyuClickRef.current;
+    k.count += 1;
+    if (k.timer) clearTimeout(k.timer);
+    if (k.count >= 4) {
+      k.count = 0;
+      const url = new URL(window.location);
+      url.searchParams.set('admin', 'true');
+      window.history.pushState({}, '', url);
+      setGameState('ADMIN');
+      return;
+    }
+    k.timer = setTimeout(() => { k.count = 0; }, 1500);
+  };
 
   const [gameState, setGameState] = useState(() => {
      if (window.location.search.includes('admin=true')) return 'ADMIN';
@@ -353,8 +369,9 @@ function App() {
           {gameState === 'JOIN' && (
             <div className="flex-1 min-h-0 w-full flex flex-col items-center px-4 pb-4 sm:pb-0 overflow-y-auto custom-scrollbar">
               <div className="my-auto w-full max-w-sm flex flex-col items-center gap-3 sm:gap-5 py-3">
-                {/* Stylized KUYU logo — directly above the form */}
+                {/* Stylized KUYU logo — directly above the form (4 hızlı tık ile admin panel) */}
                 <div
+                  onClick={handleKuyuSecretClick}
                   className="relative flex flex-col items-center select-none cursor-default"
                   style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                 >
