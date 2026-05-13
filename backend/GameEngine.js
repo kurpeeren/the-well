@@ -495,8 +495,8 @@ class GameEngine {
           room.peacefulDays = 0;
       }
 
-      if (this.checkWinCondition(roomCode)) return;
-  
+      if (this.checkWinCondition(roomCode, 'NIGHT')) return;
+
       if (killedInfos.length > 0) {
          killedInfos.forEach(info => {
             this.io.to(roomCode).emit('morningNews', { killedPlayerName: info.name, killedPlayerAlignment: info.align, personalNote: info.personalNote, cause: info.cause });
@@ -567,15 +567,15 @@ class GameEngine {
          this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: null });
       }
   
-      if (this.checkWinCondition(roomCode)) return;
-      setTimeout(() => { 
+      if (this.checkWinCondition(roomCode, 'VOTING')) return;
+      setTimeout(() => {
          room.dayCount = (room.dayCount || 1) + 1;
-         this.changePhase(roomCode, 'NIGHT', room.settings.nightTimer); 
-      }, 5000); 
+         this.changePhase(roomCode, 'NIGHT', room.settings.nightTimer);
+      }, 5000);
     }
   }
 
-  checkWinCondition(roomCode) {
+  checkWinCondition(roomCode, fromPhase) {
     const room = this.rooms[roomCode];
     if (!room) return false;
 
@@ -608,7 +608,14 @@ class GameEngine {
     }
     // C. Eşkıyalar Kazanır (Sayıca üstünlük ve tehdit kalmaması)
     else if (esiCount > 0 && esiCount >= alivePlayers.length / 2 && cCount === 0 && aruCount === 0) {
-       winningTeam = 'Eşkıyalar';
+       // 1+1 son şans gecesi: voting'den geldik ve hiç verilmediyse — bir gece daha yaşansın
+       // (Avcı pusu kurabilir, sonra eşkıya saldırırsa pusu tetiklenir)
+       if (alivePlayers.length === 2 && esiCount === 1 && masumCount === 1 && fromPhase === 'VOTING' && !room.lastChanceUsed) {
+          room.lastChanceUsed = true;
+          // Win declaration'ı atla — döngü VOTING → NIGHT'a devam etsin
+       } else {
+          winningTeam = 'Eşkıyalar';
+       }
     }
     // D. Seri Katil Kazanır (Sona kalma veya son 2 kişi)
     else if (cCount > 0 && alivePlayers.length <= 2 && esiCount === 0 && aruCount === 0) {

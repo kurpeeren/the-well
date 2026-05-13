@@ -537,7 +537,7 @@ export default function Admin({ onExit }) {
                                                     </td>
                                                     <td className="p-3 font-mono font-bold tracking-widest text-white text-xs"><span className="selectable">{h.room_code}</span></td>
                                                     <td className="p-3 text-slate-400 text-xs hidden sm:table-cell">{h.game_mode}</td>
-                                                    <td className="p-3 font-bold text-amber-300 text-xs">{h.winner || '-'}</td>
+                                                    <td className={`p-3 font-bold text-xs ${teamColors(teamOf(h.winner)).text}`}>{h.winner || '-'}</td>
                                                     <td className="p-3 text-slate-300 text-xs">{realPlayersCount}g / {h.players ? h.players.length - realPlayersCount : 0}b</td>
                                                 </tr>
                                                 {expandedHistoryId === h.id && (
@@ -548,15 +548,18 @@ export default function Admin({ onExit }) {
                                                                 <span className="italic text-slate-500 text-sm">Oyuncu verisi yok.</span>
                                                             ) : (
                                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                                                    {h.players.filter(p => !p.isBot).map((p, i) => (
-                                                                        <div key={i} className={`p-2.5 rounded-lg border text-xs transition-colors ${p.won ? 'bg-emerald-950/30 border-emerald-800/50 hover:border-emerald-700' : 'bg-red-950/20 border-red-900/30 opacity-70'}`}>
-                                                                            <div className="font-bold text-white flex justify-between items-center">
-                                                                                <span className={p.won ? '' : 'line-through'}>{p.name}</span>
-                                                                                {p.won && <span className="text-emerald-300 text-[9px] uppercase tracking-widest">Kazandı</span>}
+                                                                    {h.players.filter(p => !p.isBot).map((p, i) => {
+                                                                        const tc = teamColors(teamOf(p.role));
+                                                                        return (
+                                                                            <div key={i} className={`p-2.5 rounded-lg border text-xs transition-colors ${tc.bg} ${tc.border} ${tc.hover} ${p.won ? '' : 'opacity-70'}`}>
+                                                                                <div className="font-bold text-white flex justify-between items-center gap-2">
+                                                                                    <span className={p.won ? '' : 'line-through'}>{p.name}</span>
+                                                                                    {p.won && <span className={`shrink-0 text-[9px] uppercase tracking-widest font-black ${tc.text}`}>Kazandı</span>}
+                                                                                </div>
+                                                                                <div className={`text-[10px] mt-0.5 ${tc.text} opacity-80`}>{p.role || 'Bilinmiyor'}</div>
                                                                             </div>
-                                                                            <div className="text-[10px] text-slate-500 mt-0.5">{p.role || 'Bilinmiyor'}</div>
-                                                                        </div>
-                                                                    ))}
+                                                                        );
+                                                                    })}
                                                                 </div>
                                                             )}
                                                         </td>
@@ -676,6 +679,31 @@ function formatNum(n) {
     if (n < 1000) return n.toString();
     if (n < 1_000_000) return `${(n / 1000).toFixed(1)}k`;
     return `${(n / 1_000_000).toFixed(1)}M`;
+}
+
+const ROLE_TEAM = {
+    'Şifacı': 'Masumlar', 'Bekçi': 'Masumlar', 'Avcı': 'Masumlar', 'Muhtar': 'Masumlar',
+    'Gözcü': 'Masumlar', 'Falcı': 'Masumlar', 'Gassal': 'Masumlar', 'Eskort': 'Masumlar',
+    'Eşkıya Başı': 'Eşkıyalar', 'Münafık': 'Eşkıyalar', 'Eşkıya': 'Eşkıyalar', 'Tefeci': 'Eşkıyalar', 'Meyhaneci': 'Eşkıyalar',
+    'Köy Delisi': 'Tarafsızlar', 'Seri Katil': 'Tarafsızlar', 'Kan Davalı': 'Tarafsızlar', 'Kundakçı': 'Tarafsızlar', 'Kaçak': 'Tarafsızlar',
+};
+
+function teamOf(label) {
+    if (!label) return 'Tarafsızlar';
+    if (label === 'Masumlar' || label === 'Köylüler') return 'Masumlar';
+    if (label === 'Eşkıyalar') return 'Eşkıyalar';
+    if (label === 'Beraberlik') return 'Beraberlik';
+    if (ROLE_TEAM[label]) return ROLE_TEAM[label];
+    return 'Tarafsızlar';
+}
+
+function teamColors(team) {
+    switch (team) {
+        case 'Masumlar':   return { text: 'text-emerald-300', bg: 'bg-emerald-950/30', border: 'border-emerald-800/50', hover: 'hover:border-emerald-700' };
+        case 'Eşkıyalar':  return { text: 'text-red-300', bg: 'bg-red-950/30', border: 'border-red-900/50', hover: 'hover:border-red-700' };
+        case 'Beraberlik': return { text: 'text-amber-300', bg: 'bg-amber-950/30', border: 'border-amber-800/50', hover: 'hover:border-amber-700' };
+        default:           return { text: 'text-slate-400', bg: 'bg-slate-900/40', border: 'border-slate-700/50', hover: 'hover:border-slate-600' };
+    }
 }
 
 function BigChart({ label, samples, field, color = '#cbd5e1', suffix = '', range, maxHint }) {
