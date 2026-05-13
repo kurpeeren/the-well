@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",
-  "theme_color": "#7f1d1d",
+  "theme_color": "#020617",
   "icons": [
     {
       "src": "/kuyu-icon-192.png",

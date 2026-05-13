@@ -310,8 +310,15 @@ function App() {
 
           {gameState === 'JOIN' && (
             <div className="flex-1 min-h-0 w-full flex flex-col items-center px-4 pb-4 sm:pb-0 overflow-y-auto custom-scrollbar">
-              <div className="my-auto w-full max-w-sm flex justify-center py-2">
+              <div className="my-auto w-full max-w-sm flex flex-col items-center gap-4 py-2">
                 <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
+                <a
+                  href="/bilgi/"
+                  className="group flex items-center gap-2 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors"
+                >
+                  <span className="text-base group-hover:scale-110 transition-transform">📜</span>
+                  Köyü Gez
+                </a>
               </div>
             </div>
           )}

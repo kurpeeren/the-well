@@ -313,14 +313,55 @@
             transform: translateY(-8px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
+
+        .back-home {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background: rgba(2, 6, 23, 0.85);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.2s ease;
+        }
+        .back-home:hover {
+            color: var(--text-main);
+            border-color: rgba(217, 119, 6, 0.5);
+            background: rgba(217, 119, 6, 0.12);
+        }
+        @media (max-width: 640px) {
+            .back-home {
+                top: 0.75rem;
+                left: 0.75rem;
+                padding: 0.5rem 0.875rem;
+                font-size: 0.65rem;
+            }
+            header {
+                padding-top: 4rem !important;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <a href="/" class="back-home">← Ana Ekran</a>
+
     <header>
         <h1>Kuyu - Rol Rehberi</h1>
         <p class="subtitle">Gece çöktüğünde masumların arasına karışan gölgeler uyanır. Kuyu'nun karanlık evrenindeki tüm karakterleri, gizli ittifakları ve ölümcül yetenekleri keşfet. Unutma; bu köyde hayatta kalmanın tek yolu, dostunu ve düşmanını kusursuzca tanımaktır.</p>
-        
+
         <div class="filter-container">
             <button class="filter-btn active" data-filter="all">Tümü</button>
             <button class="filter-btn" data-filter="masum">Masumlar</button>

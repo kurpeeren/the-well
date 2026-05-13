@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut } from 'lucide-react';
+import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut, CheckCircle2 } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 
 function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost }) {
@@ -25,6 +25,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const [chatMessages, setChatMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [hasActioned, setHasActioned] = useState(false);
+  const [lastActionLabel, setLastActionLabel] = useState(null);
   const [showNotes, setShowNotes] = useState(false);
   const [notesTab, setNotesTab] = useState('events'); // 'events' | 'will'
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -60,6 +61,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   useEffect(() => {
     setSelectedPlayer(null);
     setHasActioned(false);
+    setLastActionLabel(null);
     if(gamePhase === 'MORNING' || gamePhase === 'NIGHT') {
        setChatMessages([]);
     }
@@ -90,20 +92,36 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const handleAction = (actionType = 'target', isSelfAlert = false) => {
     // actionType: target, pusu, douse, ignite, protect, bos
     if (actionType === 'target' && !selectedPlayer) return;
-    
-    socket.emit('nightAction', { 
-       roomCode, 
+
+    const targetName = selectedPlayer ? (players.find(p => p.socketId === selectedPlayer)?.name) : null;
+
+    socket.emit('nightAction', {
+       roomCode,
        actionObj: { targetId: selectedPlayer, actionType, isSelfAlert },
        impersonateId: isDevMode ? impersonateId : null
     });
+
+    const labels = {
+      target: targetName ? `${targetName} hedef alındı` : 'Hedef onaylandı',
+      pusu: 'Pusu kuruldu',
+      douse: targetName ? `${targetName} gazlandı` : 'Gazlandı',
+      ignite: 'Yakma başlatıldı',
+      protect: 'Saklanıyorsun',
+      bos: 'Pas geçildi',
+    };
+    setLastActionLabel(labels[actionType] || 'Eylem onaylandı');
     setHasActioned(true);
   };
 
   const handleVote = (pass = false) => {
-    if (pass) socket.emit('votePlayer', { roomCode, targetId: 'SKIP', impersonateId: isDevMode ? impersonateId : null });
-    else {
+    if (pass) {
+      socket.emit('votePlayer', { roomCode, targetId: 'SKIP', impersonateId: isDevMode ? impersonateId : null });
+      setLastActionLabel('Pas geçildi');
+    } else {
       if(!selectedPlayer) return;
+      const targetName = players.find(p => p.socketId === selectedPlayer)?.name;
       socket.emit('votePlayer', { roomCode, targetId: selectedPlayer, impersonateId: isDevMode ? impersonateId : null });
+      setLastActionLabel(targetName ? `${targetName} kuyuya oylandı` : 'Oy verildi');
     }
     setHasActioned(true);
   };
@@ -430,62 +448,75 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       <div className="flex-1 flex flex-col relative sm:rounded-xl border-0 sm:border border-slate-800/50 bg-black/10 overflow-hidden min-h-0">
         
         {/* ÜST: AKSİYON ALANI (Gece Seçimleri, Oylama, Haberler) */}
-        <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'VOTING', 'MORNING'].includes(gamePhase) && !hasActioned ? 'min-h-[140px] max-h-[180px]' : 'max-h-[0px]'}`}>
-           
+        <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'VOTING', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[200px]' : 'max-h-[0px]'}`}>
+
+           {/* ONAYLANMIŞ EYLEM DURUMU — panel kapanmasın, kullanıcı geri bildirim görsün */}
+           {hasActioned && ['NIGHT', 'VOTING'].includes(gamePhase) && me.isAlive && !isSpectator && (
+              <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
+                 <div className="flex items-center gap-3 bg-emerald-900/20 border border-emerald-700/50 px-5 py-3 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.15)] max-w-sm w-full">
+                    <CheckCircle2 className="text-emerald-400 shrink-0 w-8 h-8 sm:w-6 sm:h-6" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                       <p className="text-emerald-400 text-xs sm:text-[11px] font-black uppercase tracking-widest">Onaylandı</p>
+                       <p className="text-slate-200 text-sm sm:text-xs font-medium truncate">{lastActionLabel || 'Eylem kaydedildi'}</p>
+                    </div>
+                 </div>
+              </div>
+           )}
+
            {/* GECE AKSİYONLARI */}
            {gamePhase === 'NIGHT' && me.isAlive && !isSpectator && !hasActioned && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
                  {hasNightTargetAction && (
                     <div className="w-full">
-                       <div className="flex justify-between items-center mb-2 px-2">
-                          <div className="flex items-center gap-2">
-                             <p className="text-blood-red text-[10px] font-black tracking-widest uppercase">Hedef Seç</p>
+                       <div className="flex justify-between items-center mb-2 px-2 gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                             <p className="text-blood-red text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Hedef Seç</p>
                              {activeRole === 'Şifacı' && (
-                                <span className="text-[9px] text-green-400/80 font-bold uppercase tracking-wider">
+                                <span className="text-[9px] text-green-400/80 font-bold uppercase tracking-wider truncate">
                                    (Kendini Koruma: {2 - (me.uses || 0)})
                                 </span>
                              )}
                           </div>
                           {selectedPlayer && (
-                             <button onClick={() => handleAction('target')} className="bg-blood-red text-white text-[9px] font-black uppercase px-4 py-1.5 rounded-full shadow-[0_0_10px_rgba(127,29,29,0.5)] animate-pulse">Onayla</button>
+                             <button onClick={() => handleAction('target')} className="bg-blood-red text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-[0_0_10px_rgba(127,29,29,0.5)] animate-pulse shrink-0">Onayla</button>
                           )}
                        </div>
                        <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} />
                     </div>
                  )}
                  {isAvci && (
-                    <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 max-w-sm mx-auto w-full">
-                       <div className="flex flex-col">
-                          <p className="text-[10px] text-amber-500 font-bold uppercase">Pusu Modu</p>
-                          <p className="text-[9px] text-slate-400">Kalan: {3 - (me.uses || 0)}</p>
+                    <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 max-w-sm mx-auto w-full gap-2">
+                       <div className="flex flex-col min-w-0">
+                          <p className="text-[11px] sm:text-[10px] text-amber-500 font-bold uppercase">Pusu Modu</p>
+                          <p className="text-[10px] sm:text-[9px] text-slate-400">Kalan: {3 - (me.uses || 0)}</p>
                        </div>
-                       <div className="flex gap-2">
-                          <button onClick={() => handleAction('pusu', true)} disabled={(me.uses || 0) >= 3} className="px-4 py-2 bg-amber-600 text-white text-[9px] font-black rounded-lg uppercase">Pusu Kur</button>
-                          <button onClick={() => handleAction('bos', false)} className="px-4 py-2 bg-slate-700 text-slate-300 text-[9px] font-black rounded-lg uppercase">Pas</button>
+                       <div className="flex gap-2 shrink-0">
+                          <button onClick={() => handleAction('pusu', true)} disabled={(me.uses || 0) >= 3} className="px-5 sm:px-4 py-3 sm:py-2 bg-accent hover:bg-amber-700 text-white text-xs sm:text-[9px] font-black rounded-lg uppercase disabled:opacity-50 transition-colors">Pusu Kur</button>
+                          <button onClick={() => handleAction('bos', false)} className="px-5 sm:px-4 py-3 sm:py-2 bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black rounded-lg uppercase">Pas</button>
                        </div>
                     </div>
                  )}
                  {isKundakci && (
                     <div className="w-full">
-                       <div className="flex justify-between items-center mb-2 px-2">
-                          <p className="text-orange-500 text-[10px] font-black tracking-widest uppercase">Kundaklama</p>
-                          <div className="flex gap-2">
-                             <button onClick={() => handleAction('ignite', true)} className="bg-red-600 text-white text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg"><Flame size={10}/>Yak</button>
-                             {selectedPlayer && <button onClick={() => handleAction('douse')} className="bg-orange-600 text-white text-[9px] font-black uppercase px-3 py-1.5 rounded-full">Gazla</button>}
+                       <div className="flex justify-between items-center mb-2 px-2 gap-2">
+                          <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
+                          <div className="flex gap-2 shrink-0">
+                             <button onClick={() => handleAction('ignite', true)} className="bg-blood-red hover:bg-red-800 text-white text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-colors"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</button>
+                             {selectedPlayer && <button onClick={() => handleAction('douse')} className="bg-orange-800 hover:bg-orange-700 text-white text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full transition-colors">Gazla</button>}
                           </div>
                        </div>
                        <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} dousedList={dousedList} />
                     </div>
                  )}
                  {isYanasma && (
-                    <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 max-w-sm mx-auto w-full">
-                       <div className="flex flex-col">
-                          <p className="text-[10px] text-emerald-500 font-bold uppercase">Saklanma</p>
-                          <p className="text-[9px] text-slate-400">Kalan: {4 - (me.uses || 0)}</p>
+                    <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 max-w-sm mx-auto w-full gap-2">
+                       <div className="flex flex-col min-w-0">
+                          <p className="text-[11px] sm:text-[10px] text-emerald-500 font-bold uppercase">Saklanma</p>
+                          <p className="text-[10px] sm:text-[9px] text-slate-400">Kalan: {4 - (me.uses || 0)}</p>
                        </div>
-                       <div className="flex gap-2">
-                          <button onClick={() => handleAction('protect', true)} disabled={(me.uses || 0) >= 4} className="px-4 py-2 bg-emerald-700 text-white text-[9px] font-black rounded-lg uppercase">Saklan</button>
-                          <button onClick={() => handleAction('bos', false)} className="px-4 py-2 bg-slate-700 text-slate-300 text-[9px] font-black rounded-lg uppercase">Pas</button>
+                       <div className="flex gap-2 shrink-0">
+                          <button onClick={() => handleAction('protect', true)} disabled={(me.uses || 0) >= 4} className="px-5 sm:px-4 py-3 sm:py-2 bg-emerald-800 hover:bg-emerald-700 text-white text-xs sm:text-[9px] font-black rounded-lg uppercase disabled:opacity-50 transition-colors">Saklan</button>
+                          <button onClick={() => handleAction('bos', false)} className="px-5 sm:px-4 py-3 sm:py-2 bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black rounded-lg uppercase">Pas</button>
                        </div>
                     </div>
                  )}
@@ -495,11 +526,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {/* OYLAMA AKSİYONU */}
            {gamePhase === 'VOTING' && me.isAlive && !isSpectator && !hasActioned && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
-                 <div className="flex justify-between items-center mb-2 px-2">
-                    <p className="text-accent text-[10px] font-black tracking-widest uppercase">Kuyuya At</p>
-                    <div className="flex gap-2">
-                       <button onClick={() => handleVote(true)} className="bg-slate-700 text-slate-300 text-[9px] font-black uppercase px-3 py-1.5 rounded-full">Pas Geç</button>
-                       {selectedPlayer && <button onClick={() => handleVote(false)} className="bg-accent text-white text-[9px] font-black uppercase px-4 py-1.5 rounded-full shadow-lg">Oyla</button>}
+                 <div className="flex justify-between items-center mb-2 px-2 gap-2">
+                    <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya At</p>
+                    <div className="flex gap-2 shrink-0">
+                       <button onClick={() => handleVote(true)} className="bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full">Pas Geç</button>
+                       {selectedPlayer && <button onClick={() => handleVote(false)} className="bg-accent text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-lg">Oyla</button>}
                     </div>
                  </div>
                  <PlayerList players={players.filter(p => !p.isMayorRevealed || p.socketId !== activeSocketId).filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
@@ -524,16 +555,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'DAY' && isMuhtar && !me.isMayorRevealed && me.isAlive && !isSilenced && (
               <div className="bg-amber-900/20 p-2 border-b border-amber-800/30 flex justify-between items-center px-4 shrink-0">
                  <span className="text-[10px] text-amber-400 font-bold uppercase tracking-tight">Mührünü vurup oyları toplayabilirsin!</span>
-                 <button onClick={() => socket.emit('mayorReveal', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-amber-600 text-white px-3 py-1 rounded text-[9px] font-black uppercase shadow-md">Mührü Vur</button>
+                 <button onClick={() => socket.emit('mayorReveal', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-accent hover:bg-amber-700 active:bg-amber-800 text-white px-4 sm:px-3 py-2 sm:py-1 rounded-lg text-xs sm:text-[9px] font-black uppercase shadow-md transition-colors">Mührü Vur</button>
               </div>
            )}
 
            {/* GÜNÜ ATLA PANELİ */}
            {gamePhase === 'DAY' && me.isAlive && !isSpectator && (
               <div className="flex justify-end p-2 bg-slate-800/10 shrink-0">
-                 <button 
+                 <button
                     onClick={() => socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}
-                    className="px-3 py-1 bg-slate-800 text-slate-400 rounded-md border border-slate-700 text-[9px] font-bold uppercase"
+                    className="px-4 sm:px-3 py-2 sm:py-1 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg border border-slate-700 text-xs sm:text-[9px] font-bold uppercase"
                  >
                     Günü Atla ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive && p.connected).length})
                  </button>
@@ -576,8 +607,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  gamePhase === 'DAY' ? 'day' : null;
 
               const channelTheme = {
-                 dead:  { wrap: 'bg-purple-950/40 border-purple-900/50',  form: 'bg-purple-900/30 border-purple-800/50',  send: 'bg-purple-700 hover:bg-purple-600',  label: 'Ölüler Boyutu',     placeholder: 'Ruhlarla fısılda...',     text: 'text-purple-300' },
-                 mafia: { wrap: 'bg-red-950/40 border-red-900/50',        form: 'bg-red-900/30 border-red-800/50',        send: 'bg-red-700 hover:bg-red-600',        label: 'Çete Sohbeti',      placeholder: 'Çete ile konuş...',       text: 'text-red-300' },
+                 dead:  { wrap: 'bg-purple-950/40 border-purple-900/50',  form: 'bg-purple-900/30 border-purple-800/50',  send: 'bg-purple-800 hover:bg-purple-700',  label: 'Ölüler Boyutu',     placeholder: 'Ruhlarla fısılda...',     text: 'text-purple-300' },
+                 mafia: { wrap: 'bg-red-950/40 border-red-900/50',        form: 'bg-red-900/30 border-red-800/50',        send: 'bg-blood-red hover:bg-red-800',      label: 'Çete Sohbeti',      placeholder: 'Çete ile konuş...',       text: 'text-red-300' },
                  day:   { wrap: 'bg-slate-900/60 border-slate-800/50',    form: 'bg-slate-800 border-slate-700',          send: 'bg-accent hover:bg-amber-700',       label: null,                placeholder: 'Zanlıları tartış...',     text: 'text-slate-300' },
               };
               const t = channelTheme[chatChannel] || channelTheme.day;
@@ -971,6 +1002,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                             onClick={() => {
                                setImpersonateId(p.socketId);
                                setHasActioned(false);
+                               setLastActionLabel(null);
                                setShowImpersonateMenu(false);
                             }}
                             className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center justify-between ${
