@@ -11,6 +11,7 @@
   --animate-title-flicker: titleFlicker 7s ease-in-out infinite;
   --animate-blood-drip: bloodDrip 5s ease-in infinite;
   --animate-blood-shimmer: bloodShimmer 6s linear infinite;
+  --animate-blood-glow: bloodGlow 4s ease-in-out infinite;
 }
 
 @keyframes bloodPulse {
@@ -64,6 +65,15 @@
 @keyframes bloodShimmer {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
+}
+
+@keyframes bloodGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 14px rgba(220, 38, 38, 0.45)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.75));
+  }
+  50% {
+    filter: drop-shadow(0 0 28px rgba(248, 113, 113, 0.65)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.75));
+  }
 }
 
 html, body, #root {

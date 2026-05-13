@@ -255,7 +255,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
     if (evils.includes(role)) return 'text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
     if (neutrals.includes(role)) return 'text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)]'; // Gri
-    return 'text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]'; // Yeşil (Masumlar)
+    return 'text-emerald-300 drop-shadow-[0_0_5px_rgba(110,231,183,0.35)]'; // Yeşil (Masumlar) — muted
   };
 
   const getTeamName = (role) => {
@@ -268,49 +268,49 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   const ROLE_INFO = {
     'Şifacı': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/sifaci.webp',
       ability: '🌿 Her gece bir kişiyi iyileştirir',
       desc: 'Köyün bilge otacısı. Her gece bir oyuncunun kapısına giderek onu gece saldırılarından korur. Eğer o gece hedefi saldırıya uğrarsa, hayatta kalır. Kendini oyun boyunca yalnızca 2 kez iyileştirebilir.',
     },
     'Bekçi': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/bekci.webp',
       ability: '🔦 Her gece bir kişiyi kontrol eder',
       desc: 'Geceleri elinde fenerle sokakları arşınlar. Seçtiği kişinin eşkıya olup olmadığını araştırır. Eşkıya Başı kontrol edildiğinde masum görünür; Münafık tarafından çerçevelenmiş biri ise eşkıya gibi görünür.',
     },
     'Avcı': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/avci.webp',
       ability: '🪤 Sınırlı sayıda pusu kurabilir (3 hak)',
       desc: 'Eski bir dağ adamı, tetikte uyur. "Pusuya Yat" seçeneğiyle o gece evine gelen herkesi, masum ya da değil, vurur. Gece koruması yoktur. Sınırlı sayıda kullanım hakkı vardır.',
     },
     'Muhtar': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/muhtar.webp',
       ability: '🔏 Mühür vurarak oyunu ağırlığını ortaya koyar',
       desc: 'Köyün mühürdarı. Oyuna gizli bir zırh (tek seferlik yelek) ile başlar, geceleri ilk saldırıdan sağ kurtulur. Gündüz "Mührü Vur" diyerek kimliğini ilan edebilir. Bu andan itibaren oylamalarda oyu 3 sayılır; ancak Şifacı kendisini bir daha koruyamaz. Susturulmuşsa mührü vuramaz.',
     },
     'Gözcü': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/gozcu.webp',
       ability: '🕵️ Bir kişinin evini gözetler',
       desc: 'Gece uyku tutmaz, başkalarının işine burnunu sokar. Bir kişinin kapısını gözlemler: o gece o kişiyi kim ziyaret etmiş görür. Ama içeride ne yaptıklarını bilemez.',
     },
     'Falcı': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/falci.webp',
       ability: '🔮 Olası 3 rolden oluşan kehanet alır',
       desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona o kişinin olası 3 rolünden oluşan bir kehanet sunar. Münafık tarafından çerçevelenmiş biri farklı bir kehanet üretir.',
     },
     'Gassal': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/gassal.webp',
       ability: '💀 Ölü konuşmalarını dinleyebilir',
       desc: 'Ölü yıkayıcısıdır. Gece yetenekli değildir ama öte dünyaya kapısı açıktır: ölmüş oyuncuların kendi aralarında yaptığı "Ölüler Boyutu" sohbetini canlı olarak görebilir.',
     },
     'Eskort': {
-      color: 'text-green-400', team: 'Yeşil Takım', teamColor: 'bg-green-900/40 text-green-400 border-green-700',
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/eskort.webp',
       ability: '💃 Hedefini oyalar, yeteneğini engeller',
       desc: 'Her gece bir kişiyi ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz. Eşkıyaları bile etkisiz kılabilir; eşkıyalar da onu ziyaret ederse ölebilir.',
@@ -423,9 +423,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                >
                  {isSpectator ? 'İzleyici' : (isRoleVisible ? activeRole : 'ROLÜN')}
                </span>
-               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-green-900/50 text-green-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-green-700/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
+               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
                {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[10px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-900/50 text-emerald-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-700/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
+               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
                <button onClick={() => setShowRoleModal(true)} className="text-slate-500 hover:text-yellow-500 active:text-yellow-400 transition-colors p-1 sm:p-0 -m-1 sm:m-0">
                  <Info className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
                </button>
@@ -478,10 +478,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {/* ONAYLANMIŞ EYLEM DURUMU — panel kapanmasın, kullanıcı geri bildirim görsün */}
            {hasActioned && ['NIGHT', 'VOTING'].includes(gamePhase) && me.isAlive && !isSpectator && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
-                 <div className="flex items-center gap-3 bg-emerald-900/20 border border-emerald-700/50 px-5 py-3 rounded-2xl shadow-[0_0_20px_rgba(16,185,129,0.15)] max-w-sm w-full">
-                    <CheckCircle2 className="text-emerald-400 shrink-0 w-8 h-8 sm:w-6 sm:h-6" />
+                 <div className="flex items-center gap-3 bg-emerald-950/30 border border-emerald-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(110,231,183,0.08)] max-w-sm w-full">
+                    <CheckCircle2 className="text-emerald-300 shrink-0 w-8 h-8 sm:w-6 sm:h-6" />
                     <div className="flex flex-col min-w-0 flex-1">
-                       <p className="text-emerald-400 text-xs sm:text-[11px] font-black uppercase tracking-widest">Onaylandı</p>
+                       <p className="text-emerald-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Onaylandı</p>
                        <p className="text-slate-200 text-sm sm:text-xs font-medium truncate">{lastActionLabel || 'Eylem kaydedildi'}</p>
                     </div>
                  </div>
@@ -497,7 +497,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                           <div className="flex items-center gap-2 min-w-0">
                              <p className="text-blood-red text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Hedef Seç</p>
                              {activeRole === 'Şifacı' && (
-                                <span className="text-[9px] text-green-400/80 font-bold uppercase tracking-wider truncate">
+                                <span className="text-[9px] text-emerald-300/80 font-bold uppercase tracking-wider truncate">
                                    (Kendini Koruma: {2 - (me.uses || 0)})
                                 </span>
                              )}
@@ -536,7 +536,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  {isYanasma && (
                     <div className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 max-w-sm mx-auto w-full gap-2">
                        <div className="flex flex-col min-w-0">
-                          <p className="text-[11px] sm:text-[10px] text-emerald-500 font-bold uppercase">Saklanma</p>
+                          <p className="text-[11px] sm:text-[10px] text-emerald-300 font-bold uppercase">Saklanma</p>
                           <p className="text-[10px] sm:text-[9px] text-slate-400">Kalan: {4 - (me.uses || 0)}</p>
                        </div>
                        <div className="flex gap-2 shrink-0">
@@ -678,11 +678,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              
              {gameResults && (
              <div className="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto w-full">
-                 <div className="flex-1 bg-slate-900/80 p-6 rounded-2xl border-2 border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.15)]">
-                     <h3 className="text-2xl text-green-500 font-bold mb-6 border-b border-green-500/30 pb-3 text-center uppercase tracking-widest flex items-center justify-center gap-2">Kazananlar</h3>
+                 <div className="flex-1 bg-slate-900/80 p-6 rounded-2xl border-2 border-emerald-700/40 shadow-[0_0_25px_rgba(110,231,183,0.10)]">
+                     <h3 className="text-2xl text-emerald-300 font-bold mb-6 border-b border-emerald-700/40 pb-3 text-center uppercase tracking-widest flex items-center justify-center gap-2">Kazananlar</h3>
                      <ul className="space-y-3">
                          {gameResults.filter(r => r.won).map((r, i) => (
-                             <li key={i} className="flex flex-col bg-black/60 p-3 rounded-lg border border-green-500/20">
+                             <li key={i} className="flex flex-col bg-black/60 p-3 rounded-lg border border-emerald-800/30">
                                  <span className="text-lg font-medium text-slate-200">{r.name}</span>
                                  <span className={`${getTeamColor(r.role).split(' ')[0]} text-sm font-bold tracking-widest uppercase mt-1`}>{r.role}</span>
                              </li>
@@ -807,7 +807,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                      {systemNotes?.length > 0 ? systemNotes.map((note, i) => {
                        let borderClass = 'border-slate-600';
                        if(note.align === 'Kırmızı') borderClass = 'border-blood-red';
-                       if(note.align === 'Yeşil') borderClass = 'border-green-500';
+                       if(note.align === 'Yeşil') borderClass = 'border-emerald-500';
                        if(note.align === 'Gri') borderClass = 'border-gray-400';
                        if(note.align === 'Yarı') borderClass = 'border-amber-500';
                        return (
@@ -1037,7 +1037,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                             }`}
                          >
                             <span className="font-medium">{p.name}</span>
-                            <span className={`text-[10px] uppercase tracking-widest ${p.isAlive ? 'text-green-500/70' : 'text-red-500/70'}`}>
+                            <span className={`text-[10px] uppercase tracking-widest ${p.isAlive ? 'text-emerald-400/70' : 'text-red-400/70'}`}>
                                {p.isAlive ? 'Hayatta' : 'Ölü'}
                             </span>
                          </button>

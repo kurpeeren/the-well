@@ -333,16 +333,16 @@ function App() {
 
                   <div className="relative">
                     <h1
-                      className="relative font-serif font-black text-6xl sm:text-6xl md:text-7xl uppercase animate-title-glow animate-title-flicker leading-none"
+                      className="relative font-serif font-black text-6xl sm:text-6xl md:text-7xl uppercase leading-none"
                       style={{
                         letterSpacing: '0.4em',
                         paddingLeft: '0.4em',
-                        backgroundImage: 'linear-gradient(110deg, #7f1d1d 25%, #b91c1c 45%, #ef4444 50%, #b91c1c 55%, #7f1d1d 75%)',
-                        backgroundSize: '300% 100%',
+                        backgroundImage: 'linear-gradient(110deg, #b91c1c 0%, #dc2626 30%, #fca5a5 50%, #dc2626 70%, #b91c1c 100%)',
+                        backgroundSize: '250% 100%',
                         WebkitBackgroundClip: 'text',
                         backgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
-                        animation: 'titleGlow 5s ease-in-out infinite, titleFlicker 7s ease-in-out infinite, bloodShimmer 6s linear infinite',
+                        animation: 'titleFlicker 7s ease-in-out infinite, bloodShimmer 6s linear infinite, bloodGlow 4s ease-in-out infinite',
                       }}
                     >
                       KUYU
@@ -468,7 +468,7 @@ function App() {
                        <div className="grid grid-cols-3 gap-2">
                           {['kirmizi', 'gri', 'yesil'].map(k => {
                              const labelMap = { kirmizi: 'Kırmızı', gri: 'Gri', yesil: 'Yeşil' };
-                             const colorMap = { kirmizi: 'text-blood-red', gri: 'text-slate-400', yesil: 'text-green-500' };
+                             const colorMap = { kirmizi: 'text-blood-red', gri: 'text-slate-400', yesil: 'text-emerald-300' };
                              return (
                                 <div key={k} className="flex flex-col">
                                    <label className={`text-[10px] ${colorMap[k]} font-bold mb-1 uppercase tracking-wider`}>{labelMap[k]}</label>
@@ -495,7 +495,7 @@ function App() {
                     )}
                     {['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
                        <div key={group}>
-                          <h3 className={`text-[11px] font-bold mb-2 uppercase tracking-wider ${group === 'Masumlar' ? 'text-green-500' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
+                          <h3 className={`text-[11px] font-bold mb-2 uppercase tracking-wider ${group === 'Masumlar' ? 'text-emerald-300' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
                           <div className="grid grid-cols-2 gap-1.5">
                              {ROLES_LIST.filter(r => r.group === group).map(r => (
                                 <label key={r.name} className="flex items-center space-x-2 text-slate-300 cursor-pointer hover:bg-slate-800 p-1.5 rounded transition-colors">
