@@ -213,9 +213,10 @@ app.get('/api/admin/history', adminAuth, async (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] },
-    // Hızlı disconnect algılama — default 25s/20s yerine
-    pingInterval: 10000,   // 10s'de bir ping
-    pingTimeout: 8000,     // 8s pong beklenir, sonra disconnect
+    // Ping interval kısa (hızlı RTT örnekleme) ama timeout uzun:
+    // mobil oyuncu uygulama değiştirip dönerken offline işaretlenmesin (1-2dk tolerans)
+    pingInterval: 20000,   // 20s'de bir ping
+    pingTimeout: 90000,    // 90s pong beklenir → toplam ~90-110s'de offline tespiti
     // Sadece WebSocket — long-polling upgrade adımını atla (ilk bağlantı 30-50ms hızlanır)
     transports: ['websocket'],
     // Sıkıştırma — büyük payload'larda etkin, küçük olanlarda bypass
