@@ -62,14 +62,20 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     setSelectedPlayer(null);
     setHasActioned(false);
     setLastActionLabel(null);
-    if(gamePhase === 'MORNING' || gamePhase === 'NIGHT') {
-       setChatMessages([]);
+    // DAY veya NIGHT fazına geçişte sohbete gün ayracı koy (silme — geçmiş kalsın)
+    if (gamePhase === 'DAY' || gamePhase === 'NIGHT') {
+       setChatMessages(prev => {
+          const last = prev[prev.length - 1];
+          const phaseLabel = gamePhase === 'DAY' ? 'Gün' : 'Gece';
+          if (last?.type === 'separator' && last.day === dayCount && last.phase === gamePhase) return prev;
+          return [...prev, { type: 'separator', day: dayCount, phase: gamePhase, text: `${dayCount}. ${phaseLabel}` }];
+       });
     }
     if(gamePhase === 'NIGHT') setIsSilenced(false);
     if(gamePhase !== 'VOTING') {
        setVoteDetails({});
     }
-  }, [gamePhase]);
+  }, [gamePhase, dayCount]);
 
   useEffect(() => {
     if (chatEndRef.current && chatMessages.length > 0) {
@@ -129,13 +135,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const sendChat = (e) => {
     e.preventDefault();
     if(currentMessage.trim()) {
-      if (gamePhase === 'DAY') {
-         socket.emit('chatMessage', { roomCode, message: currentMessage, impersonateId: isDevMode ? impersonateId : null });
+      const payload = { roomCode, message: currentMessage, impersonateId: isDevMode ? impersonateId : null };
+      // Ölü/spectator: her fazda ölü boyutuna yaz (gündüz de gece de)
+      if (!me.isAlive || isSpectator) {
+         socket.emit('deadChatMessage', payload);
+      } else if (gamePhase === 'DAY') {
+         socket.emit('chatMessage', payload);
       } else if (gamePhase === 'NIGHT') {
-         if (!me.isAlive || isSpectator || activeRole === 'Gassal') {
-            socket.emit('deadChatMessage', { roomCode, message: currentMessage, impersonateId: isDevMode ? impersonateId : null });
+         if (activeRole === 'Gassal') {
+            socket.emit('deadChatMessage', payload);
          } else if (isEskiya) {
-            socket.emit('mafiaChatMessage', { roomCode, message: currentMessage, impersonateId: isDevMode ? impersonateId : null });
+            socket.emit('mafiaChatMessage', payload);
          }
       }
       setCurrentMessage('');
@@ -198,8 +208,35 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   // İzleyiciler de Gassal gibi ölü konuşmalarını görebilsin
   const canSeeDeadChat = isSpectator || !me.isAlive || activeRole === 'Gassal';
 
-  // Chat Input Yetkisi Kontrolü
-  const canSendChat = (gamePhase === 'DAY' && me.isAlive && !isSpectator) || (gamePhase === 'NIGHT' && (canSeeDeadChat || isEskiya));
+  // Chat Input Yetkisi
+  // - Spectator: hiç yazamaz, sadece izler
+  // - Ölü: her fazda ölü chat'e yazar
+  // - Alive: DAY'de day, NIGHT'ta eskiya→mafia, Gassal→dead, masum→yazamaz
+  const canSendChat = !isSpectator && (
+    !me.isAlive ? true :
+    gamePhase === 'DAY' ? true :
+    gamePhase === 'NIGHT' ? (isEskiya || activeRole === 'Gassal') :
+    false
+  );
+
+  // Şu an gözüken sohbet kanalı (ölü her fazda dead, alive masum NIGHT'ta day-readonly)
+  const chatChannel =
+    (!me.isAlive || isSpectator) ? 'dead' :
+    gamePhase === 'NIGHT' && canSeeDeadChat ? 'dead' :
+    gamePhase === 'NIGHT' && isEskiya ? 'mafia' :
+    gamePhase === 'DAY' ? 'day' :
+    'day'; // alive masum NIGHT'ta day chat history'sini görür (read-only)
+
+  // Sohbet listesi — kanalı eşleşen mesajlar + tüm ayraçlar
+  const visibleMessages = React.useMemo(() => {
+    return chatMessages.filter(c => {
+      if (c.type === 'separator') return true;
+      if (chatChannel === 'day') return !c.type || c.type === 'day';
+      if (chatChannel === 'mafia') return c.type === 'mafia';
+      if (chatChannel === 'dead') return c.type === 'dead';
+      return false;
+    });
+  }, [chatMessages, chatChannel]);
 
   // ANIMASYON EFEKTLERI STATE'I
   const [animEffect, setAnimEffect] = useState(null); // 'death', 'well'
@@ -629,7 +666,20 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
            {/* MESAJ LİSTESİ */}
            <div className="flex-1 p-3 overflow-y-auto flex flex-col gap-2.5 custom-scrollbar">
-              {chatMessages.map((c, i) => {
+              {visibleMessages.map((c, i) => {
+                  // Gün/Gece ayracı
+                  if (c.type === 'separator') {
+                     return (
+                       <div key={i} className="flex items-center gap-2 my-1.5 select-none">
+                          <div className="flex-1 h-px bg-slate-800"></div>
+                          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600 px-2 py-0.5 rounded-full bg-slate-900/60 border border-slate-800">
+                             {c.text}
+                          </span>
+                          <div className="flex-1 h-px bg-slate-800"></div>
+                       </div>
+                     );
+                  }
+
                   const isMe = c.sender.includes(me.name);
                   let bubbleClass = 'bg-slate-800 text-slate-200 border-slate-700';
                   let senderClass = 'text-slate-400';
@@ -657,11 +707,6 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
            {/* SOHBET GİRDİSİ — Channel'a göre tema */}
            {(() => {
-              const chatChannel =
-                 gamePhase === 'NIGHT' && canSeeDeadChat ? 'dead' :
-                 gamePhase === 'NIGHT' && isEskiya && me.isAlive ? 'mafia' :
-                 gamePhase === 'DAY' ? 'day' : null;
-
               const channelTheme = {
                  dead:  { wrap: 'bg-purple-950/40 border-purple-900/50',  form: 'bg-purple-900/30 border-purple-800/50',  send: 'bg-purple-800 hover:bg-purple-700',  label: 'Ölüler Boyutu',     placeholder: 'Ruhlarla fısılda...',     text: 'text-purple-300' },
                  mafia: { wrap: 'bg-red-950/40 border-red-900/50',        form: 'bg-red-900/30 border-red-800/50',        send: 'bg-blood-red hover:bg-red-800',      label: 'Çete Sohbeti',      placeholder: 'Çete ile konuş...',       text: 'text-red-300' },
