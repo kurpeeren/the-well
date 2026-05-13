@@ -8,6 +8,27 @@ import { LogOut } from 'lucide-react';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL);
 
+/* Global koruma — tıklamalı eventler için 500ms throttle.
+   Bir butona hızlı 2-3 kez basılırsa sadece ilki geçer, geri kalanı sessizce düşer.
+   updateSettings ve diğer akış-bazlı eventler hariç tutuldu. */
+const THROTTLED_EVENTS = new Set([
+  'createRoom', 'createDevRoom', 'joinRoom', 'joinAsSpectator',
+  'nightAction', 'votePlayer',
+  'chatMessage', 'deadChatMessage', 'mafiaChatMessage',
+  'mayorReveal', 'skipDayVote', 'startGame', 'returnToLobby',
+  'forceNextPhase', 'leaveRoom',
+]);
+const _lastEmit = new Map();
+const _origEmit = socket.emit.bind(socket);
+socket.emit = (event, ...args) => {
+  if (THROTTLED_EVENTS.has(event)) {
+    const now = Date.now();
+    if (now - (_lastEmit.get(event) || 0) < 500) return socket;
+    _lastEmit.set(event, now);
+  }
+  return _origEmit(event, ...args);
+};
+
 const ROLES_LIST = [
   { name: 'Şifacı', group: 'Masumlar' }, { name: 'Bekçi', group: 'Masumlar' }, { name: 'Avcı', group: 'Masumlar' }, { name: 'Muhtar', group: 'Masumlar' }, { name: 'Gözcü', group: 'Masumlar' }, { name: 'Falcı', group: 'Masumlar' }, { name: 'Gassal', group: 'Masumlar' }, { name: 'Eskort', group: 'Masumlar' },
   { name: 'Eşkıya Başı', group: 'Eşkıyalar' }, { name: 'Münafık', group: 'Eşkıyalar' }, { name: 'Eşkıya', group: 'Eşkıyalar' }, { name: 'Tefeci', group: 'Eşkıyalar' }, { name: 'Meyhaneci', group: 'Eşkıyalar' },
