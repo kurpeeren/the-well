@@ -21,6 +21,8 @@ export default function Admin({ onExit }) {
     const [roomFilter, setRoomFilter] = useState('');
     const [historyFilter, setHistoryFilter] = useState('');
     const [lastTick, setLastTick] = useState(0);
+    const [metricsRange, setMetricsRange] = useState('hour'); // 'hour' | 'day' | 'week'
+    const [metricsData, setMetricsData] = useState(null);
     const failCountRef = useRef(0);
     const cpuHistRef = useRef([]);
     const socketHistRef = useRef([]);
@@ -38,6 +40,26 @@ export default function Admin({ onExit }) {
         const interval = setInterval(tick, 3000);
         return () => { cancelled = true; clearInterval(interval); };
     }, [token]);
+
+    // Tarihsel metrikleri — range değişince yeniden çek
+    useEffect(() => {
+        if (!token) return;
+        let cancelled = false;
+        const fetchMetrics = async () => {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/metrics?range=${metricsRange}`, {
+                    headers: { 'Authorization': token },
+                });
+                if (cancelled) return;
+                if (res.ok) setMetricsData(await res.json());
+            } catch { /* sessiz */ }
+        };
+        fetchMetrics();
+        // Saat görünümünde 30s'de bir tazele, gün/hafta için 5dk'da bir
+        const refreshMs = metricsRange === 'hour' ? 30000 : 300000;
+        const interval = setInterval(fetchMetrics, refreshMs);
+        return () => { cancelled = true; clearInterval(interval); };
+    }, [token, metricsRange]);
 
     // Mobilde body overflow hidden — admin sayfasındayken scroll'a izin ver
     useEffect(() => {
@@ -335,6 +357,41 @@ export default function Admin({ onExit }) {
                     </Section>
                 )}
 
+                {/* ─── HISTORICAL METRICS ───────────────────────── */}
+                <Section
+                    title="Tarihsel Metrikler"
+                    icon={<Clock size={14} />}
+                    extra={
+                        <div className="flex gap-1 bg-black/40 border border-slate-800 rounded-full p-0.5">
+                            {[
+                                { id: 'hour', label: 'Saat' },
+                                { id: 'day', label: 'Gün' },
+                                { id: 'week', label: 'Hafta' },
+                            ].map(r => (
+                                <button key={r.id} onClick={() => setMetricsRange(r.id)}
+                                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${metricsRange === r.id ? 'bg-blood-red text-white' : 'text-slate-400 hover:text-white'}`}>
+                                    {r.label}
+                                </button>
+                            ))}
+                        </div>
+                    }
+                >
+                    {metricsData && metricsData.samples.length > 1 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <BigChart label="CPU %" samples={metricsData.samples} field="cpu" color="#fca5a5" suffix="%" range={metricsRange} maxHint={100} />
+                            <BigChart label="Bellek (Heap MB)" samples={metricsData.samples} field="heapMB" color="#fcd34d" suffix=" MB" range={metricsRange} />
+                            <BigChart label="Soket Bağlantısı" samples={metricsData.samples} field="sockets" color="#6ee7b7" range={metricsRange} />
+                            <BigChart label="Aktif Oda" samples={metricsData.samples} field="rooms" color="#d97706" range={metricsRange} />
+                            <BigChart label="Ortalama Ping" samples={metricsData.samples} field="avgPing" color="#93c5fd" suffix=" ms" range={metricsRange} />
+                            <BigChart label="Bellek (RSS MB)" samples={metricsData.samples} field="rssMB" color="#cbd5e1" suffix=" MB" range={metricsRange} />
+                        </div>
+                    ) : (
+                        <div className="bg-dark-bg border border-slate-800 rounded-xl p-6 text-center text-slate-500 italic text-sm">
+                            {metricsData?.samples?.length === 0 ? `Bu aralıkta henüz veri yok. ${metricsRange === 'week' ? 'Bir hafta veri toplandıkça doluyor.' : 'Birkaç dakika bekleyin.'}` : 'Veri yükleniyor...'}
+                        </div>
+                    )}
+                </Section>
+
                 {/* ─── BROADCAST ───────────────────────────────── */}
                 <Section title="Konsey Duyurusu" icon={<Megaphone size={14} />}>
                     <form onSubmit={handleBroadcast} className="flex flex-col sm:flex-row gap-2">
@@ -619,4 +676,64 @@ function formatNum(n) {
     if (n < 1000) return n.toString();
     if (n < 1_000_000) return `${(n / 1000).toFixed(1)}k`;
     return `${(n / 1_000_000).toFixed(1)}M`;
+}
+
+function BigChart({ label, samples, field, color = '#cbd5e1', suffix = '', range, maxHint }) {
+    const values = samples.map(s => s[field]).filter(v => v != null);
+    const W = 320, H = 90, P = 8;
+    if (values.length < 2) {
+        return (
+            <div className="bg-dark-bg p-3 rounded-xl border border-slate-800">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">{label}</div>
+                <div className="h-[90px] flex items-center justify-center text-xs text-slate-600 italic">Yetersiz veri</div>
+            </div>
+        );
+    }
+    const min = Math.min(...values);
+    const max = Math.max(maxHint || -Infinity, ...values);
+    const range01 = max - min || 1;
+    const stepX = (W - P * 2) / (samples.length - 1);
+    const points = samples.map((s, i) => {
+        const v = s[field];
+        if (v == null) return null;
+        const x = P + i * stepX;
+        const y = P + (H - P * 2) * (1 - (v - min) / range01);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).filter(Boolean);
+    const path = `M ${points.join(' L ')}`;
+    const areaPath = `${path} L ${(P + (samples.length - 1) * stepX).toFixed(1)},${H - P} L ${P},${H - P} Z`;
+
+    const latest = values[values.length - 1];
+    const first = values[0];
+    const delta = latest - first;
+    const deltaStr = delta > 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+    const deltaColor = Math.abs(delta) < 0.1 ? 'text-slate-500' : delta > 0 ? 'text-red-300' : 'text-emerald-300';
+
+    const rangeLabel = { hour: '1 saat', day: '24 saat', week: '7 gün' }[range] || range;
+
+    return (
+        <div className="bg-dark-bg p-3 sm:p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{label}</div>
+                <div className="text-right">
+                    <div className="text-lg font-black tabular-nums" style={{ color }}>{latest != null ? `${latest}${suffix}` : '—'}</div>
+                    <div className={`text-[9px] tabular-nums ${deltaColor}`}>{deltaStr}{suffix} ({rangeLabel})</div>
+                </div>
+            </div>
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[90px]" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id={`grad-${field}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+                        <stop offset="100%" stopColor={color} stopOpacity="0" />
+                    </linearGradient>
+                </defs>
+                <path d={areaPath} fill={`url(#grad-${field})`} />
+                <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <div className="flex justify-between text-[9px] text-slate-600 mt-1 tabular-nums">
+                <span>min {min}{suffix}</span>
+                <span>maks {max}{suffix}</span>
+            </div>
+        </div>
+    );
 }

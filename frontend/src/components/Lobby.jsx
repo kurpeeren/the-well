@@ -1,6 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { UserPlus, LogIn, ArrowRight, Eye } from 'lucide-react';
 
+const ROOM_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+function sanitizeRoomCode(raw) {
+  return raw
+    .toUpperCase()
+    .split('')
+    .filter(c => ROOM_CODE_ALPHABET.includes(c))
+    .join('')
+    .slice(0, 6);
+}
+
 function Lobby({ socket, playerName, setPlayerName, showToast }) {
   const [mode, setMode] = useState(''); // 'CREATE', 'JOIN'
   const [joinCode, setJoinCode] = useState('');
@@ -109,8 +119,13 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
              type="text"
              placeholder="Köy Mührü"
              value={joinCode}
-             onChange={e => setJoinCode(e.target.value)}
+             onChange={e => setJoinCode(sanitizeRoomCode(e.target.value))}
              onFocus={handleInputFocus}
+             autoCapitalize="characters"
+             autoCorrect="off"
+             autoComplete="off"
+             spellCheck="false"
+             inputMode="text"
              className="w-full bg-slate-900 border border-slate-700 p-3 sm:p-4 rounded-xl text-center text-xl sm:text-2xl tracking-[0.3em] font-mono focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent placeholder:text-slate-600 shadow-inner"
              maxLength={6}
           />
@@ -127,8 +142,13 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
              type="text"
              placeholder="Köy Mührü"
              value={joinCode}
-             onChange={e => setJoinCode(e.target.value)}
+             onChange={e => setJoinCode(sanitizeRoomCode(e.target.value))}
              onFocus={handleInputFocus}
+             autoCapitalize="characters"
+             autoCorrect="off"
+             autoComplete="off"
+             spellCheck="false"
+             inputMode="text"
              className="w-full bg-slate-900 border border-purple-900/50 p-3 sm:p-4 rounded-xl text-center text-xl sm:text-2xl tracking-[0.3em] font-mono focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 placeholder:text-slate-600 shadow-inner"
              maxLength={6}
           />

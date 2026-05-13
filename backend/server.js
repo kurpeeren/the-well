@@ -56,6 +56,65 @@ const metrics = {
     adminAuthFailures: 0,
 };
 
+// ─── Tarihsel metrikler — halka tampon + diske JSON kalıcılığı (1 hafta) ───
+const fs = require('fs');
+const METRICS_FILE = path.join(__dirname, '.metrics-history.json');
+const METRICS_SAMPLE_MS = 30 * 1000;           // 30s'de bir örnek
+const METRICS_MAX_SAMPLES = 7 * 24 * 60 * 2;   // 1 hafta = 20160 örnek (~1MB JSON)
+const metricsRing = [];
+let metricsRingCpuBase = process.cpuUsage();
+let metricsRingCpuTime = Date.now();
+
+function loadMetricsHistory() {
+    try {
+        const raw = fs.readFileSync(METRICS_FILE, 'utf-8');
+        const data = JSON.parse(raw);
+        if (Array.isArray(data)) {
+            const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            metricsRing.push(...data.filter(s => s.ts >= cutoff));
+            console.log(`[metrics] ${metricsRing.length} geçmiş örnek yüklendi`);
+        }
+    } catch { /* ilk açılış veya bozuk dosya — sessizce geç */ }
+}
+function persistMetricsHistory() {
+    fs.writeFile(METRICS_FILE, JSON.stringify(metricsRing), () => {});
+}
+function sampleMetrics() {
+    const now = Date.now();
+    const memUsage = process.memoryUsage();
+    const cpuDiff = process.cpuUsage(metricsRingCpuBase);
+    const elapsed = now - metricsRingCpuTime;
+    const cpuPct = elapsed > 0 ? ((cpuDiff.user + cpuDiff.system) / 1000 / elapsed * 100) : 0;
+    metricsRingCpuBase = process.cpuUsage();
+    metricsRingCpuTime = now;
+
+    // Ortalama ping — pingMap'teki tüm RTT'lerin ortalaması
+    let avgPing = null;
+    if (pingMap && pingMap.size > 0) {
+        let sum = 0, count = 0;
+        for (const v of pingMap.values()) {
+            if (v?.ms != null) { sum += v.ms; count++; }
+        }
+        if (count > 0) avgPing = Math.round(sum / count);
+    }
+
+    metricsRing.push({
+        ts: now,
+        cpu: +cpuPct.toFixed(1),
+        heapMB: +(memUsage.heapUsed / 1024 / 1024).toFixed(1),
+        rssMB: +(memUsage.rss / 1024 / 1024).toFixed(1),
+        sockets: io.engine.clientsCount,
+        rooms: Object.keys(rooms).length,
+        avgPing,
+    });
+    while (metricsRing.length > METRICS_MAX_SAMPLES) metricsRing.shift();
+}
+loadMetricsHistory();
+setInterval(sampleMetrics, METRICS_SAMPLE_MS);
+setInterval(persistMetricsHistory, 60 * 1000);  // 1dk'da bir diske yaz
+process.on('SIGTERM', persistMetricsHistory);
+process.on('SIGINT', persistMetricsHistory);
+
 function adminAuth(req, res, next) {
     const rl = rateLimit(req);
     if (!rl.allowed) {
@@ -146,6 +205,26 @@ app.get('/api/admin/health', adminAuth, (req, res) => {
     });
 });
 
+// Tarihsel metrikler — Saat/Gün/Hafta görünümü için
+app.get('/api/admin/metrics', adminAuth, (req, res) => {
+    const range = req.query.range || 'hour';
+    const now = Date.now();
+    let cutoff = 0;
+    let maxPoints = 200;  // Frontend'e gönderilen örnek sayısı — chart için makul
+    if (range === 'hour') { cutoff = now - 60 * 60 * 1000; maxPoints = 120; }
+    else if (range === 'day') { cutoff = now - 24 * 60 * 60 * 1000; maxPoints = 200; }
+    else if (range === 'week') { cutoff = now - 7 * 24 * 60 * 60 * 1000; maxPoints = 240; }
+
+    const filtered = metricsRing.filter(s => s.ts >= cutoff);
+    // Downsample — fazla nokta UI'ı yavaşlatır
+    let sampled = filtered;
+    if (filtered.length > maxPoints) {
+        const stride = Math.ceil(filtered.length / maxPoints);
+        sampled = filtered.filter((_, i) => i % stride === 0);
+    }
+    res.json({ range, count: sampled.length, samples: sampled });
+});
+
 // Admin aksiyon: oda kapat
 app.post('/api/admin/rooms/:code/close', adminAuth, (req, res) => {
     const code = req.params.code;
@@ -224,10 +303,14 @@ const io = new Server(server, {
 });
 
 const rooms = {};
+// Karışan harfler/rakamlar çıkarıldı: 0/O, 1/I/L, B/8 (B bırakıldı), S/5 (ikisi de)
+// Excluded: 0, 1, I, L, O — toplam 31 karakter, 6 hane ≈ 887M kombinasyon
+const ROOM_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const generateRoomCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    for (let i = 0; i < 6; i++) result += ROOM_CODE_ALPHABET.charAt(Math.floor(Math.random() * ROOM_CODE_ALPHABET.length));
+    // Eğer çakışırsa (çok düşük ihtimal) yeniden üret
+    if (rooms[result]) return generateRoomCode();
     return result;
 };
 const generateToken = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
