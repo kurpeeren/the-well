@@ -18,6 +18,7 @@ export default function Admin({ onExit }) {
     const [expandedHistoryId, setExpandedHistoryId] = useState(null);
     const [broadcastMsg, setBroadcastMsg] = useState('');
     const [toast, setToast] = useState(null);
+    const [confirmDialog, setConfirmDialog] = useState(null);
     const [roomFilter, setRoomFilter] = useState('');
     const [historyFilter, setHistoryFilter] = useState('');
     const [lastTick, setLastTick] = useState(0);
@@ -76,9 +77,19 @@ export default function Admin({ onExit }) {
         };
     }, []);
 
-    const showToastMsg = (m, ms = 2500) => {
+    const showToastMsg = (m, ms = 2800) => {
         setToast(m);
         setTimeout(() => setToast(null), ms);
+    };
+
+    const askConfirm = (config, onYes) => {
+        setConfirmDialog({
+            ...config,
+            onConfirm: () => {
+                setConfirmDialog(null);
+                onYes();
+            },
+        });
     };
 
     const adminFetch = async (path, options = {}) => {
@@ -152,36 +163,55 @@ export default function Admin({ onExit }) {
         localStorage.removeItem('kuyu_admin_token');
     };
 
-    const handleCloseRoom = async (code) => {
-        if (!confirm(`${code} odasını kapatmak üzeresin. Tüm oyuncular atılacak. Devam?`)) return;
-        const res = await adminFetch(`/api/admin/rooms/${code}/close`, { method: 'POST' });
-        if (res.ok) { showToastMsg(`${code} odası kapatıldı`); fetchAll(token); }
-        else showToastMsg('Kapatma başarısız');
-    };
-
-    const handleKickPlayer = async (code, socketId, name) => {
-        if (!confirm(`${name} adlı oyuncuyu ${code} odasından atmak istediğine emin misin?`)) return;
-        const res = await adminFetch(`/api/admin/rooms/${code}/kick`, {
-            method: 'POST',
-            body: JSON.stringify({ socketId }),
+    const handleCloseRoom = (code) => {
+        askConfirm({
+            title: 'Oda Kapatılsın mı?',
+            message: `${code} odasındaki tüm oyuncular atılacak.\nBu işlem geri alınamaz.`,
+            danger: true,
+            confirmLabel: 'Kapat',
+        }, async () => {
+            const res = await adminFetch(`/api/admin/rooms/${code}/close`, { method: 'POST' });
+            if (res.ok) { showToastMsg(`${code} odası kapatıldı`); fetchAll(token); }
+            else showToastMsg('Kapatma başarısız');
         });
-        if (res.ok) { showToastMsg(`${name} atıldı`); fetchAll(token); }
-        else showToastMsg('Atma başarısız');
     };
 
-    const handleBroadcast = async (e) => {
+    const handleKickPlayer = (code, socketId, name) => {
+        askConfirm({
+            title: 'Oyuncu Atılsın mı?',
+            message: `${name} adlı oyuncuyu ${code} odasından atmak üzeresin.`,
+            danger: true,
+            confirmLabel: 'At',
+        }, async () => {
+            const res = await adminFetch(`/api/admin/rooms/${code}/kick`, {
+                method: 'POST',
+                body: JSON.stringify({ socketId }),
+            });
+            if (res.ok) { showToastMsg(`${name} atıldı`); fetchAll(token); }
+            else showToastMsg('Atma başarısız');
+        });
+    };
+
+    const handleBroadcast = (e) => {
         e.preventDefault();
         if (!broadcastMsg.trim() || broadcastMsg.length > 280) return;
-        if (!confirm(`Tüm ${health?.totalSockets || 0} bağlı kullanıcıya bu mesaj gönderilecek:\n\n"${broadcastMsg}"\n\nDevam?`)) return;
-        const res = await adminFetch('/api/admin/broadcast', {
-            method: 'POST',
-            body: JSON.stringify({ message: broadcastMsg.trim() }),
+        const msg = broadcastMsg.trim();
+        askConfirm({
+            title: 'Duyuru Gönderilsin mi?',
+            message: `Tüm ${health?.totalSockets || 0} bağlı kullanıcı bu mesajı görecek:\n\n"${msg}"`,
+            danger: false,
+            confirmLabel: 'Gönder',
+        }, async () => {
+            const res = await adminFetch('/api/admin/broadcast', {
+                method: 'POST',
+                body: JSON.stringify({ message: msg }),
+            });
+            if (res.ok) {
+                const j = await res.json();
+                showToastMsg(`Duyuru ${j.deliveredTo} kullanıcıya gönderildi`);
+                setBroadcastMsg('');
+            } else showToastMsg('Duyuru başarısız');
         });
-        if (res.ok) {
-            const j = await res.json();
-            showToastMsg(`Duyuru ${j.deliveredTo} kullanıcıya gönderildi`);
-            setBroadcastMsg('');
-        } else showToastMsg('Duyuru başarısız');
     };
 
     const formatUptime = (sec) => {
@@ -283,9 +313,20 @@ export default function Admin({ onExit }) {
     return (
         <div className="min-h-screen bg-kuyu-dark text-white p-3 sm:p-6 select-none">
             {toast && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-blood-red text-white px-5 py-2.5 rounded-lg shadow-2xl z-50 text-sm font-bold tracking-widest uppercase border border-red-500/40 animate-in fade-in slide-in-from-top-2">
-                    {toast}
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] animate-in fade-in slide-in-from-bottom-3 duration-300 pointer-events-none">
+                    <div className="bg-dark-bg/95 backdrop-blur-md border border-blood-red/40 px-5 py-3 rounded-xl shadow-[0_0_30px_rgba(127,29,29,0.5)] flex items-center gap-3 max-w-md relative overflow-hidden">
+                        <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-transparent via-blood-red to-transparent"></div>
+                        <span className="w-2 h-2 rounded-full bg-blood-red shrink-0 shadow-[0_0_8px_rgba(127,29,29,0.8)] animate-pulse"></span>
+                        <p className="text-slate-100 text-sm font-medium tracking-wide leading-snug font-serif">{toast}</p>
+                    </div>
                 </div>
+            )}
+
+            {confirmDialog && (
+                <ConfirmDialog
+                    {...confirmDialog}
+                    onCancel={() => setConfirmDialog(null)}
+                />
             )}
 
             <div className="max-w-6xl mx-auto">
@@ -679,6 +720,49 @@ function formatNum(n) {
     if (n < 1000) return n.toString();
     if (n < 1_000_000) return `${(n / 1000).toFixed(1)}k`;
     return `${(n / 1_000_000).toFixed(1)}M`;
+}
+
+function ConfirmDialog({ title, message, danger, confirmLabel, onConfirm, onCancel }) {
+    const accentBorder = danger ? 'border-red-900/60' : 'border-amber-800/60';
+    const accentText = danger ? 'text-red-300' : 'text-amber-300';
+    const accentBg = danger ? 'bg-red-950/30' : 'bg-amber-950/25';
+    const confirmBtn = danger
+        ? 'bg-blood-red hover:bg-red-800 active:bg-red-900 shadow-[0_0_18px_rgba(127,29,29,0.5)]'
+        : 'bg-accent hover:bg-amber-700 active:bg-amber-800 shadow-[0_0_18px_rgba(217,119,6,0.4)]';
+
+    return (
+        <div
+            className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+            onClick={onCancel}
+        >
+            <div
+                className={`w-full max-w-sm bg-dark-bg border ${accentBorder} rounded-2xl shadow-[0_0_60px_rgba(127,29,29,0.35)] overflow-hidden animate-in zoom-in-95 duration-200`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className={`px-5 py-3 border-b ${accentBorder} ${accentBg} flex items-center gap-2`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${danger ? 'bg-blood-red' : 'bg-accent'} animate-pulse`}></span>
+                    <h3 className={`text-[11px] font-black uppercase tracking-[0.3em] font-serif ${accentText}`}>{title}</h3>
+                </div>
+                <div className="px-5 py-4 text-slate-200 text-sm leading-relaxed whitespace-pre-line">
+                    {message}
+                </div>
+                <div className="grid grid-cols-2 border-t border-slate-800 divide-x divide-slate-800">
+                    <button
+                        onClick={onCancel}
+                        className="py-3 text-slate-400 hover:bg-slate-900 hover:text-white transition-colors text-xs uppercase tracking-[0.3em] font-bold"
+                    >
+                        Vazgeç
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className={`py-3 text-white ${confirmBtn} transition-colors text-xs uppercase tracking-[0.3em] font-black`}
+                    >
+                        {confirmLabel}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 const ROLE_TEAM = {
