@@ -62,18 +62,34 @@ export default function Admin({ onExit }) {
         return () => { cancelled = true; clearInterval(interval); };
     }, [token, metricsRange]);
 
-    // Mobilde body overflow hidden — admin sayfasındayken scroll'a izin ver
+    // index.css mobilde body/#root overflow:hidden + height:100vh kuruyor —
+    // admin sayfasında scroll'a izin vermek için bunları geçici olarak ezeriz.
+    // NOT: html overflow'u değiştirmiyoruz; body→viewport overflow propagation'ı
+    // kırmaması için visible kalsın.
     useEffect(() => {
-        const prevBodyOverflow = document.body.style.overflow;
-        const prevHtmlOverflow = document.documentElement.style.overflow;
-        const prevBodyHeight = document.body.style.height;
+        const root = document.getElementById('root');
+        const prev = {
+            bodyOverflow: document.body.style.overflow,
+            bodyHeight: document.body.style.height,
+            rootHeight: root?.style.height || '',
+            rootMinHeight: root?.style.minHeight || '',
+            rootOverflow: root?.style.overflow || '',
+        };
         document.body.style.overflow = 'auto';
-        document.documentElement.style.overflow = 'auto';
         document.body.style.height = 'auto';
+        if (root) {
+            root.style.height = 'auto';
+            root.style.minHeight = '100vh';
+            root.style.overflow = 'visible';
+        }
         return () => {
-            document.body.style.overflow = prevBodyOverflow;
-            document.documentElement.style.overflow = prevHtmlOverflow;
-            document.body.style.height = prevBodyHeight;
+            document.body.style.overflow = prev.bodyOverflow;
+            document.body.style.height = prev.bodyHeight;
+            if (root) {
+                root.style.height = prev.rootHeight;
+                root.style.minHeight = prev.rootMinHeight;
+                root.style.overflow = prev.rootOverflow;
+            }
         };
     }, []);
 
@@ -275,9 +291,24 @@ export default function Admin({ onExit }) {
                             <div className="w-16 h-16 rounded-full bg-blood-red/15 border-2 border-blood-red/60 flex items-center justify-center mb-3 shadow-[0_0_25px_rgba(127,29,29,0.35)]">
                                 <KeyRound className="text-blood-red w-7 h-7" />
                             </div>
-                            <h1 className="text-3xl font-bold text-blood-red tracking-[0.4em] font-serif drop-shadow-[0_0_18px_rgba(127,29,29,0.55)]">KONSEY</h1>
-                            <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood-red/60 to-transparent my-2"></div>
-                            <p className="text-slate-500 text-[10px] uppercase tracking-[0.4em] italic">Sadece Yetkili Geçer</p>
+                            <h1
+                                className="text-3xl font-bold tracking-[0.22em] font-serif uppercase leading-tight whitespace-nowrap"
+                                style={{
+                                    backgroundImage: 'linear-gradient(110deg, #7f1d1d 0%, #b91c1c 25%, #fca5a5 50%, #b91c1c 75%, #7f1d1d 100%)',
+                                    backgroundSize: '300% 100%',
+                                    WebkitBackgroundClip: 'text',
+                                    backgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    animation: 'bloodShimmer 8s linear infinite, bloodGlow 4s ease-in-out infinite, councilReveal 1.3s cubic-bezier(0.2,0.9,0.3,1.15) backwards',
+                                }}
+                            >
+                                KONSEY
+                            </h1>
+                            <div
+                                className="h-px w-28 bg-gradient-to-r from-transparent via-blood-red to-transparent my-2 origin-center"
+                                style={{ animation: 'titleUnderlineGrow 1.4s cubic-bezier(0.4,0,0.2,1) 0.2s backwards, titleUnderlinePulse 3.4s ease-in-out infinite 1.6s' }}
+                            ></div>
+                            <p className="text-slate-500 text-[10px] uppercase tracking-[0.32em] italic">Sadece Yetkili Geçer</p>
                         </div>
 
                         <form onSubmit={handleLogin}>
@@ -338,19 +369,23 @@ export default function Admin({ onExit }) {
                         </button>
                         <div className="min-w-0">
                             <h1
-                                className="text-xl sm:text-3xl font-bold tracking-[0.3em] sm:tracking-[0.4em] font-serif truncate leading-tight uppercase animate-in fade-in slide-in-from-bottom-2 duration-1000"
+                                className="text-xl sm:text-3xl font-bold tracking-[0.15em] sm:tracking-[0.2em] font-serif leading-tight uppercase whitespace-nowrap"
                                 style={{
                                     backgroundImage: 'linear-gradient(110deg, #7f1d1d 0%, #b91c1c 25%, #fca5a5 50%, #b91c1c 75%, #7f1d1d 100%)',
                                     backgroundSize: '300% 100%',
                                     WebkitBackgroundClip: 'text',
                                     backgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
-                                    animation: 'bloodShimmer 8s linear infinite, bloodGlow 4s ease-in-out infinite, titleFlicker 9s ease-in-out infinite',
+                                    animation: 'bloodShimmer 8s linear infinite, bloodGlow 4s ease-in-out infinite, titleFlicker 9s ease-in-out infinite, councilReveal 1.3s cubic-bezier(0.2,0.9,0.3,1.15) backwards',
                                 }}
                             >
                                 KARANLIK KONSEY
                             </h1>
-                            <p className="text-[9px] sm:text-[10px] text-slate-600 uppercase tracking-[0.4em] italic mt-1 animate-in fade-in duration-1000 delay-200">Kuyu Komuta Kulesi</p>
+                            <div
+                                className="h-px w-full mt-1 bg-gradient-to-r from-transparent via-blood-red to-transparent origin-center"
+                                style={{ animation: 'titleUnderlineGrow 1.5s cubic-bezier(0.4,0,0.2,1) 0.25s backwards, titleUnderlinePulse 3.4s ease-in-out infinite 1.75s' }}
+                            ></div>
+                            <p className="text-[9px] sm:text-[10px] text-slate-600 uppercase tracking-[0.3em] italic mt-1.5 animate-in fade-in duration-1000 delay-300">Kuyu Komuta Kulesi</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">

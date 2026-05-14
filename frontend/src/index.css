@@ -76,6 +76,39 @@
   }
 }
 
+/* Konsey başlığı dramatik giriş */
+@keyframes councilReveal {
+  0% {
+    transform: translateY(14px) scale(0.9);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Başlık altı çizgisi merkezden büyür */
+@keyframes titleUnderlineGrow {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+
+/* Başlık altı çizgisi nabız ışıltısı */
+@keyframes titleUnderlinePulse {
+  0%, 100% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 4px rgba(127, 29, 29, 0.5));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.85)) drop-shadow(0 0 22px rgba(127, 29, 29, 0.4));
+  }
+}
+
 html, body, #root {
   height: 100vh;
   height: 100svh;
