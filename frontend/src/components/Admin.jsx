@@ -22,6 +22,8 @@ export default function Admin({ onExit }) {
     const [roomFilter, setRoomFilter] = useState('');
     const [historyFilter, setHistoryFilter] = useState('');
     const [feedbacks, setFeedbacks] = useState([]);
+    const [feedbacksTotal, setFeedbacksTotal] = useState(0);
+    const [feedbacksLoading, setFeedbacksLoading] = useState(false);
     const [feedbackFilter, setFeedbackFilter] = useState('');
     const [expandedFeedbackId, setExpandedFeedbackId] = useState(null);
     const [lastTick, setLastTick] = useState(0);
@@ -43,6 +45,34 @@ export default function Admin({ onExit }) {
         fetchAll(token);
         const interval = setInterval(tick, 3000);
         return () => { cancelled = true; clearInterval(interval); };
+    }, [token]);
+
+    // Feedbacks — ayrı poll (30s), bandwidth-aware. fetchAll ile birlikte koşmaz
+    const fetchFeedbacks = async (opts = {}) => {
+        if (!token) return;
+        const offset = opts.append ? feedbacks.length : 0;
+        setFeedbacksLoading(true);
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/admin/feedbacks?limit=50&offset=${offset}`, {
+                headers: { 'Authorization': token },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setFeedbacksTotal(data.total || 0);
+                setFeedbacks(prev => opts.append ? [...prev, ...(data.items || [])] : (data.items || []));
+            }
+        } catch { /* sessiz */ }
+        finally { setFeedbacksLoading(false); }
+    };
+
+    useEffect(() => {
+        if (!token) return;
+        let cancelled = false;
+        const tick = () => { if (!cancelled && document.visibilityState !== 'hidden') fetchFeedbacks(); };
+        fetchFeedbacks();
+        const interval = setInterval(tick, 30000);
+        return () => { cancelled = true; clearInterval(interval); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
     // Tarihsel metrikleri — range değişince yeniden çek
@@ -124,11 +154,10 @@ export default function Admin({ onExit }) {
 
     const fetchAll = async (authToken) => {
         try {
-            const [statsRes, healthRes, histRes, fbRes] = await Promise.all([
+            const [statsRes, healthRes, histRes] = await Promise.all([
                 fetch(`${BACKEND_URL}/api/admin/stats`, { headers: { 'Authorization': authToken } }),
                 fetch(`${BACKEND_URL}/api/admin/health`, { headers: { 'Authorization': authToken } }),
                 fetch(`${BACKEND_URL}/api/admin/history`, { headers: { 'Authorization': authToken } }),
-                fetch(`${BACKEND_URL}/api/admin/feedbacks`, { headers: { 'Authorization': authToken } }),
             ]);
 
             if (statsRes.ok && healthRes.ok && histRes.ok) {
@@ -138,7 +167,6 @@ export default function Admin({ onExit }) {
                 setStats(s);
                 setHealth(h);
                 setHistory(await histRes.json());
-                if (fbRes.ok) setFeedbacks(await fbRes.json());
                 setError('');
                 cpuHistRef.current = [...cpuHistRef.current.slice(-29), h.cpuPercent];
                 socketHistRef.current = [...socketHistRef.current.slice(-29), h.totalSockets];
@@ -667,10 +695,20 @@ export default function Admin({ onExit }) {
 
                 {/* ─── FEEDBACKS ──────────────────────────────── */}
                 <Section
-                    title={`Geri Bildirimler (${filteredFeedbacks.length})`}
+                    title={`Geri Bildirimler (${feedbacks.length}/${feedbacksTotal})`}
                     icon={<MessageSquare size={14} />}
                     extra={
-                        <SearchBox value={feedbackFilter} onChange={setFeedbackFilter} placeholder="İsim, e-posta veya mesaj ara..." />
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <SearchBox value={feedbackFilter} onChange={setFeedbackFilter} placeholder="İsim, e-posta veya mesaj ara..." />
+                            <button
+                                onClick={() => fetchFeedbacks()}
+                                disabled={feedbacksLoading}
+                                className="px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold rounded-full border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-accent hover:text-accent disabled:opacity-50 transition-colors"
+                                title="En yeni geri bildirimleri çek"
+                            >
+                                {feedbacksLoading ? '...' : 'Yenile'}
+                            </button>
+                        </div>
                     }
                 >
                     <div className="bg-dark-bg rounded-xl border border-slate-800 overflow-hidden">
@@ -709,6 +747,17 @@ export default function Admin({ onExit }) {
                                     );
                                 })}
                             </ul>
+                        )}
+                        {feedbacks.length < feedbacksTotal && (
+                            <div className="border-t border-slate-800 p-3 flex justify-center">
+                                <button
+                                    onClick={() => fetchFeedbacks({ append: true })}
+                                    disabled={feedbacksLoading}
+                                    className="px-4 py-2 text-[10px] uppercase tracking-widest font-bold rounded-full border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-accent hover:text-accent disabled:opacity-50 transition-colors"
+                                >
+                                    {feedbacksLoading ? 'Yükleniyor...' : `Daha Fazla (${feedbacksTotal - feedbacks.length})`}
+                                </button>
+                            </div>
                         )}
                     </div>
                 </Section>

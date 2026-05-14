@@ -320,18 +320,20 @@ app.post('/api/admin/broadcast', adminAuth, (req, res) => {
 const supabase = require('./db');
 
 app.get('/api/admin/feedbacks', adminAuth, async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
     try {
         const supabase = require('./db');
-        const { data, error } = await supabase
+        const { data, error, count } = await supabase
             .from('feedbacks')
-            .select('*')
+            .select('*', { count: 'exact' })
             .order('created_at', { ascending: false })
-            .limit(500);
+            .range(offset, offset + limit - 1);
         if (error) {
             console.error('[admin/feedbacks] supabase error:', error);
             return res.status(500).json({ error: error.message });
         }
-        res.json(data || []);
+        res.json({ items: data || [], total: count || 0, limit, offset });
     } catch (e) {
         console.error('[admin/feedbacks] error:', e);
         res.status(500).json({ error: 'Sunucu hatası' });
