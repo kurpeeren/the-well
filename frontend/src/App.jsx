@@ -4,7 +4,8 @@ import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
 import ShareInviteModal from './components/ShareInviteModal';
-import { LogOut, Share2 } from 'lucide-react';
+import FeedbackModal from './components/FeedbackModal';
+import { LogOut, Share2, MessageSquare } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL, {
@@ -91,6 +92,7 @@ function App() {
   const [toast, setToast] = useState(null);
   const [lobbyTab, setLobbyTab] = useState('players'); // 'players' | 'settings' | 'roles'
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
 
@@ -309,6 +311,14 @@ function App() {
         />
       )}
 
+      {showFeedbackModal && (
+        <FeedbackModal
+          gameState={gameState}
+          onClose={() => setShowFeedbackModal(false)}
+          showToast={showToast}
+        />
+      )}
+
       {['INTRO', 'JOIN'].includes(gameState) && (
         <div
           className="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-[101] select-none"
@@ -477,13 +487,24 @@ function App() {
 
                 <Lobby socket={socket} setPlayerName={setPlayerName} playerName={playerName} showToast={showToast} />
 
-                <a
-                  href="/bilgi/"
-                  className="group flex items-center gap-2 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors select-none"
-                >
-                  <span className="text-base group-hover:scale-110 transition-transform">📜</span>
-                  Köyü Gez
-                </a>
+                <div className="flex items-center gap-1 flex-wrap justify-center">
+                  <a
+                    href="/bilgi/"
+                    className="group flex items-center gap-2 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors select-none"
+                  >
+                    <span className="text-base group-hover:scale-110 transition-transform">📜</span>
+                    Köyü Gez
+                  </a>
+                  <span className="text-slate-700">·</span>
+                  <button
+                    onClick={() => setShowFeedbackModal(true)}
+                    className="group flex items-center gap-1.5 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors select-none"
+                    title="Bana mesaj yaz"
+                  >
+                    <MessageSquare size={13} className="group-hover:scale-110 transition-transform" />
+                    Geri Bildirim
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -670,6 +691,7 @@ function App() {
            revealedNotes={revealedNotes}
            setRevealedNotes={setRevealedNotes}
            isSpectator={isSpectator}
+           onOpenFeedback={() => setShowFeedbackModal(true)}
            isHost={isHost}
            onLeave={handleLeave}
          />

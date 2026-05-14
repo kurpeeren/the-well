@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut, CheckCircle2 } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 
-function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost }) {
+function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback }) {
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
@@ -229,24 +229,42 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     false
   );
 
-  // Şu an gözüken sohbet kanalı (ölü her fazda dead, alive masum NIGHT'ta day-readonly)
+  // Yazma kanalı — input nereye gönderir
   const chatChannel =
     (!me.isAlive || isSpectator) ? 'dead' :
     gamePhase === 'NIGHT' && canSeeDeadChat ? 'dead' :
     gamePhase === 'NIGHT' && isEskiya ? 'mafia' :
     gamePhase === 'DAY' ? 'day' :
-    'day'; // alive masum NIGHT'ta day chat history'sini görür (read-only)
+    'day';
 
-  // Sohbet listesi — kanalı eşleşen mesajlar + tüm ayraçlar
+  // Okuma erişimi — viewer hangi kanalları görebilir
+  // Spectator: dead
+  // Ölü eşkıya: day + dead + mafia (3'ünü de izler, sadece dead'e yazar)
+  // Ölü diğer: day + dead
+  // Alive eşkıya: day + mafia (gece /c gündüz de görür)
+  // Alive Gassal: day + dead
+  // Alive masum: day
+  const readAccess = React.useMemo(() => {
+    const s = new Set();
+    if (isSpectator) { s.add('dead'); return s; }
+    if (!me.isAlive) {
+      s.add('day'); s.add('dead');
+      if (isEskiya) s.add('mafia');
+      return s;
+    }
+    if (isEskiya) { s.add('day'); s.add('mafia'); return s; }
+    if (activeRole === 'Gassal') { s.add('day'); s.add('dead'); return s; }
+    s.add('day');
+    return s;
+  }, [isSpectator, me.isAlive, isEskiya, activeRole]);
+
   const visibleMessages = React.useMemo(() => {
     return chatMessages.filter(c => {
       if (c.type === 'separator') return true;
-      if (chatChannel === 'day') return !c.type || c.type === 'day';
-      if (chatChannel === 'mafia') return c.type === 'mafia';
-      if (chatChannel === 'dead') return c.type === 'dead';
-      return false;
+      const ch = c.type || 'day';
+      return readAccess.has(ch);
     });
-  }, [chatMessages, chatChannel]);
+  }, [chatMessages, readAccess]);
 
   // ANIMASYON EFEKTLERI STATE'I
   const [animEffect, setAnimEffect] = useState(null); // 'death', 'well'
@@ -476,6 +494,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                <button onClick={() => setShowRoleModal(true)} className="text-slate-500 hover:text-yellow-500 active:text-yellow-400 transition-colors p-1 sm:p-0 -m-1 sm:m-0">
                  <Info className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
                </button>
+               {onOpenFeedback && (
+                 <button onClick={onOpenFeedback} className="text-slate-500 hover:text-accent active:text-amber-400 transition-colors p-1 sm:p-0 -m-1 sm:m-0" title="Geri Bildirim">
+                   <MessageSquare className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
+                 </button>
+               )}
              </div>
            </div>
            <div className="sm:hidden shrink-0">

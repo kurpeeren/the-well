@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
     Activity, Cpu, MemoryStick, Clock, Zap, Users, Database, ShieldAlert,
     Search, Megaphone, Trash2, UserMinus, LogOut, ArrowLeft, Send, Radio,
-    Eye, Skull, Crown, KeyRound, AlertCircle, Send as SendIcon,
+    Eye, Skull, Crown, KeyRound, AlertCircle, Send as SendIcon, MessageSquare, Mail,
 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -21,6 +21,9 @@ export default function Admin({ onExit }) {
     const [confirmDialog, setConfirmDialog] = useState(null);
     const [roomFilter, setRoomFilter] = useState('');
     const [historyFilter, setHistoryFilter] = useState('');
+    const [feedbacks, setFeedbacks] = useState([]);
+    const [feedbackFilter, setFeedbackFilter] = useState('');
+    const [expandedFeedbackId, setExpandedFeedbackId] = useState(null);
     const [lastTick, setLastTick] = useState(0);
     const [metricsRange, setMetricsRange] = useState('hour'); // 'hour' | 'day' | 'week'
     const [metricsData, setMetricsData] = useState(null);
@@ -121,10 +124,11 @@ export default function Admin({ onExit }) {
 
     const fetchAll = async (authToken) => {
         try {
-            const [statsRes, healthRes, histRes] = await Promise.all([
+            const [statsRes, healthRes, histRes, fbRes] = await Promise.all([
                 fetch(`${BACKEND_URL}/api/admin/stats`, { headers: { 'Authorization': authToken } }),
                 fetch(`${BACKEND_URL}/api/admin/health`, { headers: { 'Authorization': authToken } }),
                 fetch(`${BACKEND_URL}/api/admin/history`, { headers: { 'Authorization': authToken } }),
+                fetch(`${BACKEND_URL}/api/admin/feedbacks`, { headers: { 'Authorization': authToken } }),
             ]);
 
             if (statsRes.ok && healthRes.ok && histRes.ok) {
@@ -134,6 +138,7 @@ export default function Admin({ onExit }) {
                 setStats(s);
                 setHealth(h);
                 setHistory(await histRes.json());
+                if (fbRes.ok) setFeedbacks(await fbRes.json());
                 setError('');
                 cpuHistRef.current = [...cpuHistRef.current.slice(-29), h.cpuPercent];
                 socketHistRef.current = [...socketHistRef.current.slice(-29), h.totalSockets];
@@ -272,6 +277,16 @@ export default function Admin({ onExit }) {
             (h.players || []).some(p => (p.name || '').toLowerCase().includes(q))
         );
     }, [history, historyFilter]);
+
+    const filteredFeedbacks = useMemo(() => {
+        const q = feedbackFilter.trim().toLowerCase();
+        if (!q) return feedbacks;
+        return feedbacks.filter(f =>
+            (f.name || '').toLowerCase().includes(q) ||
+            (f.email || '').toLowerCase().includes(q) ||
+            (f.message || '').toLowerCase().includes(q)
+        );
+    }, [feedbacks, feedbackFilter]);
 
     // ─── LOGIN SCREEN ───────────────────────────────────────────
     if (!token || !stats) {
@@ -647,6 +662,54 @@ export default function Admin({ onExit }) {
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </Section>
+
+                {/* ─── FEEDBACKS ──────────────────────────────── */}
+                <Section
+                    title={`Geri Bildirimler (${filteredFeedbacks.length})`}
+                    icon={<MessageSquare size={14} />}
+                    extra={
+                        <SearchBox value={feedbackFilter} onChange={setFeedbackFilter} placeholder="İsim, e-posta veya mesaj ara..." />
+                    }
+                >
+                    <div className="bg-dark-bg rounded-xl border border-slate-800 overflow-hidden">
+                        {filteredFeedbacks.length === 0 ? (
+                            <p className="p-6 text-center text-slate-500 italic">{feedbackFilter ? 'Eşleşen geri bildirim yok.' : 'Henüz geri bildirim yok.'}</p>
+                        ) : (
+                            <ul className="divide-y divide-slate-800/50">
+                                {filteredFeedbacks.map(f => {
+                                    const isOpen = expandedFeedbackId === f.id;
+                                    const dt = new Date(f.created_at);
+                                    const dateStr = dt.toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' });
+                                    return (
+                                        <li key={f.id} className="hover:bg-slate-900/40 transition-colors">
+                                            <button
+                                                onClick={() => setExpandedFeedbackId(isOpen ? null : f.id)}
+                                                className="w-full text-left p-3 sm:p-4 flex items-start gap-3"
+                                            >
+                                                <span className="text-slate-500 mt-1 text-xs">{isOpen ? '▼' : '▶'}</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-baseline gap-2 flex-wrap">
+                                                        <span className="font-bold text-white text-sm">{f.name}</span>
+                                                        {f.email && (
+                                                            <a href={`mailto:${f.email}?subject=KUYU%20-%20Geri%20Bildirim%20Yan%C4%B1t%C4%B1`} onClick={(e) => e.stopPropagation()} className="text-[10px] text-accent hover:text-amber-400 flex items-center gap-1 truncate">
+                                                                <Mail size={10} />{f.email}
+                                                            </a>
+                                                        )}
+                                                        {f.game_state && <span className="text-[9px] uppercase tracking-widest text-slate-600 bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">{f.game_state}</span>}
+                                                        <span className="text-[10px] text-slate-500 ml-auto">{dateStr}</span>
+                                                    </div>
+                                                    <p className={`text-slate-300 text-sm mt-1.5 leading-relaxed whitespace-pre-wrap ${isOpen ? '' : 'line-clamp-2'}`}>
+                                                        {f.message}
+                                                    </p>
+                                                </div>
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
                     </div>
                 </Section>
 

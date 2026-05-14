@@ -10,6 +10,51 @@ app.use(cors());
 app.use(express.json({ limit: '64kb' }));
 app.get('/', (req, res) => res.send('Kuyu Backend is running healthy!'));
 
+// ─── Geri bildirim (feedback) — public endpoint, IP rate-limit + supabase'a yaz ───
+const feedbackByIp = new Map(); // ip -> [timestamps]
+app.post('/api/feedback', async (req, res) => {
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+    const now = Date.now();
+    const stamps = (feedbackByIp.get(ip) || []).filter(t => now - t < 60 * 60 * 1000); // son 1 saat
+
+    if (stamps.length >= 5) {
+        return res.status(429).json({ error: 'Bir saatte en fazla 5 geri bildirim. Bana abone gibi yazıyorsun :)' });
+    }
+    if (stamps.length > 0 && now - stamps[stamps.length - 1] < 60 * 1000) {
+        return res.status(429).json({ error: 'Çok hızlı, lütfen 1 dakika bekle.' });
+    }
+
+    const name = String(req.body?.name || '').trim().slice(0, 50);
+    const email = String(req.body?.email || '').trim().slice(0, 120);
+    const message = String(req.body?.message || '').trim().slice(0, 2000);
+    const gameState = String(req.body?.gameState || '').trim().slice(0, 20) || null;
+
+    if (name.length < 1) return res.status(400).json({ error: 'İsim gerekli.' });
+    if (message.length < 5) return res.status(400).json({ error: 'Mesaj en az 5 karakter olmalı.' });
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: 'E-posta formatı geçersiz.' });
+    }
+
+    const ipHash = crypto.createHash('sha256').update(ip).digest('hex').slice(0, 16);
+
+    try {
+        const supabase = require('./db');
+        const { error } = await supabase.from('feedbacks').insert([{
+            name, email: email || null, message, game_state: gameState, ip_hash: ipHash,
+        }]);
+        if (error) {
+            console.error('[feedback] supabase error:', error);
+            return res.status(500).json({ error: 'Kaydedilemedi, biraz sonra tekrar dene.' });
+        }
+        stamps.push(now);
+        feedbackByIp.set(ip, stamps);
+        res.json({ ok: true });
+    } catch (e) {
+        console.error('[feedback] error:', e);
+        res.status(500).json({ error: 'Sunucu hatası.' });
+    }
+});
+
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 if (!ADMIN_PASSWORD) {
     console.warn('[admin] UYARI: ADMIN_PASSWORD env değişkeni tanımlı değil — admin paneline erişim DEVRE DIŞI.');
@@ -273,6 +318,25 @@ app.post('/api/admin/broadcast', adminAuth, (req, res) => {
 });
 
 const supabase = require('./db');
+
+app.get('/api/admin/feedbacks', adminAuth, async (req, res) => {
+    try {
+        const supabase = require('./db');
+        const { data, error } = await supabase
+            .from('feedbacks')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(500);
+        if (error) {
+            console.error('[admin/feedbacks] supabase error:', error);
+            return res.status(500).json({ error: error.message });
+        }
+        res.json(data || []);
+    } catch (e) {
+        console.error('[admin/feedbacks] error:', e);
+        res.status(500).json({ error: 'Sunucu hatası' });
+    }
+});
 
 app.get('/api/admin/history', adminAuth, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 50, 200);
@@ -718,7 +782,8 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Çete chat artık her fazda açık (gündüz de gizli çete mesajları gönderilebilir)
+  // Çete chat her fazda açık. Sadece ALIVE eşkıya yazabilir; ölü eşkıya
+  // READ-ONLY olarak alır (kendi takım sohbetini izler ama yazamaz).
   socket.on('mafiaChatMessage', ({ roomCode, message, impersonateId }) => {
     const now = Date.now();
     if (chatRateLimitMap[socket.id] && now - chatRateLimitMap[socket.id] < 500) return;
@@ -728,9 +793,11 @@ io.on('connection', (socket) => {
     if(room) {
       const actorId = getActorId(room, socket.id, impersonateId);
       const player = room.players.find(p => p.socketId === actorId);
+      // Yazma izni: yalnız hayatta eşkıya
       if (player && player.isAlive && ROLES[player.role]?.team === 'Eşkıyalar') {
+         // Okuma kapsamı: tüm eşkıyalar (hayatta + ölü) — ölü ex-çete üyesi de izler
          room.players.forEach(p => {
-            if (p.isAlive && ROLES[p.role]?.team === 'Eşkıyalar') {
+            if (ROLES[p.role]?.team === 'Eşkıyalar') {
                io.to(p.socketId).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
             }
          });
