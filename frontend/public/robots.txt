@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /?admin=true
+Disallow: /?room=
+
+Sitemap: https://kuyu.click/sitemap.xml
