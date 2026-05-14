@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
+import ShareInviteModal from './components/ShareInviteModal';
 import { LogOut, Share2 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -89,6 +90,7 @@ function App() {
   const [revealedNotes, setRevealedNotes] = useState([]);
   const [toast, setToast] = useState(null);
   const [lobbyTab, setLobbyTab] = useState('players'); // 'players' | 'settings' | 'roles'
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
 
@@ -256,29 +258,9 @@ function App() {
     };
   }, []);
 
-  const handleShareLink = async () => {
+  const handleOpenInvite = () => {
     if (!roomCode) return;
-    const url = `${window.location.origin}/?room=${roomCode}`;
-    const shareData = {
-      title: 'KUYU - Köy Daveti',
-      text: `KUYU oyununa katıl! Köy mührü: ${roomCode}`,
-      url,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch (e) {
-        if (e?.name === 'AbortError') return;
-        // Paylaşım başarısızsa panoya kopyalamayı dene
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast('Davet linki kopyalandı');
-    } catch {
-      showToast(url);
-    }
+    setShowInviteModal(true);
   };
 
   const handleLeave = () => {
@@ -317,6 +299,14 @@ function App() {
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
           {toast}
         </div>
+      )}
+
+      {showInviteModal && roomCode && (
+        <ShareInviteModal
+          roomCode={roomCode}
+          onClose={() => setShowInviteModal(false)}
+          showToast={showToast}
+        />
       )}
 
       {['INTRO', 'JOIN'].includes(gameState) && (
@@ -506,9 +496,9 @@ function App() {
               <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
                  {isHost && (
                     <button
-                       onClick={(e) => { e.stopPropagation(); handleShareLink(); }}
+                       onClick={(e) => { e.stopPropagation(); handleOpenInvite(); }}
                        className="group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-accent/40 bg-accent/10 hover:bg-accent/20 hover:border-accent active:scale-95 transition-all shadow-[0_0_12px_rgba(217,119,6,0.25)]"
-                       title="Davet linkini paylaş"
+                       title="Davet ve QR"
                     >
                        <Share2 size={16} className="text-accent" />
                        <span className="text-[11px] sm:text-xs uppercase tracking-widest font-bold text-accent">Davet</span>
