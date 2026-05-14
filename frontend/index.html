@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -10,22 +10,130 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="/manifest.json" />
-    <title>KUYU</title>
-    <meta name="description" content="KUYU — Karanlık Bir Köyün Olayları. Köy mührünü çöz, gerçeği bul." />
-    <!-- Open Graph / WhatsApp/Telegram/Discord paylaşımı için kare olmayan, radius'suz görsel -->
+    <title>KUYU — Fısıltılar Köyü | Karanlık Bir Köyün Olayları</title>
+    <meta name="description" content="KUYU — 8-16 kişilik karanlık sosyal dedüksiyon oyunu. Şifacı, eşkıya, falcı, kundakçı ve 14 farklı rolle arkadaşlarınla köyün gerçeklerini ortaya çıkar. Tarayıcıdan ücretsiz oyna." />
+    <meta name="keywords" content="kuyu oyun, sosyal dedüksiyon, mafia tarzı, online oyun, türkçe oyun, fısıltılar köyü, arkadaş oyunu, gece-gündüz" />
+    <link rel="canonical" href="https://kuyu.click/" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="KUYU — Fısıltılar Köyü" />
     <meta property="og:description" content="Karanlık bir köyün olayları. Köy mührünü çöz, gerçeği bul." />
     <meta property="og:image" content="/kuyu-share.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://kuyu.click/" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:site_name" content="KUYU" />
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="KUYU — Fısıltılar Köyü" />
     <meta name="twitter:description" content="Karanlık bir köyün olayları." />
     <meta name="twitter:image" content="/kuyu-share.png" />
+
+    <!-- Schema.org — Google rich result için -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "KUYU — Fısıltılar Köyü",
+      "description": "8-16 kişilik karanlık sosyal dedüksiyon oyunu. Şifacı, Eşkıya, Falcı, Kundakçı ve 14 farklı rol.",
+      "url": "https://kuyu.click/",
+      "image": "https://kuyu.click/kuyu-share.png",
+      "inLanguage": "tr",
+      "genre": ["Social Deduction", "Strategy"],
+      "playMode": "MultiPlayer",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Web Browser",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" }
+    }
+    </script>
+
+    <!-- Pre-render fallback stilleri: React mount olana kadar / JS kapalıyken görülür -->
+    <style>
+      .seo-fallback {
+        position: fixed; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        text-align: center;
+        background: #020617;
+        background-image: radial-gradient(ellipse at top, rgba(127,29,29,0.18), transparent 55%);
+        color: #f8fafc;
+        font-family: 'Cinzel', Georgia, serif;
+        padding: 2rem 1.25rem;
+        z-index: 0;
+      }
+      .seo-fallback h1 {
+        font-size: clamp(3.5rem, 17vw, 6rem);
+        letter-spacing: 0.4em;
+        padding-left: 0.4em;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #b91c1c;
+        text-shadow: 0 0 24px rgba(127,29,29,0.45);
+        margin: 0;
+      }
+      .seo-fallback .tag {
+        font-style: italic; color: #94a3b8;
+        text-transform: uppercase; letter-spacing: 0.45em;
+        font-size: 0.8rem; margin-top: 1rem;
+      }
+      .seo-fallback p.lead {
+        max-width: 560px; color: #cbd5e1;
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 1rem; line-height: 1.7; margin-top: 1.75rem;
+      }
+      .seo-fallback nav {
+        margin-top: 2rem; display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;
+      }
+      .seo-fallback a {
+        font-family: 'Inter', system-ui, sans-serif;
+        text-transform: uppercase; letter-spacing: 0.18em;
+        font-size: 0.85rem; font-weight: 700;
+        padding: 0.85rem 1.5rem; border-radius: 999px;
+        text-decoration: none; color: #fca5a5;
+        border: 1px solid rgba(127,29,29,0.5);
+        background: rgba(127,29,29,0.1);
+      }
+      /* SEO içeriği: ekranda görünmez metin (Google görür) — gözle bakana yer kaplamaz */
+      .seo-meta { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- SEO + JS kapalı kullanıcılar için fallback. React mount olunca burası SPA ile değişir. -->
+      <div class="seo-fallback">
+        <h1>KUYU</h1>
+        <p class="tag">Fısıltılar Köyü</p>
+        <p class="lead">
+          Köyün karanlık dehlizlerinde 8-16 kişiyle bir araya gel. Şifacı, eşkıya, falcı,
+          kundakçı ve 14 farklı rolden biri ol; gece çöktüğünde gerçeği örtüştür,
+          gündüz olduğunda ise kuyuya kimi atacağına oy ver.
+        </p>
+        <nav>
+          <a href="/bilgi/">Rol Rehberi</a>
+        </nav>
+        <noscript>
+          <p style="margin-top:2rem;color:#fca5a5;">
+            Oyunu oynamak için JavaScript'i etkinleştirmen gerekiyor.
+          </p>
+        </noscript>
+      </div>
+      <!-- Google'ın detaylı içeriği indekslemesi için gizli metin -->
+      <div class="seo-meta">
+        <h2>KUYU - Fısıltılar Köyü Nedir?</h2>
+        <p>KUYU, 8-16 oyuncuyla oynanabilen, karanlık atmosferli bir sosyal dedüksiyon oyunudur. Mafia tarzı oyunlardan ilham alan bu Türkçe oyunda her oyuncuya gizli bir rol verilir. Üç taraf bulunur: Masumlar (Şifacı, Avcı, Bekçi, Muhtar, Gözcü, Falcı, Gassal, Eskort), Eşkıyalar (Eşkıya Başı, Münafık, Eşkıya, Tefeci, Meyhaneci) ve Tarafsızlar (Köy Delisi, Seri Katil, Kan Davalı, Kundakçı, Kaçak). Gece-gündüz döngüsünde roller eylem yapar, oyuncular tartışır ve kuyuya kimi atacaklarına oy verir.</p>
+        <h2>Nasıl Oynanır?</h2>
+        <ol>
+          <li>Karanlığa Adım At butonuyla oyuna başla.</li>
+          <li>İsmini yaz, "Köy Kur" diyerek oda oluştur veya "Sız" ile koda gir.</li>
+          <li>Davet butonuyla QR kod ya da bağlantıyı arkadaşlarınla paylaş.</li>
+          <li>Roller dağıtılınca gece-gündüz döngüsü başlar; doğru tarafta kalan kazanır.</li>
+        </ol>
+        <p>Kayıt yok, indirme yok — tarayıcıdan ücretsiz oyna.</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
