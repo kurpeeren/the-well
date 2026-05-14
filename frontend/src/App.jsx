@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
-import { LogOut } from 'lucide-react';
+import { LogOut, Share2 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL, {
@@ -60,7 +60,10 @@ function App() {
   };
 
   const [gameState, setGameState] = useState(() => {
-     if (window.location.search.includes('admin=true')) return 'ADMIN';
+     const params = new URLSearchParams(window.location.search);
+     if (params.get('admin') === 'true') return 'ADMIN';
+     // Davet linkiyle gelenler intro'yu atlasın
+     if (params.get('room')) return 'JOIN';
      return 'INTRO';
   }); // INTRO, JOIN, LOBBY, GAME, ADMIN
   const [introPhase, setIntroPhase] = useState('WAITING'); // WAITING, PLAYING, ENDED
@@ -112,9 +115,15 @@ function App() {
   }, [players.length, gameState, isHost, isRatioManuallySet]);
 
   useEffect(() => {
+    const urlRoom = (new URLSearchParams(window.location.search).get('room') || '').toUpperCase();
     const savedToken = localStorage.getItem('kuyu_token');
     const savedRoom = localStorage.getItem('kuyu_room');
-    if (savedToken && savedRoom) {
+    if (urlRoom && savedRoom && urlRoom !== savedRoom.toUpperCase()) {
+       // Davet farklı bir oda için — eski oturumu bırak, JOIN ekranına düş
+       localStorage.removeItem('kuyu_token');
+       localStorage.removeItem('kuyu_room');
+       setGameState('JOIN');
+    } else if (savedToken && savedRoom) {
        setGameState('JOIN');
        socket.emit('reconnectRoom', { roomCode: savedRoom, token: savedToken });
     }
@@ -247,6 +256,31 @@ function App() {
     };
   }, []);
 
+  const handleShareLink = async () => {
+    if (!roomCode) return;
+    const url = `${window.location.origin}/?room=${roomCode}`;
+    const shareData = {
+      title: 'KUYU - Köy Daveti',
+      text: `KUYU oyununa katıl! Köy mührü: ${roomCode}`,
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (e) {
+        if (e?.name === 'AbortError') return;
+        // Paylaşım başarısızsa panoya kopyalamayı dene
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('Davet linki kopyalandı');
+    } catch {
+      showToast(url);
+    }
+  };
+
   const handleLeave = () => {
     const savedToken = localStorage.getItem('kuyu_token');
     const savedRoom = localStorage.getItem('kuyu_room');
@@ -290,8 +324,8 @@ function App() {
           className="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-[101] select-none"
           style={{ paddingBottom: 'max(2px, env(safe-area-inset-bottom))' }}
         >
-          <span className="text-[9px] text-slate-700 font-mono tracking-[0.3em] uppercase">
-            v{__APP_VERSION__}
+          <span className="text-[9px] text-slate-700 font-mono tracking-[0.2em] opacity-60">
+            {__APP_COMMIT__} · {__APP_BUILD_DATE__}
           </span>
         </div>
       )}
@@ -396,10 +430,10 @@ function App() {
               {gameState === 'LOBBY' && (
                 <button
                   onClick={(e) => { e.stopPropagation(); handleLeave(); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 group flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 transition-all duration-500 shadow-xl"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 group flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 active:scale-95 transition-all duration-300 shadow-xl"
                 >
-                  <LogOut size={14} className="text-red-400 group-hover:text-red-300 transition-colors" />
-                  <span className="text-[10px] tracking-[0.2em] uppercase font-black text-slate-400 group-hover:text-red-300 transition-colors hidden sm:inline">Çıkış</span>
+                  <LogOut size={16} className="text-red-400 group-hover:text-red-300 transition-colors" />
+                  <span className="text-[11px] sm:text-xs tracking-[0.2em] uppercase font-black text-slate-300 group-hover:text-red-300 transition-colors hidden sm:inline">Çıkış</span>
                 </button>
               )}
             </header>
@@ -467,16 +501,26 @@ function App() {
       {gameState === 'LOBBY' && (
          <div className="w-full max-w-md flex-1 min-h-0 flex flex-col bg-dark-bg sm:rounded-xl border-y sm:border border-slate-800 shadow-2xl mx-0 sm:mx-4 sm:my-2">
            {/* Oda kodu üst bar */}
-           <div className="shrink-0 px-4 py-3 border-b border-slate-800 flex items-center justify-between gap-2">
+           <div className="shrink-0 px-3 sm:px-4 py-3 border-b border-slate-800 flex items-center justify-between gap-2 sm:gap-3">
               <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest truncate">Oda: <span className="selectable">{roomCode}</span></h2>
-              <div className="flex items-center gap-2 shrink-0">
-                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{players.length}/16</span>
+              <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                 {isHost && (
+                    <button
+                       onClick={(e) => { e.stopPropagation(); handleShareLink(); }}
+                       className="group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-accent/40 bg-accent/10 hover:bg-accent/20 hover:border-accent active:scale-95 transition-all shadow-[0_0_12px_rgba(217,119,6,0.25)]"
+                       title="Davet linkini paylaş"
+                    >
+                       <Share2 size={16} className="text-accent" />
+                       <span className="text-[11px] sm:text-xs uppercase tracking-widest font-bold text-accent">Davet</span>
+                    </button>
+                 )}
+                 <span className="px-2.5 py-1.5 rounded-full bg-slate-900/60 border border-slate-800 text-[11px] text-slate-300 font-bold uppercase tracking-widest tabular-nums">{players.length}/16</span>
                  <button
                     onClick={(e) => { e.stopPropagation(); handleLeave(); }}
-                    className="sm:hidden p-1.5 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 transition-all"
+                    className="sm:hidden p-2.5 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 active:scale-95 transition-all"
                     title="Çıkış"
                  >
-                    <LogOut size={14} className="text-red-400" />
+                    <LogOut size={18} className="text-red-400" />
                  </button>
               </div>
            </div>
@@ -613,6 +657,9 @@ function App() {
               ) : (
                  <p className="text-center text-slate-400 animate-pulse text-sm">Köyün kurucusu bekleniyor...</p>
               )}
+              <p className="text-center text-[9px] text-slate-700 font-mono tracking-[0.2em] opacity-50 mt-2 select-all">
+                 {__APP_COMMIT__} · {__APP_BUILD_DATE__}
+              </p>
            </div>
          </div>
       )}

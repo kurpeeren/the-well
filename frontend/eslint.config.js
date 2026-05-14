@@ -18,6 +18,8 @@ export default defineConfig([
       globals: {
         ...globals.browser,
         __APP_VERSION__: 'readonly',
+        __APP_COMMIT__: 'readonly',
+        __APP_BUILD_DATE__: 'readonly',
       },
       parserOptions: {
         ecmaVersion: 'latest',

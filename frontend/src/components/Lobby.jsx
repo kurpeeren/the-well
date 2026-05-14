@@ -23,6 +23,22 @@ function Lobby({ socket, playerName, setPlayerName, showToast }) {
     return () => { socket.off('error', unlock); };
   }, [socket]);
 
+  // Davet linkinden gelenlerin oda kodunu otomatik doldur
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get('room');
+    if (!r) return;
+    const sanitized = sanitizeRoomCode(r);
+    if (sanitized) {
+      setJoinCode(sanitized);
+      setMode('JOIN');
+    }
+    // URL'i temizle — kullanıcı odadan çıkıp tekrar girerse karışmasın
+    params.delete('room');
+    const newSearch = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash);
+  }, []);
+
   const handleInputFocus = () => {
     /* Klavye açılınca form üste kaysın ki butonlar kaybolmasın */
     setTimeout(() => {

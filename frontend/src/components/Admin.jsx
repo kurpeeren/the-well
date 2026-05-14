@@ -650,7 +650,7 @@ export default function Admin({ onExit }) {
                     </div>
                 </Section>
 
-                <p className="text-center text-[9px] text-slate-700 uppercase tracking-[0.4em] py-6">Karanlık Konsey · v{__APP_VERSION__}</p>
+                <p className="text-center text-[9px] text-slate-700 font-mono tracking-[0.2em] opacity-60 py-6 select-all">Karanlık Konsey · {__APP_COMMIT__} · {__APP_BUILD_DATE__}</p>
             </div>
         </div>
     );
