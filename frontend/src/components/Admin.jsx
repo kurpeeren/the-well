@@ -149,8 +149,8 @@ export default function Admin({ onExit }) {
             setLogsById(prev => ({ ...prev, [h.id]: { loading: true, chat_log: [], event_log: [], tab: 'chat', ch: 'all' } }));
             fetch(`${BACKEND_URL}/api/admin/history/${h.id}/logs`, { headers: { 'Authorization': token } })
                 .then(r => r.ok ? r.json() : { chat_log: [], event_log: [] })
-                .then(d => setLogsById(prev => ({ ...prev, [h.id]: { loading: false, chat_log: d.chat_log || [], event_log: d.event_log || [], tab: 'chat', ch: 'all' } })))
-                .catch(() => setLogsById(prev => ({ ...prev, [h.id]: { loading: false, chat_log: [], event_log: [], tab: 'chat', ch: 'all' } })));
+                .then(d => setLogsById(prev => ({ ...prev, [h.id]: { ...prev[h.id], loading: false, chat_log: d.chat_log || [], event_log: d.event_log || [] } })))
+                .catch(() => setLogsById(prev => ({ ...prev, [h.id]: { ...prev[h.id], loading: false, chat_log: [], event_log: [] } })));
         }
     };
     const setLogView = (id, patch) => setLogsById(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
