@@ -347,7 +347,7 @@ app.get('/api/admin/history', adminAuth, async (req, res) => {
     const offset = parseInt(req.query.offset) || 0;
     const { data, error } = await supabase
         .from('game_history')
-        .select('*')
+        .select('id,created_at,room_code,game_mode,winner,players,deaths')
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
@@ -355,6 +355,20 @@ app.get('/api/admin/history', adminAuth, async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
     res.json(data);
+});
+
+app.get('/api/admin/history/:id/logs', adminAuth, async (req, res) => {
+    const id = String(req.params.id || '').trim();
+    if (!id || id.length > 64) return res.status(400).json({ error: 'Geçersiz id' });
+    const { data, error } = await supabase
+        .from('game_history')
+        .select('chat_log,event_log')
+        .eq('id', id)
+        .single();
+    if (error) {
+        return res.json({ chat_log: [], event_log: [] });
+    }
+    res.json({ chat_log: data?.chat_log || [], event_log: data?.event_log || [] });
 });
 
 const server = http.createServer(app);
