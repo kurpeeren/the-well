@@ -153,6 +153,7 @@ function App() {
       if (!reconnected) setGameState('LOBBY');
       setSystemNotes([]);
       setDayCount(1);
+      setTrial(null);
       if (roomSettings) setSettings(roomSettings);
     });
 
@@ -230,6 +231,7 @@ function App() {
 
     socket.on('gameOver', ({ winnerTitle, results }) => {
       setGamePhase('END');
+      setTrial(null);
       setEventNews(`Oyun Bitti! Kazanan: ${winnerTitle}`);
       setGameResults(results);
     });
@@ -237,6 +239,7 @@ function App() {
     socket.on('returnedToLobby', () => {
       setGameState('LOBBY');
       setGamePhase(null);
+      setTrial(null);
       setGameResults(null);
       setEventNews(null);
       setSystemNotes([]);
