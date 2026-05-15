@@ -1,5 +1,6 @@
 const { ROLES, getColorAlignment, getInvestResults } = require('./roles');
 const voteLogic = require('./voteLogic');
+const { pushEvent } = require('./gameLog');
 
 class GameEngine {
   constructor(io, rooms) {
@@ -173,6 +174,8 @@ class GameEngine {
   
     this.io.to(roomCode).emit('updateLobby', room.players);
     this.io.to(roomCode).emit('phaseChanged', { phase, timeRemaining: timeInSeconds, dayCount: room.dayCount, doused: Object.keys(room.doused || {}), trial: room.trial ? { accusedId: room.trial.accusedId, accusedName: room.trial.accusedName } : null });
+    const _phaseTR = { DAY: 'Gündüz', NIGHT: 'Gece', MORNING: 'Sabah', DEFENSE: 'Savunma', JUDGMENT: 'Hüküm' }[phase] || phase;
+    pushEvent(room, { type: 'phase', text: `${room.dayCount}. Gün — ${_phaseTR}`, day: room.dayCount, phase, ts: Date.now(), meta: { phase } });
     this.io.to(roomCode).emit('skipDayUpdate', { count: 0, total: room.players.filter(p => p.isAlive && p.connected).length });
     if (room.timerInterval) clearInterval(room.timerInterval);
   
@@ -515,9 +518,11 @@ class GameEngine {
       if (killedInfos.length > 0) {
          killedInfos.forEach(info => {
             this.io.to(roomCode).emit('morningNews', { killedPlayerName: info.name, killedPlayerAlignment: info.align, personalNote: info.personalNote, cause: info.cause });
+            pushEvent(room, { type: 'death', text: `${info.name} gece öldürüldü${info.cause === 'arsonist' ? ' (yangın)' : ''}`, day: room.dayCount, phase: 'NIGHT', ts: Date.now(), meta: { name: info.name, cause: info.cause } });
          });
       } else {
          this.io.to(roomCode).emit('morningNews', { killedPlayerName: null });
+         pushEvent(room, { type: 'death', text: `${room.dayCount}. gece kimse ölmedi`, day: room.dayCount, phase: 'NIGHT', ts: Date.now(), meta: { name: null } });
       }
   
       Object.keys(room.silenced).forEach(sId => {
@@ -565,6 +570,7 @@ class GameEngine {
          room.peacefulDays = 0;
          if (accused.framedDay !== undefined && room.dayCount <= accused.framedDay + 1) accused.displayRole = 'Eşkıya';
          this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: accused.name, lynchedPlayerAlignment: getColorAlignment(accused.role), personalNote: accused.personalNote, voteTally: guiltyW });
+         pushEvent(room, { type: 'lynch', text: `${accused.name} kuyuya atıldı (oy ${guiltyW})`, day: room.dayCount, phase: 'JUDGMENT', ts: Date.now(), meta: { name: accused.name, role: accused.role, hanged: true, tally: guiltyW } });
 
          if (accused.role === 'Köy Delisi') {
             const guilty = Object.keys(judgmentVotes).filter(id => judgmentVotes[id].verdict === 'GUILTY');
@@ -585,6 +591,7 @@ class GameEngine {
             room.acquittedToday.push(trial.accusedId);
          }
          this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: null });
+         pushEvent(room, { type: 'lynch', text: `Köylüler bağışladı, kimse kuyuya atılmadı`, day: room.dayCount, phase: 'JUDGMENT', ts: Date.now(), meta: { hanged: false } });
       }
 
       room.trial = null;
@@ -688,15 +695,26 @@ class GameEngine {
  
        this.io.to(roomCode).emit('gameOver', { winnerTitle: winningTeam, results });
        
-       const supabase = require('./db');
-       supabase.from('game_history').insert([{
-           room_code: roomCode,
-           game_mode: room.isDevMode ? 'DEV_MODE' : 'NORMAL',
-           winner: winningTeam,
-           players: results
-       }]).then(({ error }) => {
-           if (error) console.error("Supabase'e oyun kaydedilirken hata oluştu:", error);
-       });
+       pushEvent(room, { type: 'end', text: `Oyun bitti — Kazanan: ${winningTeam}`, day: room.dayCount, phase: room.status, ts: Date.now(), meta: { winner: winningTeam } });
+
+       if (!room.isDevMode) {
+          const supabase = require('./db');
+          const deaths = room.players
+             .filter(p => !p.isAlive)
+             .map(p => ({ name: p.name, role: p.role, day: p.diedDay ?? null, phase: p.diedPhase ?? null, isBot: p.socketId.startsWith('dev_') }))
+             .sort((a, b) => (a.day ?? 99) - (b.day ?? 99));
+          supabase.from('game_history').insert([{
+              room_code: roomCode,
+              game_mode: 'NORMAL',
+              winner: winningTeam,
+              players: results,
+              chat_log: room.chatLog || [],
+              event_log: room.eventLog || [],
+              deaths
+          }]).then(({ error }) => {
+              if (error) console.error("Supabase'e oyun kaydedilirken hata oluştu:", error);
+          });
+       }
 
        return true;
     }
