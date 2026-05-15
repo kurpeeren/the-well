@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const crypto = require('crypto');
 const voteLogic = require('./voteLogic');
+const { pushChat, pushEvent } = require('./gameLog');
 
 const app = express();
 const path = require('path');
@@ -484,6 +485,8 @@ io.on('connection', (socket) => {
       nightActions: {},
       votes: {},
       deadJesterVotes: [],
+      chatLog: [],
+      eventLog: [],
       dayRemaining: 0,
       trial: null,
       judgmentVotes: {},
@@ -558,6 +561,8 @@ io.on('connection', (socket) => {
       nightActions: {},
       votes: {},
       deadJesterVotes: [],
+      chatLog: [],
+      eventLog: [],
       dayRemaining: 0,
       trial: null,
       judgmentVotes: {},
@@ -693,6 +698,8 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if (room && room.host === socket.id) {
       engine.assignRoles(room);
+      room.chatLog = [];
+      room.eventLog = [];
       room.status = 'GAME_STARTING';
       io.to(roomCode).emit('gameStarted', room.players);
       
@@ -737,6 +744,8 @@ io.on('connection', (socket) => {
        room.trial = null;
        room.judgmentVotes = {};
        room.acquittedToday = [];
+       room.chatLog = [];
+       room.eventLog = [];
        room.players.forEach(p => {
            p.role = null;
            p.isAlive = true;
@@ -803,6 +812,7 @@ io.on('connection', (socket) => {
             return;
          }
          io.to(roomCode).emit('chatMessage', { sender: player.name, message, ts: now });
+         pushChat(room, { ch: 'day', sender: player.name, msg: String(message).slice(0, 1000), day: room.dayCount, phase: room.status, ts: now });
       }
     }
   });
@@ -825,6 +835,7 @@ io.on('connection', (socket) => {
             }
          });
          if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: senderLabel, message, type: 'dead', ts: now });
+         pushChat(room, { ch: 'dead', sender: senderLabel, msg: String(message).slice(0, 1000), day: room.dayCount, phase: room.status, ts: now });
       }
     }
   });
@@ -849,6 +860,7 @@ io.on('connection', (socket) => {
             }
          });
          if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
+         pushChat(room, { ch: 'mafia', sender: `[Çete] ${player.name}`, msg: String(message).slice(0, 1000), day: room.dayCount, phase: room.status, ts: now });
       }
     }
   });
@@ -863,6 +875,7 @@ io.on('connection', (socket) => {
          player.isMayorRevealed = true;
          player.uses = 1; // 1 = Has Vest, 0 = Used Vest or None
          io.to(roomCode).emit('mayorRevealed', { playerName: player.name });
+         pushEvent(room, { type: 'mayor', text: `${player.name} Muhtar olduğunu açıkladı`, day: room.dayCount, phase: room.status, ts: Date.now(), meta: { name: player.name } });
       }
     }
   });
