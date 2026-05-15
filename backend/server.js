@@ -667,7 +667,7 @@ io.on('connection', (socket) => {
             }
          }
       });
-      setTimeout(() => engine.changePhase(roomCode, 'NIGHT', room.settings.nightTimer), 5000);
+      setTimeout(() => engine.changePhase(roomCode, 'DAY', room.settings.dayTimer), 5000);
     }
   });
 
