@@ -175,7 +175,8 @@ class GameEngine {
     this.io.to(roomCode).emit('updateLobby', room.players);
     this.io.to(roomCode).emit('phaseChanged', { phase, timeRemaining: timeInSeconds, dayCount: room.dayCount, doused: Object.keys(room.doused || {}), trial: room.trial ? { accusedId: room.trial.accusedId, accusedName: room.trial.accusedName } : null });
     const _phaseTR = { DAY: 'Gündüz', NIGHT: 'Gece', MORNING: 'Sabah', DEFENSE: 'Savunma', JUDGMENT: 'Hüküm' }[phase] || phase;
-    pushEvent(room, { type: 'phase', text: `${room.dayCount}. Gün — ${_phaseTR}`, day: room.dayCount, phase, ts: Date.now(), meta: { phase } });
+    const _dayLabel = phase === 'NIGHT' ? `${room.dayCount}. Gece` : `${room.dayCount}. Gün`;
+    pushEvent(room, { type: 'phase', text: `${_dayLabel} — ${_phaseTR}`, day: room.dayCount, phase, ts: Date.now(), meta: { phase } });
     this.io.to(roomCode).emit('skipDayUpdate', { count: 0, total: room.players.filter(p => p.isAlive && p.connected).length });
     if (room.timerInterval) clearInterval(room.timerInterval);
   
