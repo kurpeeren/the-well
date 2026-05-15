@@ -83,9 +83,10 @@ function App() {
   const [eventNews, setEventNews] = useState(null); 
   const [systemNotes, setSystemNotes] = useState([]);
   const [dayCount, setDayCount] = useState(1);
+  const [trial, setTrial] = useState(null);
   const dayCountRef = useRef(1);
   const [dousedList, setDousedList] = useState([]);
-  const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, kirmizi: 4, gri: 2, yesil: 9 });
+  const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, defenseTimer: 60, kirmizi: 4, gri: 2, yesil: 9 });
   const [isRatioManuallySet, setIsRatioManuallySet] = useState(false);
   const [gameResults, setGameResults] = useState(null);
   const [revealedNotes, setRevealedNotes] = useState([]);
@@ -180,11 +181,12 @@ function App() {
       if (me) setMyRole(me.role);
     });
 
-    socket.on('phaseChanged', ({ phase, dayCount: newDay, doused }) => {
+    socket.on('phaseChanged', ({ phase, dayCount: newDay, doused, trial }) => {
       setGamePhase(phase);
       if (newDay) setDayCount(newDay);
       if (doused) setDousedList(doused);
-      setEventNews(null); 
+      setTrial(trial || null);
+      setEventNews(null);
     });
 
     socket.on('morningNews', ({ killedPlayerName, killedPlayerAlignment, personalNote, cause }) => {
@@ -583,8 +585,8 @@ function App() {
                     <div>
                        <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider border-b border-slate-800 pb-2">Süreler (Saniye)</p>
                        <div className="grid grid-cols-2 gap-3">
-                          {['nightTimer', 'morningTimer', 'dayTimer', 'votingTimer'].map(k => {
-                             const labelMap = { nightTimer: 'Gece', morningTimer: 'Sabah', dayTimer: 'Gün', votingTimer: 'Oylama' };
+                          {['nightTimer', 'morningTimer', 'dayTimer', 'votingTimer', 'defenseTimer'].map(k => {
+                             const labelMap = { nightTimer: 'Gece', morningTimer: 'Sabah', dayTimer: 'Gün', votingTimer: 'Hüküm', defenseTimer: 'Savunma' };
                              return (
                                 <div key={k} className="flex flex-col">
                                    <label className="text-xs text-slate-300 mb-1.5 font-medium">{labelMap[k]}</label>
@@ -686,6 +688,7 @@ function App() {
            systemNotes={systemNotes}
            isDevMode={isDevMode}
            dayCount={dayCount}
+           trial={trial}
            dousedList={dousedList}
            gameResults={gameResults}
            revealedNotes={revealedNotes}
