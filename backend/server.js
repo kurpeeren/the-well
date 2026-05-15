@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const crypto = require('crypto');
+const voteLogic = require('./voteLogic');
 
 const app = express();
 const path = require('path');
@@ -452,18 +453,22 @@ io.on('connection', (socket) => {
       host: socket.id,
       status: 'LOBBY', 
       timeRemaining: 0,
-      nightActions: {}, 
-      votes: {}, 
+      nightActions: {},
+      votes: {},
       deadJesterVotes: [],
-      doused: {},     
-      silenced: {},  
+      dayRemaining: 0,
+      trial: null,
+      judgmentVotes: {},
+      acquittedToday: [],
+      doused: {},
+      silenced: {},
       isDevMode: false,
       dayCount: 1,
       peacefulDays: 0,
       createdAt: Date.now(),
       lastActivity: Date.now(),
       spectators: [],
-      settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30 }
+      settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, defenseTimer: 60 }
     };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: true, token, settings: rooms[roomCode].settings });
@@ -525,6 +530,10 @@ io.on('connection', (socket) => {
       nightActions: {},
       votes: {},
       deadJesterVotes: [],
+      dayRemaining: 0,
+      trial: null,
+      judgmentVotes: {},
+      acquittedToday: [],
       doused: {},
       silenced: {},
       isDevMode: true,
@@ -532,7 +541,7 @@ io.on('connection', (socket) => {
       peacefulDays: 0,
       createdAt: Date.now(),
       spectators: [],
-      settings: { nightTimer: 30, morningTimer: 10, dayTimer: 45, votingTimer: 25 }
+      settings: { nightTimer: 30, morningTimer: 10, dayTimer: 45, votingTimer: 25, defenseTimer: 60 }
     };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: true, token: hostToken, isDevMode: true, settings: rooms[roomCode].settings });
@@ -693,6 +702,10 @@ io.on('connection', (socket) => {
        room.doused = {};
        room.silenced = {};
        room.skipDayVotes = [];
+       room.dayRemaining = 0;
+       room.trial = null;
+       room.judgmentVotes = {};
+       room.acquittedToday = [];
        room.players.forEach(p => {
            p.role = null;
            p.isAlive = true;
@@ -749,9 +762,10 @@ io.on('connection', (socket) => {
     chatRateLimitMap[socket.id] = now;
 
     const room = rooms[roomCode];
-    if(room && room.status === 'DAY') {
+    if (room && (room.status === 'DAY' || room.status === 'JUDGMENT' || (room.status === 'DEFENSE' && room.trial))) {
       const actorId = getActorId(room, socket.id, impersonateId);
       const player = room.players.find(p => p.socketId === actorId);
+      if (room.status === 'DEFENSE' && actorId !== room.trial.accusedId) return; // savunmada yalnız sanık
       if (player && player.isAlive) {
          if (room.silenced && room.silenced[actorId]) {
             engine.sendPrivateNews(roomCode, actorId, { text: "Tefeci seni susturduğu için konuşamazsın!", align: 'Kırmızı' });
@@ -852,25 +866,79 @@ io.on('connection', (socket) => {
      }
    });
 
+  function emitVoteCounts(roomCode) {
+     const room = rooms[roomCode];
+     if (!room) return;
+     const currentCounts = {};
+     const voteDetails = {};
+     for (const v in room.votes) {
+        const t = room.votes[v].targetId;
+        const voterName = room.players.find(p => p.socketId === v)?.name;
+        voteDetails[voterName] = t;
+        currentCounts[t] = (currentCounts[t] || 0) + room.votes[v].weight;
+     }
+     io.to(roomCode).emit('voteCounts', { counts: currentCounts, details: voteDetails });
+  }
+
+  function emitJudgmentCounts(roomCode) {
+     const room = rooms[roomCode];
+     if (!room) return;
+     let guiltyW = 0, spareW = 0;
+     const details = {};
+     for (const v in (room.judgmentVotes || {})) {
+        const jv = room.judgmentVotes[v];
+        const voterName = room.players.find(p => p.socketId === v)?.name;
+        details[voterName] = jv.verdict;
+        if (jv.verdict === 'GUILTY') guiltyW += jv.weight; else if (jv.verdict === 'SPARE') spareW += jv.weight;
+     }
+     io.to(roomCode).emit('judgmentCounts', { guiltyW, spareW, details });
+  }
+
   socket.on('votePlayer', ({ roomCode, targetId, impersonateId }) => {
      const room = rooms[roomCode];
-     if (room && room.status === 'VOTING') {
-       const actorId = getActorId(room, socket.id, impersonateId);
-       const player = room.players.find(p => p.socketId === actorId);
-       if(player && player.isAlive) {
-         let voteWeight = player.isMayorRevealed ? 3 : 1;
-         room.votes[actorId] = { targetId, weight: voteWeight };
-         const currentCounts = {};
-         const voteDetails = {}; 
-         for (const v in room.votes) {
-            const t = room.votes[v].targetId;
-            const voterName = room.players.find(p => p.socketId === v)?.name;
-            voteDetails[voterName] = t;
-            currentCounts[t] = (currentCounts[t] || 0) + room.votes[v].weight;
-         }
-         io.to(roomCode).emit('voteCounts', { counts: currentCounts, details: voteDetails });
-       }
+     if (!(room && room.status === 'DAY')) return;        // oy yalnız gündüz; mahkemede kilitli
+     const actorId = getActorId(room, socket.id, impersonateId);
+     const player = room.players.find(p => p.socketId === actorId);
+     if (!(player && player.isAlive)) return;
+     if (targetId === actorId) return;                     // kendine oy verilemez
+     const voteWeight = voteLogic.weightFor(player);
+     room.votes[actorId] = { targetId, weight: voteWeight };
+     emitVoteCounts(roomCode);
+
+     const aliveCount = room.players.filter(p => p.isAlive).length;
+     const nomineeId = voteLogic.findNominee(room.votes, aliveCount);
+     if (nomineeId && nomineeId !== 'SKIP'
+         && !(room.acquittedToday || []).includes(nomineeId)
+         && room.players.find(p => p.socketId === nomineeId && p.isAlive)) {
+        engine.startDefense(roomCode, nomineeId);          // startDefense kendi içinde status==='DAY' guard'lı
      }
+  });
+
+  socket.on('withdrawVote', ({ roomCode, impersonateId }) => {
+     const room = rooms[roomCode];
+     if (!room) return;
+     const actorId = getActorId(room, socket.id, impersonateId);
+     if (room.status === 'DAY') {
+        if (room.votes[actorId]) { delete room.votes[actorId]; emitVoteCounts(roomCode); }
+     } else if (room.status === 'JUDGMENT') {
+        if (room.judgmentVotes && room.judgmentVotes[actorId]) {
+           delete room.judgmentVotes[actorId];
+           emitJudgmentCounts(roomCode);
+        }
+     }
+  });
+
+  socket.on('judgmentVote', ({ roomCode, verdict, impersonateId }) => {
+     const room = rooms[roomCode];
+     if (!(room && room.status === 'JUDGMENT' && room.trial)) return;
+     if (verdict !== 'GUILTY' && verdict !== 'SPARE') return;
+     const actorId = getActorId(room, socket.id, impersonateId);
+     if (actorId === room.trial.accusedId) return;         // sanık oy veremez
+     const player = room.players.find(p => p.socketId === actorId);
+     if (!(player && player.isAlive)) return;
+     if (!room.judgmentVotes) room.judgmentVotes = {};
+     room.judgmentVotes[actorId] = { verdict, weight: voteLogic.weightFor(player) };
+     emitJudgmentCounts(roomCode);
   });
 
   socket.on('savePersonalNote', ({ roomCode, note, impersonateId }) => {
