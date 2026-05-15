@@ -24,6 +24,7 @@ const THROTTLED_EVENTS = new Set([
   'chatMessage', 'deadChatMessage', 'mafiaChatMessage',
   'mayorReveal', 'skipDayVote', 'startGame', 'returnToLobby',
   'forceNextPhase', 'leaveRoom',
+  'judgmentVote', 'withdrawVote',
 ]);
 const _lastEmit = new Map();
 const _origEmit = socket.emit.bind(socket);
@@ -220,7 +221,7 @@ function App() {
          /* Vasiyet boş olsa bile göster */
          setRevealedNotes(prev => [...prev, { playerName: lynchedPlayerName, note: personalNote || '' }]);
        } else {
-         setEventNews('Oylar eşit, kimse kuyuya atılmadı.');
+         setEventNews('Köylüler bağışladı, kimse kuyuya atılmadı.');
        }
     });
 
