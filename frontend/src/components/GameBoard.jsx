@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut, CheckCircle2 } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 
-function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback }) {
+function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback, trial = null }) {
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
@@ -38,12 +38,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const [isSilenced, setIsSilenced] = useState(false);
   const [showSilencedModal, setShowSilencedModal] = useState(false);
   const [skipDayCount, setSkipDayCount] = useState({ count: 0, total: 0 });
+  const [judgmentCounts, setJudgmentCounts] = useState(null);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
     socket.on('chatMessage', (msgObj) => setChatMessages(prev => [...prev, msgObj]));
     socket.on('voteCounts', (data) => {
        setVoteDetails(data.details || {});
+    });
+    socket.on('judgmentCounts', (data) => {
+       setJudgmentCounts(data);
     });
     socket.on('youAreSilenced', () => {
        setIsSilenced(true);
@@ -53,6 +57,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     return () => {
        socket.off('chatMessage');
        socket.off('voteCounts');
+       socket.off('judgmentCounts');
        socket.off('youAreSilenced');
        socket.off('skipDayUpdate');
     }
@@ -72,8 +77,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
        });
     }
     if(gamePhase === 'NIGHT') setIsSilenced(false);
-    if(gamePhase !== 'VOTING') {
+    if(gamePhase !== 'DAY') {
        setVoteDetails({});
+    }
+    if(gamePhase !== 'JUDGMENT') {
+       setJudgmentCounts(null);
     }
   }, [gamePhase, dayCount]);
 
@@ -167,7 +175,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
        case 'NIGHT': return <Moon className="w-8 h-8 sm:w-6 sm:h-6 text-slate-300 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />;
        case 'MORNING': return <Sun className="w-8 h-8 sm:w-6 sm:h-6 text-amber-300 animate-spin-slow drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />;
        case 'DAY': return <MessageSquare className="w-8 h-8 sm:w-6 sm:h-6 text-blue-300 drop-shadow-[0_0_6px_rgba(96,165,250,0.4)]" />;
-       case 'VOTING': return <AlertTriangle className="w-8 h-8 sm:w-6 sm:h-6 text-red-300 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />;
+       case 'DEFENSE': return <ShieldAlert className="w-8 h-8 sm:w-6 sm:h-6 text-amber-300 animate-pulse drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />;
+       case 'JUDGMENT': return <AlertTriangle className="w-8 h-8 sm:w-6 sm:h-6 text-red-300 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />;
        case 'END': return <ShieldAlert className="w-8 h-8 sm:w-6 sm:h-6 text-accent drop-shadow-[0_0_8px_rgba(217,119,6,0.4)]" />;
        default: return null;
     }
@@ -178,7 +187,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       case 'NIGHT':   return 'text-slate-100 drop-shadow-[0_0_12px_rgba(148,163,184,0.45)]';
       case 'MORNING': return 'text-amber-200 drop-shadow-[0_0_12px_rgba(251,191,36,0.45)]';
       case 'DAY':     return 'text-slate-100 drop-shadow-[0_0_8px_rgba(96,165,250,0.35)]';
-      case 'VOTING':  return 'text-red-200 drop-shadow-[0_0_12px_rgba(127,29,29,0.6)]';
+      case 'DEFENSE': return 'text-amber-200 drop-shadow-[0_0_12px_rgba(251,191,36,0.5)]';
+      case 'JUDGMENT': return 'text-red-200 drop-shadow-[0_0_12px_rgba(127,29,29,0.6)]';
       case 'END':     return 'text-amber-300 drop-shadow-[0_0_12px_rgba(217,119,6,0.5)]';
       default:        return 'text-slate-200';
     }
@@ -189,7 +199,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       case 'NIGHT':   return 'bg-slate-900/70 border-slate-700/80 shadow-[inset_0_0_18px_rgba(148,163,184,0.08)]';
       case 'MORNING': return 'bg-amber-950/40 border-amber-800/50 shadow-[inset_0_0_18px_rgba(251,191,36,0.12)]';
       case 'DAY':     return 'bg-slate-900/60 border-slate-700/70 shadow-[inset_0_0_14px_rgba(96,165,250,0.08)]';
-      case 'VOTING':  return 'bg-red-950/50 border-red-900/60 shadow-[inset_0_0_20px_rgba(127,29,29,0.20)]';
+      case 'DEFENSE': return 'bg-amber-950/40 border-amber-800/50 shadow-[inset_0_0_20px_rgba(251,191,36,0.15)]';
+      case 'JUDGMENT': return 'bg-red-950/50 border-red-900/60 shadow-[inset_0_0_20px_rgba(127,29,29,0.20)]';
       case 'END':     return 'bg-amber-950/40 border-amber-800/50 shadow-[inset_0_0_18px_rgba(217,119,6,0.15)]';
       default:        return 'bg-slate-900/50 border-slate-800';
     }
@@ -200,7 +211,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       case 'NIGHT': return `${dayCount}. Gece Çöktü`;
       case 'MORNING': return `${dayCount}. Gün Sabahı`;
       case 'DAY': return `${dayCount}. Gün (Tartışma)`;
-      case 'VOTING': return `${dayCount}. Gün (Hüküm Vakti)`;
+      case 'DEFENSE': return `${dayCount}. Gün (Savunma)`;
+      case 'JUDGMENT': return `${dayCount}. Gün (Hüküm Vakti)`;
       case 'END': return 'Oyun Bitti';
       default: return 'Bekleniyor...';
     }
@@ -543,10 +555,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       <div className="flex-1 flex flex-col relative sm:rounded-xl border-0 sm:border border-slate-800/50 bg-black/10 overflow-hidden min-h-0">
         
         {/* ÜST: AKSİYON ALANI (Gece Seçimleri, Oylama, Haberler) */}
-        <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'VOTING', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[200px]' : 'max-h-[0px]'}`}>
+        <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'DAY', 'DEFENSE', 'JUDGMENT', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[220px]' : 'max-h-[0px]'}`}>
 
            {/* ONAYLANMIŞ EYLEM DURUMU — panel kapanmasın, kullanıcı geri bildirim görsün */}
-           {hasActioned && ['NIGHT', 'VOTING'].includes(gamePhase) && me.isAlive && !isSpectator && (
+           {hasActioned && ['NIGHT'].includes(gamePhase) && me.isAlive && !isSpectator && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-emerald-950/30 border border-emerald-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(110,231,183,0.08)] max-w-sm w-full">
                     <CheckCircle2 className="text-emerald-300 shrink-0 w-8 h-8 sm:w-6 sm:h-6" />
@@ -618,17 +630,51 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               </div>
            )}
 
-           {/* OYLAMA AKSİYONU */}
-           {gamePhase === 'VOTING' && me.isAlive && !isSpectator && !hasActioned && (
+           {/* GÜNDÜZ CANLI SUÇLAMA OYU */}
+           {gamePhase === 'DAY' && me.isAlive && !isSpectator && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
                  <div className="flex justify-between items-center mb-2 px-2 gap-2">
-                    <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya At</p>
+                    <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
-                       <button onClick={() => handleVote(true)} className="bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full">Pas Geç</button>
+                       <button onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full">Oyu Geri Al</button>
                        {selectedPlayer && <button onClick={() => handleVote(false)} className="bg-accent text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-lg">Oyla</button>}
                     </div>
                  </div>
-                 <PlayerList players={players.filter(p => !p.isMayorRevealed || p.socketId !== activeSocketId).filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
+                 <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
+              </div>
+           )}
+
+           {/* SAVUNMA */}
+           {gamePhase === 'DEFENSE' && (
+              <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
+                 <div className="flex items-center gap-3 bg-amber-950/30 border border-amber-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(251,191,36,0.10)] max-w-md w-full">
+                    <ShieldAlert className="text-amber-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 animate-pulse drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                       <p className="text-amber-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Savunma</p>
+                       <p className="text-slate-200 text-sm sm:text-xs font-serif italic">🪦 {trial?.accusedName || 'Sanık'} kuyu başında kendini savunuyor…{trial && me.socketId === trial.accusedId ? ' (Konuşma hakkı sende!)' : ''}</p>
+                    </div>
+                 </div>
+              </div>
+           )}
+
+           {/* HÜKÜM */}
+           {gamePhase === 'JUDGMENT' && (
+              <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
+                 {trial && me.isAlive && !isSpectator && me.socketId !== trial.accusedId ? (
+                    <div className="flex flex-col items-center gap-3">
+                       <p className="text-red-200 text-[11px] sm:text-[10px] font-black tracking-widest uppercase">{trial.accusedName} asılsın mı?</p>
+                       <div className="flex gap-3">
+                          <button onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'GUILTY', impersonateId: isDevMode ? impersonateId : null })} className="bg-blood-red text-white text-sm sm:text-xs font-black uppercase px-6 py-3 rounded-xl shadow-lg">Suçlu</button>
+                          <button onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'SPARE', impersonateId: isDevMode ? impersonateId : null })} className="bg-emerald-800 text-white text-sm sm:text-xs font-black uppercase px-6 py-3 rounded-xl shadow-lg">Affet</button>
+                          <button onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-slate-700 text-slate-300 text-xs font-black uppercase px-4 py-3 rounded-xl">Geri Al</button>
+                       </div>
+                       {judgmentCounts && <p className="text-[10px] text-slate-400 uppercase tracking-wider">Suçlu {judgmentCounts.guiltyW} — Affet {judgmentCounts.spareW}</p>}
+                    </div>
+                 ) : (
+                    <div className="flex items-center justify-center h-full">
+                       <p className="text-slate-200 text-sm sm:text-xs font-serif italic">{trial && me.socketId === trial.accusedId ? 'Yargılanıyorsun — oy veremezsin, kaderini bekle…' : 'Köy hüküm veriyor…'}</p>
+                    </div>
+                 )}
               </div>
            )}
 
@@ -658,8 +704,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               </div>
            )}
 
-           {/* OYLAMA — dead/spectator için bekleme */}
-           {gamePhase === 'VOTING' && (isSpectator || !me.isAlive) && (
+           {/* HÜKÜM — dead/spectator için bekleme */}
+           {gamePhase === 'JUDGMENT' && (isSpectator || !me.isAlive) && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-red-950/30 border border-red-900/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(127,29,29,0.12)] max-w-sm w-full">
                     <AlertTriangle className="text-red-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />
@@ -861,7 +907,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              </ul>
           </div>
 
-          {gamePhase === 'VOTING' && (
+          {gamePhase === 'DAY' && (
               <div className="flex flex-col bg-slate-900/60 border border-slate-800 rounded-xl p-3 shadow-md animate-in slide-in-from-bottom-4 duration-500 max-h-[50%]">
                  <h3 className="text-amber-500 font-bold border-b border-slate-700 pb-2 mb-2 text-center text-[10px] uppercase tracking-widest">
                     Meydan Şahitleri
@@ -1086,7 +1132,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                                <div className="flex items-center gap-2 min-w-0">
                                  <span className="text-slate-300 font-medium text-sm line-through opacity-70 truncate">{p.name}</span>
                                  {p.diedPhase === 'NIGHT' && <Moon size={11} className="text-slate-500 shrink-0" />}
-                                 {p.diedPhase === 'VOTING' && <AlertTriangle size={11} className="text-amber-500/70 shrink-0" />}
+                                 {(p.diedPhase === 'VOTING' || p.diedPhase === 'JUDGMENT') && <AlertTriangle size={11} className="text-amber-500/70 shrink-0" />}
                                </div>
                                <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider shrink-0 ml-2`}>{teamLabel}</span>
                              </li>
@@ -1098,7 +1144,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                 })()}
               </div>
 
-              {gamePhase === 'VOTING' && (
+              {gamePhase === 'DAY' && (
                 <div>
                   <h4 className="text-[10px] font-bold text-amber-500 tracking-widest uppercase mb-2 border-b border-slate-800 pb-2">Meydan Şahitleri</h4>
                   <div className="flex flex-wrap gap-2">
