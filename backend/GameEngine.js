@@ -1,4 +1,5 @@
 const { ROLES, getColorAlignment, getInvestResults } = require('./roles');
+const voteLogic = require('./voteLogic');
 
 class GameEngine {
   constructor(io, rooms) {
@@ -171,7 +172,7 @@ class GameEngine {
     room.skipDayVotes = [];
   
     this.io.to(roomCode).emit('updateLobby', room.players);
-    this.io.to(roomCode).emit('phaseChanged', { phase, timeRemaining: timeInSeconds, dayCount: room.dayCount, doused: Object.keys(room.doused || {}) });
+    this.io.to(roomCode).emit('phaseChanged', { phase, timeRemaining: timeInSeconds, dayCount: room.dayCount, doused: Object.keys(room.doused || {}), trial: room.trial ? { accusedId: room.trial.accusedId, accusedName: room.trial.accusedName } : null });
     this.io.to(roomCode).emit('skipDayUpdate', { count: 0, total: room.players.filter(p => p.isAlive && p.connected).length });
     if (room.timerInterval) clearInterval(room.timerInterval);
   
@@ -184,6 +185,18 @@ class GameEngine {
         this.processPhaseEnd(roomCode, phase);
       }
     }, 1000);
+  }
+
+  startDefense(roomCode, accusedId) {
+    const room = this.rooms[roomCode];
+    if (!room || room.status !== 'DAY') return;
+    const accused = room.players.find(p => p.socketId === accusedId);
+    if (!accused || !accused.isAlive) return;
+    room.dayRemaining = room.timeRemaining;          // kalan gündüzü sakla
+    room.trial = { accusedId, accusedName: accused.name };
+    room.votes = {};                                  // suçlama oyları sıfırlanır
+    room.judgmentVotes = {};
+    this.changePhase(roomCode, 'DEFENSE', room.settings.defenseTimer || 60);
   }
 
   processPhaseEnd(roomCode, oldPhase) {
@@ -523,59 +536,66 @@ class GameEngine {
       this.changePhase(roomCode, 'DAY', room.settings.dayTimer);
     }
     else if (oldPhase === 'DAY') {
-      room.votes = {}; 
-      this.changePhase(roomCode, 'VOTING', room.settings.votingTimer);
+      if (this.checkWinCondition(roomCode)) return;
+      room.dayCount = (room.dayCount || 1) + 1;
+      room.votes = {};
+      room.judgmentVotes = {};
+      room.acquittedToday = [];
+      room.skipDayVotes = [];
+      room.trial = null;
+      this.changePhase(roomCode, 'NIGHT', room.settings.nightTimer);
     }
-    else if (oldPhase === 'VOTING') {
-      const counts = {};
-      for (let v in room.votes) {
-        const t = room.votes[v].targetId;
-        if (t !== 'SKIP') {
-          counts[t] = (counts[t] || 0) + room.votes[v].weight;
-        }
-      }
-      
-      let topTarget = null;
-      let max = 0;
-      let tie = false;
-      for (let t in counts) {
-         if(counts[t] > max) { max = counts[t]; topTarget = t; tie = false; }
-         else if(counts[t] === max) { tie = true; }
-      }
-  
-      if (topTarget && !tie) {
-         const lynched = room.players.find(p => p.socketId === topTarget);
-         if (lynched) {
-           lynched.isAlive = false;
-           lynched.diedDay = room.dayCount;
-           lynched.diedPhase = 'VOTING';
-           room.peacefulDays = 0; // Birisi linç edilerek öldü
-           if (lynched.framedDay !== undefined && room.dayCount <= lynched.framedDay + 1) lynched.displayRole = 'Eşkıya';
-           this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: lynched.name, lynchedPlayerAlignment: getColorAlignment(lynched.role), personalNote: lynched.personalNote, voteTally: max });
-  
-           if (lynched.role === 'Köy Delisi') {
-              const guilty = Object.keys(room.votes).filter(id => room.votes[id].targetId === topTarget);
-              room.deadJesterVotes = guilty;
-              lynched.won = true;
-           }
-           
-           // Kan Davalı (Executioner) kazandı mı?
-           room.players.forEach(p => {
-               if (p.role === 'Kan Davalı' && p.execTarget === topTarget) {
-                   this.sendPrivateNews(roomCode, p.socketId, { text: `İntikamını aldın! Kan davalın ${room.players.find(x => x.socketId === p.execTarget)?.name || 'hedefini'} ipe götürdün, OYUNU SEN KAZANDIN! Artık arkanı yaslayıp rahatlayabilirsin.`, align: 'Yeşil' });
-                   p.won = true;
-               }
-           });
+    else if (oldPhase === 'DEFENSE') {
+      this.changePhase(roomCode, 'JUDGMENT', room.settings.votingTimer);
+    }
+    else if (oldPhase === 'JUDGMENT') {
+      const trial = room.trial;
+      const judgmentVotes = room.judgmentVotes || {};
+      const verdict = trial ? voteLogic.evaluateVerdict(judgmentVotes) : 'SPARE';
+      const accused = trial ? room.players.find(p => p.socketId === trial.accusedId) : null;
+
+      let guiltyW = 0;
+      for (const v in judgmentVotes) if (judgmentVotes[v].verdict === 'GUILTY') guiltyW += (judgmentVotes[v].weight || 0);
+
+      let gameEnded = false;
+      if (verdict === 'HANG' && accused && accused.isAlive) {
+         accused.isAlive = false;
+         accused.diedDay = room.dayCount;
+         accused.diedPhase = 'JUDGMENT';
+         room.peacefulDays = 0;
+         if (accused.framedDay !== undefined && room.dayCount <= accused.framedDay + 1) accused.displayRole = 'Eşkıya';
+         this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: accused.name, lynchedPlayerAlignment: getColorAlignment(accused.role), personalNote: accused.personalNote, voteTally: guiltyW });
+
+         if (accused.role === 'Köy Delisi') {
+            const guilty = Object.keys(judgmentVotes).filter(id => judgmentVotes[id].verdict === 'GUILTY');
+            room.deadJesterVotes = guilty;
+            accused.won = true;
          }
+         room.players.forEach(p => {
+            if (p.role === 'Kan Davalı' && p.execTarget === accused.socketId) {
+               this.sendPrivateNews(roomCode, p.socketId, { text: `İntikamını aldın! Kan davalın ${accused.name} ipe götürdün, OYUNU SEN KAZANDIN! Artık arkanı yaslayıp rahatlayabilirsin.`, align: 'Yeşil' });
+               p.won = true;
+            }
+         });
+
+         if (this.checkWinCondition(roomCode)) gameEnded = true;
       } else {
+         if (trial) {
+            if (!room.acquittedToday) room.acquittedToday = [];
+            room.acquittedToday.push(trial.accusedId);
+         }
          this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: null });
       }
-  
-      if (this.checkWinCondition(roomCode)) return;
-      setTimeout(() => {
-         room.dayCount = (room.dayCount || 1) + 1;
-         this.changePhase(roomCode, 'NIGHT', room.settings.nightTimer);
-      }, 5000);
+
+      room.trial = null;
+      room.judgmentVotes = {};
+      if (gameEnded) return;
+
+      if (room.dayRemaining > 0) {
+         this.changePhase(roomCode, 'DAY', room.dayRemaining);
+      } else {
+         this.processPhaseEnd(roomCode, 'DAY');
+      }
     }
   }
 
