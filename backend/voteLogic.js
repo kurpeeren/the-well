@@ -20,6 +20,9 @@ function tallyNomination(votes) {
 }
 
 // Eşiği KESİN aşan ilk hedefi döndürür, yoksa null.
+// Çağıran her oy değişiminden sonra teker teker çağırmalıdır;
+// aynı anda birden fazla aday eşiği aşarsa dönen aday tanımsızdır
+// (gerçek çağrı akışında bu durum oluşmaz).
 function findNominee(votes, aliveCount) {
   const threshold = nominationThreshold(aliveCount);
   const counts = tallyNomination(votes);

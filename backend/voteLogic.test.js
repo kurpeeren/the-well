@@ -14,6 +14,8 @@ test('weightFor: açık Muhtar 3, diğerleri 1', () => {
   assert.equal(weightFor({ isMayorRevealed: true }), 3);
   assert.equal(weightFor({ isMayorRevealed: false }), 1);
   assert.equal(weightFor({}), 1);
+  assert.equal(weightFor(null), 1);
+  assert.equal(weightFor(undefined), 1);
 });
 
 test('tallyNomination ağırlıkları toplar, SKIP/null hariç', () => {
