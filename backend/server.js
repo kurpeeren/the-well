@@ -396,6 +396,34 @@ function getActorId(room, socketId, impersonateId) {
    return socketId;
 }
 
+function emitVoteCounts(roomCode) {
+   const room = rooms[roomCode];
+   if (!room) return;
+   const currentCounts = {};
+   const voteDetails = {};
+   for (const v in room.votes) {
+      const t = room.votes[v].targetId;
+      const voterName = room.players.find(p => p.socketId === v)?.name;
+      voteDetails[voterName] = t;
+      currentCounts[t] = (currentCounts[t] || 0) + room.votes[v].weight;
+   }
+   io.to(roomCode).emit('voteCounts', { counts: currentCounts, details: voteDetails });
+}
+
+function emitJudgmentCounts(roomCode) {
+   const room = rooms[roomCode];
+   if (!room) return;
+   let guiltyW = 0, spareW = 0;
+   const details = {};
+   for (const v in (room.judgmentVotes || {})) {
+      const jv = room.judgmentVotes[v];
+      const voterName = room.players.find(p => p.socketId === v)?.name;
+      details[voterName] = jv.verdict;
+      if (jv.verdict === 'GUILTY') guiltyW += (jv.weight || 0); else if (jv.verdict === 'SPARE') spareW += (jv.weight || 0);
+   }
+   io.to(roomCode).emit('judgmentCounts', { guiltyW, spareW, details });
+}
+
 // Per-socket ping tracking (manuel RTT — Socket.IO yerleşik pingi latency expose etmiyor)
 const pingMap = new Map(); // socketId -> { ms, ts }
 const pingPending = new Map(); // socketId -> sendTimestamp
@@ -615,6 +643,9 @@ io.on('connection', (socket) => {
      }
      const idx = room.deadJesterVotes.indexOf(oldId);
      if (idx !== -1) room.deadJesterVotes[idx] = newId;
+     if (room.trial && room.trial.accusedId === oldId) room.trial.accusedId = newId;
+     if (room.judgmentVotes && room.judgmentVotes[oldId]) { room.judgmentVotes[newId] = room.judgmentVotes[oldId]; delete room.judgmentVotes[oldId]; }
+     if (Array.isArray(room.acquittedToday)) { const _ai = room.acquittedToday.indexOf(oldId); if (_ai !== -1) room.acquittedToday[_ai] = newId; }
 
      player.connected = true;
      socket.join(roomCode);
@@ -625,7 +656,7 @@ io.on('connection', (socket) => {
         io.to(roomCode).emit('updateLobby', room.players);
      } else {
         socket.emit('gameStarted', room.players);
-        socket.emit('phaseChanged', { phase: room.status, timeRemaining: room.timeRemaining, dayCount: room.dayCount });
+        socket.emit('phaseChanged', { phase: room.status, timeRemaining: room.timeRemaining, dayCount: room.dayCount, trial: room.trial ? { accusedId: room.trial.accusedId, accusedName: room.trial.accusedName } : null });
         io.to(roomCode).emit('updateLobby', room.players);
      }
   });
@@ -865,34 +896,6 @@ io.on('connection', (socket) => {
        }
      }
    });
-
-  function emitVoteCounts(roomCode) {
-     const room = rooms[roomCode];
-     if (!room) return;
-     const currentCounts = {};
-     const voteDetails = {};
-     for (const v in room.votes) {
-        const t = room.votes[v].targetId;
-        const voterName = room.players.find(p => p.socketId === v)?.name;
-        voteDetails[voterName] = t;
-        currentCounts[t] = (currentCounts[t] || 0) + room.votes[v].weight;
-     }
-     io.to(roomCode).emit('voteCounts', { counts: currentCounts, details: voteDetails });
-  }
-
-  function emitJudgmentCounts(roomCode) {
-     const room = rooms[roomCode];
-     if (!room) return;
-     let guiltyW = 0, spareW = 0;
-     const details = {};
-     for (const v in (room.judgmentVotes || {})) {
-        const jv = room.judgmentVotes[v];
-        const voterName = room.players.find(p => p.socketId === v)?.name;
-        details[voterName] = jv.verdict;
-        if (jv.verdict === 'GUILTY') guiltyW += jv.weight; else if (jv.verdict === 'SPARE') spareW += jv.weight;
-     }
-     io.to(roomCode).emit('judgmentCounts', { guiltyW, spareW, details });
-  }
 
   socket.on('votePlayer', ({ roomCode, targetId, impersonateId }) => {
      const room = rooms[roomCode];
