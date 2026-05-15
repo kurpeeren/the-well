@@ -16,6 +16,7 @@ export default function Admin({ onExit }) {
     const [error, setError] = useState('');
     const [expandedRoom, setExpandedRoom] = useState(null);
     const [expandedHistoryId, setExpandedHistoryId] = useState(null);
+    const [logsById, setLogsById] = useState({}); // { [id]: { loading, chat_log, event_log, tab, ch } }
     const [broadcastMsg, setBroadcastMsg] = useState('');
     const [toast, setToast] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
@@ -140,6 +141,19 @@ export default function Admin({ onExit }) {
             },
         });
     };
+
+    const openHistory = (h) => {
+        const next = expandedHistoryId === h.id ? null : h.id;
+        setExpandedHistoryId(next);
+        if (next && !logsById[h.id]) {
+            setLogsById(prev => ({ ...prev, [h.id]: { loading: true, chat_log: [], event_log: [], tab: 'chat', ch: 'all' } }));
+            fetch(`${BACKEND_URL}/api/admin/history/${h.id}/logs`, { headers: { 'Authorization': token } })
+                .then(r => r.ok ? r.json() : { chat_log: [], event_log: [] })
+                .then(d => setLogsById(prev => ({ ...prev, [h.id]: { loading: false, chat_log: d.chat_log || [], event_log: d.event_log || [], tab: 'chat', ch: 'all' } })))
+                .catch(() => setLogsById(prev => ({ ...prev, [h.id]: { loading: false, chat_log: [], event_log: [], tab: 'chat', ch: 'all' } })));
+        }
+    };
+    const setLogView = (id, patch) => setLogsById(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
 
     const adminFetch = async (path, options = {}) => {
         return fetch(`${BACKEND_URL}${path}`, {
@@ -649,7 +663,7 @@ export default function Admin({ onExit }) {
                                         const realPlayersCount = h.players ? h.players.filter(p => !p.isBot).length : 0;
                                         return (
                                             <React.Fragment key={h.id}>
-                                                <tr onClick={() => setExpandedHistoryId(expandedHistoryId === h.id ? null : h.id)} className="hover:bg-slate-900/40 transition-colors cursor-pointer">
+                                                <tr onClick={() => openHistory(h)} className="hover:bg-slate-900/40 transition-colors cursor-pointer">
                                                     <td className="p-3 text-slate-300 text-xs">
                                                         <span className="text-slate-500 mr-1">{expandedHistoryId === h.id ? '▼' : '▶'}</span>
                                                         {new Date(h.created_at).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}
@@ -681,6 +695,73 @@ export default function Admin({ onExit }) {
                                                                     })}
                                                                 </div>
                                                             )}
+                                                            <h4 className="text-xs font-bold text-slate-400 mt-5 mb-3 uppercase tracking-widest flex items-center gap-2"><Skull size={12} /> Kuyu Dibi</h4>
+                                                            {(!h.deaths || h.deaths.length === 0) ? (
+                                                                <span className="italic text-slate-500 text-sm">Ölüm kaydı yok.</span>
+                                                            ) : (
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                                                    {h.deaths.map((d, i) => (
+                                                                        <div key={i} className="p-2.5 rounded-lg border bg-red-950/20 border-red-900/40 text-xs">
+                                                                            <div className="font-bold text-slate-300 flex items-center gap-1.5"><Skull size={11} className="text-red-400 shrink-0" />{d.name}{d.isBot && <span className="text-[9px] text-slate-600">bot</span>}</div>
+                                                                            <div className="text-[10px] text-slate-500 mt-0.5">{d.role || 'Bilinmiyor'} · {d.day != null ? `${d.day}. gün` : '—'}{d.phase ? ` / ${d.phase}` : ''}</div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+
+                                                            {(() => {
+                                                                const lv = logsById[h.id];
+                                                                if (!lv) return null;
+                                                                if (lv.loading) return <p className="text-slate-500 italic text-sm mt-5">Kayıtlar yükleniyor…</p>;
+                                                                const tab = lv.tab || 'chat';
+                                                                const ch = lv.ch || 'all';
+                                                                const chatRows = (lv.chat_log || []).filter(c => ch === 'all' ? true : c.ch === ch);
+                                                                const chColor = (c) => c === 'mafia' ? 'text-red-300' : c === 'dead' ? 'text-purple-300' : 'text-slate-300';
+                                                                return (
+                                                                    <div className="mt-5">
+                                                                        <div className="flex gap-1 mb-3">
+                                                                            {[['chat', 'Sohbet'], ['events', 'Olaylar']].map(([k, lbl]) => (
+                                                                                <button key={k} onClick={() => setLogView(h.id, { tab: k })} className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${tab === k ? 'bg-blood-red text-white' : 'bg-slate-900/60 text-slate-400 hover:text-white'}`}>{lbl}</button>
+                                                                            ))}
+                                                                        </div>
+                                                                        {tab === 'chat' ? (
+                                                                            <>
+                                                                                <div className="flex flex-wrap gap-1 mb-2">
+                                                                                    {[['all', 'Hepsi'], ['day', 'Gündüz'], ['dead', 'Ölüler'], ['mafia', 'Çete']].map(([k, lbl]) => (
+                                                                                        <button key={k} onClick={() => setLogView(h.id, { ch: k })} className={`px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-full border transition-colors ${ch === k ? 'border-accent text-accent' : 'border-slate-700 text-slate-500 hover:text-slate-300'}`}>{lbl}</button>
+                                                                                    ))}
+                                                                                </div>
+                                                                                {chatRows.length === 0 ? (
+                                                                                    <p className="text-slate-600 italic text-xs">Mesaj yok.</p>
+                                                                                ) : (
+                                                                                    <div className="max-h-80 overflow-y-auto bg-black/30 rounded-lg border border-slate-800 p-2 space-y-0.5 font-mono text-[11px] leading-relaxed">
+                                                                                        {chatRows.map((c, i) => (
+                                                                                            <div key={i} className="flex gap-2">
+                                                                                                <span className="text-slate-600 shrink-0">{c.day}.{c.phase === 'NIGHT' ? 'Gece' : 'Gün'}</span>
+                                                                                                <span className={`shrink-0 font-bold ${chColor(c.ch)}`}>{c.sender}:</span>
+                                                                                                <span className="text-slate-300 break-words">{c.msg}</span>
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                )}
+                                                                            </>
+                                                                        ) : (
+                                                                            (lv.event_log || []).length === 0 ? (
+                                                                                <p className="text-slate-600 italic text-xs">Olay yok.</p>
+                                                                            ) : (
+                                                                                <div className="max-h-80 overflow-y-auto bg-black/30 rounded-lg border border-slate-800 p-2 space-y-1 text-[11px]">
+                                                                                    {(lv.event_log || []).map((e, i) => (
+                                                                                        <div key={i} className="flex gap-2 items-baseline">
+                                                                                            <span className="text-slate-600 shrink-0 text-[9px] uppercase tracking-widest">{e.day != null ? `${e.day}.` : ''}{e.phase || ''}</span>
+                                                                                            <span className="text-slate-300">{e.text}</span>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })()}
                                                         </td>
                                                     </tr>
                                                 )}
