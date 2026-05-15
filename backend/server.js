@@ -366,6 +366,7 @@ app.get('/api/admin/history/:id/logs', adminAuth, async (req, res) => {
         .eq('id', id)
         .single();
     if (error) {
+        console.error('[admin/history/:id/logs] supabase error:', error);
         return res.json({ chat_log: [], event_log: [] });
     }
     res.json({ chat_log: data?.chat_log || [], event_log: data?.event_log || [] });
