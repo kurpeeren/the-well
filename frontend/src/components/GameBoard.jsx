@@ -127,16 +127,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     setHasActioned(true);
   };
 
-  const handleVote = (pass = false) => {
-    if (pass) {
-      socket.emit('votePlayer', { roomCode, targetId: 'SKIP', impersonateId: isDevMode ? impersonateId : null });
-      setLastActionLabel('Pas geçildi');
-    } else {
-      if(!selectedPlayer) return;
-      const targetName = players.find(p => p.socketId === selectedPlayer)?.name;
-      socket.emit('votePlayer', { roomCode, targetId: selectedPlayer, impersonateId: isDevMode ? impersonateId : null });
-      setLastActionLabel(targetName ? `${targetName} kuyuya oylandı` : 'Oy verildi');
-    }
+  const handleVote = () => {
+    if(!selectedPlayer) return;
+    const targetName = players.find(p => p.socketId === selectedPlayer)?.name;
+    socket.emit('votePlayer', { roomCode, targetId: selectedPlayer, impersonateId: isDevMode ? impersonateId : null });
+    setLastActionLabel(targetName ? `${targetName} kuyuya oylandı` : 'Oy verildi');
     setHasActioned(true);
   };
 
@@ -158,7 +153,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     // Ölü/spectator: her fazda ölü boyutuna yaz
     if (!me.isAlive || isSpectator) {
        socket.emit('deadChatMessage', { ...baseOpts, message: trimmed });
-    } else if (gamePhase === 'DAY') {
+    } else if (gamePhase === 'DAY' || gamePhase === 'DEFENSE' || gamePhase === 'JUDGMENT') {
        socket.emit('chatMessage', { ...baseOpts, message: trimmed });
     } else if (gamePhase === 'NIGHT') {
        if (activeRole === 'Gassal') {
@@ -237,6 +232,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const canSendChat = !isSpectator && (
     !me.isAlive ? true :
     gamePhase === 'DAY' ? true :
+    gamePhase === 'DEFENSE' ? (me.socketId === trial?.accusedId) :
+    gamePhase === 'JUDGMENT' ? true :
     gamePhase === 'NIGHT' ? (isEskiya || activeRole === 'Gassal') :
     false
   );
@@ -637,7 +634,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                     <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
                        <button onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full">Oyu Geri Al</button>
-                       {selectedPlayer && <button onClick={() => handleVote(false)} className="bg-accent text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-lg">Oyla</button>}
+                       {selectedPlayer && <button onClick={() => handleVote()} className="bg-accent text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-lg">Oyla</button>}
                     </div>
                  </div>
                  <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
@@ -658,9 +655,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            )}
 
            {/* HÜKÜM */}
-           {gamePhase === 'JUDGMENT' && (
+           {gamePhase === 'JUDGMENT' && me.isAlive && !isSpectator && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
-                 {trial && me.isAlive && !isSpectator && me.socketId !== trial.accusedId ? (
+                 {trial && me.socketId !== trial.accusedId ? (
                     <div className="flex flex-col items-center gap-3">
                        <p className="text-red-200 text-[11px] sm:text-[10px] font-black tracking-widest uppercase">{trial.accusedName} asılsın mı?</p>
                        <div className="flex gap-3">
