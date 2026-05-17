@@ -17,6 +17,7 @@ export default function Admin({ onExit }) {
     const [expandedRoom, setExpandedRoom] = useState(null);
     const [expandedHistoryId, setExpandedHistoryId] = useState(null);
     const [logsById, setLogsById] = useState({}); // { [id]: { loading, chat_log, event_log, tab, ch } }
+    const [roomLogsById, setRoomLogsById] = useState({}); // aktif oda canlı logları (id bazlı)
     const [broadcastMsg, setBroadcastMsg] = useState('');
     const [toast, setToast] = useState(null);
     const [confirmDialog, setConfirmDialog] = useState(null);
@@ -47,6 +48,15 @@ export default function Admin({ onExit }) {
         const interval = setInterval(tick, 3000);
         return () => { cancelled = true; clearInterval(interval); };
     }, [token]);
+
+    // Aktif oda açıkken canlı tazeleme: her başarılı poll (lastTick ~3 sn) tikinde
+    // açık odanın loglarını yeniden çek. Bitmiş oyundan farkı: kalıcı cache yok.
+    useEffect(() => {
+        if (!token || !expandedRoom) return;
+        if (!roomLogsById[expandedRoom]) return; // ilk yükleme openRoom'da
+        fetchRoomLogs(expandedRoom);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [expandedRoom, lastTick, token]);
 
     // Feedbacks — ayrı poll (30s), bandwidth-aware. fetchAll ile birlikte koşmaz
     const fetchFeedbacks = async (opts = {}) => {
@@ -154,6 +164,23 @@ export default function Admin({ onExit }) {
         }
     };
     const setLogView = (id, patch) => setLogsById(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+    const setRoomLogView = (id, patch) => setRoomLogsById(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+
+    const fetchRoomLogs = (roomId, { initial } = {}) => {
+        if (initial) {
+            setRoomLogsById(prev => ({ ...prev, [roomId]: { loading: true, chat_log: [], event_log: [], tab: 'chat', ch: 'all' } }));
+        }
+        fetch(`${BACKEND_URL}/api/admin/rooms/${roomId}/logs`, { headers: { 'Authorization': token } })
+            .then(r => r.ok ? r.json() : { chat_log: [], event_log: [] })
+            .then(d => setRoomLogsById(prev => ({ ...prev, [roomId]: { ...prev[roomId], loading: false, chat_log: d.chat_log || [], event_log: d.event_log || [] } })))
+            .catch(() => setRoomLogsById(prev => ({ ...prev, [roomId]: { ...prev[roomId], loading: false, chat_log: prev[roomId]?.chat_log || [], event_log: prev[roomId]?.event_log || [] } })));
+    };
+
+    const openRoom = (r) => {
+        const next = expandedRoom === r.id ? null : r.id;
+        setExpandedRoom(next);
+        if (next && !roomLogsById[r.id]) fetchRoomLogs(r.id, { initial: true });
+    };
 
     const adminFetch = async (path, options = {}) => {
         return fetch(`${BACKEND_URL}${path}`, {
@@ -569,7 +596,7 @@ export default function Admin({ onExit }) {
                                         <tr><td colSpan="6" className="p-6 text-center text-slate-500 italic">{roomFilter ? 'Eşleşen oda yok.' : 'Aktif oda yok.'}</td></tr>
                                     ) : filteredRooms.map(r => (
                                         <React.Fragment key={r.id}>
-                                            <tr onClick={() => setExpandedRoom(expandedRoom === r.id ? null : r.id)} className="hover:bg-slate-900/40 transition-colors cursor-pointer">
+                                            <tr onClick={() => openRoom(r)} className="hover:bg-slate-900/40 transition-colors cursor-pointer">
                                                 <td className="p-3 font-mono font-bold tracking-widest">
                                                     <span className="text-slate-500 mr-1">{expandedRoom === r.id ? '▼' : '▶'}</span>
                                                     <span className="selectable">{r.id}</span>
@@ -625,6 +652,61 @@ export default function Admin({ onExit }) {
                                                                 ))}
                                                             </div>
                                                         )}
+
+                                                        {/* ── CANLI SOHBET / OLAYLAR (lazy, poll-tazelemeli) ── */}
+                                                        {(() => {
+                                                            const lv = roomLogsById[r.id];
+                                                            if (!lv) return null;
+                                                            if (lv.loading) return <p className="text-slate-500 italic text-sm mt-5">Kayıtlar yükleniyor…</p>;
+                                                            const tab = lv.tab || 'chat';
+                                                            const ch = lv.ch || 'all';
+                                                            const chatRows = (lv.chat_log || []).filter(c => ch === 'all' ? true : c.ch === ch);
+                                                            const chColor = (c) => c === 'mafia' ? 'text-red-300' : c === 'dead' ? 'text-purple-300' : 'text-slate-300';
+                                                            return (
+                                                                <div className="mt-5">
+                                                                    <div className="flex gap-1 mb-3">
+                                                                        {[['chat', 'Sohbet'], ['events', 'Olaylar']].map(([k, lbl]) => (
+                                                                            <button key={k} onClick={() => setRoomLogView(r.id, { tab: k })} className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${tab === k ? 'bg-blood-red text-white' : 'bg-slate-900/60 text-slate-400 hover:text-white'}`}>{lbl}</button>
+                                                                        ))}
+                                                                    </div>
+                                                                    {tab === 'chat' ? (
+                                                                        <>
+                                                                            <div className="flex flex-wrap gap-1 mb-2">
+                                                                                {[['all', 'Hepsi'], ['day', 'Gündüz'], ['dead', 'Ölüler'], ['mafia', 'Çete']].map(([k, lbl]) => (
+                                                                                    <button key={k} onClick={() => setRoomLogView(r.id, { ch: k })} className={`px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-full border transition-colors ${ch === k ? 'border-accent text-accent' : 'border-slate-700 text-slate-500 hover:text-slate-300'}`}>{lbl}</button>
+                                                                                ))}
+                                                                            </div>
+                                                                            {chatRows.length === 0 ? (
+                                                                                <p className="text-slate-600 italic text-xs">Mesaj yok.</p>
+                                                                            ) : (
+                                                                                <div className="max-h-80 overflow-y-auto bg-black/30 rounded-lg border border-slate-800 p-2 space-y-0.5 font-mono text-[11px] leading-relaxed">
+                                                                                    {chatRows.map((c, i) => (
+                                                                                        <div key={i} className="flex gap-2">
+                                                                                            <span className="text-slate-600 shrink-0">{c.day}.{c.phase === 'NIGHT' ? 'Gece' : 'Gün'}</span>
+                                                                                            <span className={`shrink-0 font-bold ${chColor(c.ch)}`}>{c.sender}:</span>
+                                                                                            <span className="text-slate-300 break-words">{c.msg}</span>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+                                                                        </>
+                                                                    ) : (
+                                                                        (lv.event_log || []).length === 0 ? (
+                                                                            <p className="text-slate-600 italic text-xs">Olay yok.</p>
+                                                                        ) : (
+                                                                            <div className="max-h-80 overflow-y-auto bg-black/30 rounded-lg border border-slate-800 p-2 space-y-1 text-[11px]">
+                                                                                {(lv.event_log || []).map((e, i) => (
+                                                                                    <div key={i} className="flex gap-2 items-baseline">
+                                                                                        <span className="text-slate-600 shrink-0 text-[9px] uppercase tracking-widest">{e.day != null ? `${e.day}.` : ''}{e.phase || ''}</span>
+                                                                                        <span className="text-slate-300">{e.text}</span>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        )
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })()}
                                                     </td>
                                                 </tr>
                                             )}
