@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { X, Copy, Share2, QrCode, Check } from 'lucide-react';
 import QRCode from 'qrcode';
 
+// Davet linki/QR daima public domain üzerinden (yerel/preview origin değil).
+// Gerekirse VITE_PUBLIC_URL ile geçersiz kılınır.
+const PUBLIC_BASE = (import.meta.env.VITE_PUBLIC_URL || 'https://kuyu.click').replace(/\/+$/, '');
+
 function ShareInviteModal({ roomCode, onClose, showToast }) {
-  const url = `${window.location.origin}/?room=${roomCode}`;
+  const url = `${PUBLIC_BASE}/?room=${roomCode}`;
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
