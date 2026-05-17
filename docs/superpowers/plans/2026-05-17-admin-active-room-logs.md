@@ -10,6 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-05-17-admin-active-room-logs-design.md`
 
+## Execution Status (2026-05-17, subagent-driven)
+
+- **Task 1 (backend endpoint):** ✅ DONE — commit `4bae661`. Spec review ✅. Code quality ✅ (reviewer önerdiği "oda yoksa 404" bilinçli reddedildi — spec §5/§7.1 kasıtlı 200-boş: 3sn poll-tazeleme oyun bitince hata vermesin, bitmiş-oyun endpoint'iyle tutarlı).
+- **Task 2 (Admin.jsx panel + canlı tazeleme):** ✅ DONE — commit `25f0aac`. Spec review ✅. Code quality ✅ (kalan notlar dosyanın mevcut deseninden miras, regresyon yok).
+- **Task 3 Step 1 (otomatik doğrulama):** ✅ `node --check server.js` SERVER_OK · `node --test` 21/21 pass · `npm run build` ✓ built.
+- **Task 3 Step 2 (manuel checklist):** ⏳ KULLANICIDA — gerçek oyun gerektirir; aşağıdaki maddeler oyun oynanınca doğrulanmalı (dürüstlük: işaretlenmedi).
+
 ## Commit kuralları (TÜM task'lar — STRICT)
 
 - `main` dalında çalış. Yalnız o task'ın dosyalarını `git add <dosya>` ile stage'le — repoda alakasız dirty/untracked dosyalar var, **asla `git add -A`/`.`**.
