@@ -37,7 +37,10 @@ class GameEngine {
         let finalPool = [];
         while(finalPool.length < count) {
             let p = [...pool];
-            p.sort(() => Math.random() - 0.5);
+            for (let i = p.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [p[i], p[j]] = [p[j], p[i]];
+            }
             for(let r of p) {
                 if(finalPool.length < count) finalPool.push(r);
             }
@@ -93,7 +96,10 @@ class GameEngine {
         if (originalPool.length === 0) return null;
         if (currentPool.length === 0) {
             currentPool.push(...originalPool);
-            currentPool.sort(() => Math.random() - 0.5);
+            for (let i = currentPool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentPool[i], currentPool[j]] = [currentPool[j], currentPool[i]];
+            }
         }
         return currentPool.pop();
     };
