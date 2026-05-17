@@ -373,6 +373,14 @@ app.get('/api/admin/history/:id/logs', adminAuth, async (req, res) => {
     res.json({ chat_log: data?.chat_log || [], event_log: data?.event_log || [] });
 });
 
+app.get('/api/admin/rooms/:id/logs', adminAuth, (req, res) => {
+    const id = String(req.params.id || '').trim();
+    if (!id || id.length > 64) return res.status(400).json({ error: 'Geçersiz id' });
+    const room = rooms[id];
+    if (!room) return res.json({ chat_log: [], event_log: [] });
+    res.json({ chat_log: room.chatLog || [], event_log: room.eventLog || [] });
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] },
