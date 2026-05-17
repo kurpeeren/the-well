@@ -179,7 +179,7 @@ export default function Admin({ onExit }) {
     const openRoom = (r) => {
         const next = expandedRoom === r.id ? null : r.id;
         setExpandedRoom(next);
-        if (next && !roomLogsById[r.id]) fetchRoomLogs(r.id, { initial: true });
+        if (next) fetchRoomLogs(r.id, { initial: !roomLogsById[r.id] });
     };
 
     const adminFetch = async (path, options = {}) => {
