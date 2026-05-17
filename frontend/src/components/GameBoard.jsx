@@ -772,13 +772,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                   }
 
                   const time = c.ts ? new Date(c.ts).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '';
+                  // Kendi (sağ-hizalı accent) balonunda WhatsApp gibi isim gizli;
+                  // ölü/çete grup sohbetinde kim dediği önemli olduğu için isim kalır.
+                  const meBubble = isMe && c.type !== 'dead' && c.type !== 'mafia';
                   return (
-                    <div key={i} className={`p-2.5 rounded-2xl max-w-[85%] shadow-md border ${bubbleClass} ${isMe ? 'ml-auto rounded-br-sm' : 'mr-auto rounded-bl-sm'}`}>
-                      <div className="flex justify-between items-baseline gap-2 mb-0.5">
-                         <span className={`text-[9px] font-bold uppercase tracking-wider ${senderClass} truncate`}>{c.sender}</span>
-                         {time && <span className={`text-[9px] tabular-nums shrink-0 ${senderClass} opacity-60`}>{time}</span>}
-                      </div>
-                      <span className="text-sm leading-relaxed selectable">{c.message}</span>
+                    <div key={i} className={`px-3 py-2 rounded-2xl max-w-[85%] shadow-md border ${bubbleClass} ${isMe ? 'ml-auto rounded-br-sm' : 'mr-auto rounded-bl-sm'}`}>
+                      {!meBubble && (
+                        <div className={`text-xs font-bold ${senderClass} truncate mb-0.5`}>{c.sender}</div>
+                      )}
+                      <span className="text-sm leading-relaxed selectable break-words">{c.message}</span>
+                      {time && <div className={`text-[10px] tabular-nums ${senderClass} opacity-50 text-right mt-1 select-none`}>{time}</div>}
                     </div>
                   );
               })}
