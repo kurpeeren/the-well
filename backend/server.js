@@ -5,6 +5,7 @@ const cors = require('cors');
 const crypto = require('crypto');
 const voteLogic = require('./voteLogic');
 const { pushChat, pushEvent } = require('./gameLog');
+const { chatRecipients } = require('./chatTargets');
 
 const app = express();
 const path = require('path');
@@ -844,12 +845,9 @@ io.on('connection', (socket) => {
       // Gassal hayatta olsa bile ölüler boyutuna mesaj gönderebilir
       if (player && (!player.isAlive || player.role === 'Gassal')) {
          const senderLabel = player.role === 'Gassal' && player.isAlive ? `[Gassal] ${player.name}` : `[Ölü] ${player.name}`;
-         room.players.forEach(p => {
-            if (!p.isAlive || p.role === 'Gassal') {
-               io.to(p.socketId).emit('chatMessage', { sender: senderLabel, message, type: 'dead', ts: now });
-            }
+         chatRecipients(room, p => !p.isAlive || p.role === 'Gassal').forEach(sid => {
+            io.to(sid).emit('chatMessage', { sender: senderLabel, message, type: 'dead', ts: now });
          });
-         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: senderLabel, message, type: 'dead', ts: now });
          pushChat(room, { ch: 'dead', sender: senderLabel, msg: String(message).slice(0, 1000), day: room.dayCount, phase: room.status, ts: now });
       }
     }
@@ -869,12 +867,9 @@ io.on('connection', (socket) => {
       // Yazma izni: yalnız hayatta eşkıya
       if (player && player.isAlive && ROLES[player.role]?.team === 'Eşkıyalar') {
          // Okuma kapsamı: tüm eşkıyalar (hayatta + ölü) — ölü ex-çete üyesi de izler
-         room.players.forEach(p => {
-            if (ROLES[p.role]?.team === 'Eşkıyalar') {
-               io.to(p.socketId).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
-            }
+         chatRecipients(room, p => ROLES[p.role]?.team === 'Eşkıyalar').forEach(sid => {
+            io.to(sid).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
          });
-         if (room.isDevMode) io.to(room.host).emit('chatMessage', { sender: `[Çete] ${player.name}`, message, type: 'mafia', ts: now });
          pushChat(room, { ch: 'mafia', sender: `[Çete] ${player.name}`, msg: String(message).slice(0, 1000), day: room.dayCount, phase: room.status, ts: now });
       }
     }
