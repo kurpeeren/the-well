@@ -10,7 +10,7 @@ export default {
         'dark-bg': '#0f172a',
         'kuyu-dark': '#020617',
         'blood-red': '#7f1d1d',
-        'accent': '#1d4ed8'
+        'accent': '#d97706'
       }
     },
   },
