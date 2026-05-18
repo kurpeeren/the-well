@@ -28,8 +28,8 @@ const SIZES = {
   lg: 'text-sm px-6 py-3.5',
 };
 
-export function Button({ variant = 'primary', size = 'md', type = 'button', className = '', children, ...rest }) {
-  const radius = RADIUS[variant] || 'rounded-xl';
+export function Button({ variant = 'primary', size = 'md', type = 'button', pill = false, className = '', children, ...rest }) {
+  const radius = pill ? 'rounded-full' : (RADIUS[variant] || 'rounded-xl');
   const cls = `${BASE} ${SIZES[size] || SIZES.md} ${radius} ${VARIANTS[variant] || VARIANTS.primary} ${className}`;
   return (
     <button type={type} className={cls} {...rest}>

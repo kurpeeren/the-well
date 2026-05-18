@@ -517,7 +517,7 @@ function App() {
                     <Button
                        variant="accent"
                        size="sm"
-                       className="rounded-full"
+                       pill
                        onClick={(e) => { e.stopPropagation(); handleOpenInvite(); }}
                        title="Davet ve QR"
                     >
