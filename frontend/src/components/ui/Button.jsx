@@ -22,15 +22,23 @@ const VARIANTS = {
 // sırasına güvenmek demek — kırılgan; bu yüzden tek radius üretilir.
 const RADIUS = { chip: 'rounded-full' };
 
+// Chip aktif durumu TEK set olarak üretilir (base chip sınıfları üzerine
+// çakışan bg/text/border katmanlamak Tailwind emit sırasına güvenmek demek —
+// radius'ta olduğu gibi kırılgan; bu yüzden aktif/pasif ayrık sınıf seti).
+const CHIP_ACTIVE = 'bg-blood-red hover:bg-red-800 text-white border border-blood-red';
+
 const SIZES = {
   sm: 'text-[10px] px-3 py-1.5',
   md: 'text-xs px-5 py-3',
   lg: 'text-sm px-6 py-3.5',
 };
 
-export function Button({ variant = 'primary', size = 'md', type = 'button', pill = false, className = '', children, ...rest }) {
+export function Button({ variant = 'primary', size = 'md', type = 'button', pill = false, active = false, className = '', children, ...rest }) {
   const radius = pill ? 'rounded-full' : (RADIUS[variant] || 'rounded-xl');
-  const cls = `${BASE} ${SIZES[size] || SIZES.md} ${radius} ${VARIANTS[variant] || VARIANTS.primary} ${className}`;
+  const variantCls = variant === 'chip'
+    ? (active ? CHIP_ACTIVE : VARIANTS.chip)
+    : (VARIANTS[variant] || VARIANTS.primary);
+  const cls = `${BASE} ${SIZES[size] || SIZES.md} ${radius} ${variantCls} ${className}`;
   return (
     <button type={type} className={cls} {...rest}>
       {children}

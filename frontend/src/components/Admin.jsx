@@ -530,7 +530,7 @@ export default function Admin({ onExit }) {
                                 { id: 'week', label: 'Hafta' },
                             ].map(r => (
                                 <Button key={r.id} variant="chip" size="sm" onClick={() => setMetricsRange(r.id)}
-                                    className={metricsRange === r.id ? 'bg-blood-red text-white border-blood-red' : ''}>
+                                    active={metricsRange === r.id}>
                                     {r.label}
                                 </Button>
                             ))}
@@ -667,14 +667,14 @@ export default function Admin({ onExit }) {
                                                                 <div className="mt-5">
                                                                     <div className="flex gap-1 mb-3">
                                                                         {[['chat', 'Sohbet'], ['events', 'Olaylar']].map(([k, lbl]) => (
-                                                                            <Button key={k} variant="chip" size="sm" onClick={() => setRoomLogView(r.id, { tab: k })} className={tab === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
+                                                                            <Button key={k} variant="chip" size="sm" onClick={() => setRoomLogView(r.id, { tab: k })} active={tab === k}>{lbl}</Button>
                                                                         ))}
                                                                     </div>
                                                                     {tab === 'chat' ? (
                                                                         <>
                                                                             <div className="flex flex-wrap gap-1 mb-2">
                                                                                 {[['all', 'Hepsi'], ['day', 'Gündüz'], ['dead', 'Ölüler'], ['mafia', 'Çete']].map(([k, lbl]) => (
-                                                                                    <Button key={k} variant="chip" size="sm" onClick={() => setRoomLogView(r.id, { ch: k })} className={ch === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
+                                                                                    <Button key={k} variant="chip" size="sm" onClick={() => setRoomLogView(r.id, { ch: k })} active={ch === k}>{lbl}</Button>
                                                                                 ))}
                                                                             </div>
                                                                             {chatRows.length === 0 ? (
@@ -804,14 +804,14 @@ export default function Admin({ onExit }) {
                                                                     <div className="mt-5">
                                                                         <div className="flex gap-1 mb-3">
                                                                             {[['chat', 'Sohbet'], ['events', 'Olaylar']].map(([k, lbl]) => (
-                                                                                <Button key={k} variant="chip" size="sm" onClick={() => setLogView(h.id, { tab: k })} className={tab === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
+                                                                                <Button key={k} variant="chip" size="sm" onClick={() => setLogView(h.id, { tab: k })} active={tab === k}>{lbl}</Button>
                                                                             ))}
                                                                         </div>
                                                                         {tab === 'chat' ? (
                                                                             <>
                                                                                 <div className="flex flex-wrap gap-1 mb-2">
                                                                                     {[['all', 'Hepsi'], ['day', 'Gündüz'], ['dead', 'Ölüler'], ['mafia', 'Çete']].map(([k, lbl]) => (
-                                                                                        <Button key={k} variant="chip" size="sm" onClick={() => setLogView(h.id, { ch: k })} className={ch === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
+                                                                                        <Button key={k} variant="chip" size="sm" onClick={() => setLogView(h.id, { ch: k })} active={ch === k}>{lbl}</Button>
                                                                                     ))}
                                                                                 </div>
                                                                                 {chatRows.length === 0 ? (
