@@ -137,6 +137,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     setHasActioned(true);
   };
 
+  const handleWillChange = (val) => {
+    setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: val }));
+    socket.emit('savePersonalNote', { roomCode, note: val, impersonateId: isDevMode ? impersonateId : null });
+  };
+
   const sendChat = (e) => {
     e.preventDefault();
     const trimmed = currentMessage.trim();
@@ -970,55 +975,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
             {/* Sekme içeriği */}
             <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-               {notesTab === 'events' && (
-                  <ul className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
-                     {systemNotes?.length > 0 ? (() => {
-                       const items = [];
-                       let lastDay = null;
-                       systemNotes.forEach((note, i) => {
-                          const noteDay = note.day ?? 1;
-                          if (noteDay !== lastDay) {
-                             items.push(
-                                <li key={`sep-${noteDay}-${i}`} className="flex items-center gap-2 my-1 select-none">
-                                   <div className="flex-1 h-px bg-slate-800"></div>
-                                   <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600 px-2 py-0.5 rounded-full bg-slate-900/60 border border-slate-800">{noteDay}. Gün</span>
-                                   <div className="flex-1 h-px bg-slate-800"></div>
-                                </li>
-                             );
-                             lastDay = noteDay;
-                          }
-                          let borderClass = 'border-slate-600';
-                          if(note.align === 'Kırmızı') borderClass = 'border-blood-red';
-                          if(note.align === 'Yeşil') borderClass = 'border-emerald-500';
-                          if(note.align === 'Gri') borderClass = 'border-gray-400';
-                          if(note.align === 'Yarı') borderClass = 'border-amber-500';
-                          items.push(
-                             <li key={i} className={`bg-slate-800 p-3 rounded-lg border-l-4 ${borderClass} shadow-inner text-[13px] flex items-center gap-4`}>
-                                <span className="text-slate-300">{note.text}</span>
-                             </li>
-                          );
-                       });
-                       return items;
-                     })() : (
-                       <li className="text-slate-500 italic text-sm text-center mt-6">Henüz bir olay gerçekleşmedi...</li>
-                     )}
-                  </ul>
-               )}
+               {notesTab === 'events' && <EventsList systemNotes={systemNotes} />}
 
                {notesTab === 'will' && (
-                  <div className="flex-1 min-h-0 flex flex-col p-4 gap-2">
-                     <textarea
-                        value={personalNotesMap[activeSocketId] || ''}
-                        onChange={e => {
-                           const val = e.target.value;
-                           setPersonalNotesMap(prev => ({ ...prev, [activeSocketId]: val }));
-                           socket.emit('savePersonalNote', { roomCode, note: val, impersonateId: isDevMode ? impersonateId : null });
-                        }}
-                        placeholder="Öldüğünde köyün bilmesini istediğin şüphelerini buraya yaz..."
-                        className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed"
-                     />
-                     <p className="shrink-0 text-[10px] text-yellow-500/70 italic text-center uppercase tracking-widest">Öldüğünde tüm köye okunacaktır</p>
-                  </div>
+                  <WillEditor value={personalNotesMap[activeSocketId] || ''} onChange={handleWillChange} />
                )}
             </div>
           </div>
@@ -1357,6 +1317,57 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
          </div>
       </div>
    );
+}
+
+function EventsList({ systemNotes }) {
+  return (
+    <ul className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
+      {systemNotes?.length > 0 ? (() => {
+        const items = [];
+        let lastDay = null;
+        systemNotes.forEach((note, i) => {
+          const noteDay = note.day ?? 1;
+          if (noteDay !== lastDay) {
+            items.push(
+              <li key={`sep-${noteDay}-${i}`} className="flex items-center gap-2 my-1 select-none">
+                <div className="flex-1 h-px bg-slate-800"></div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600 px-2 py-0.5 rounded-full bg-slate-900/60 border border-slate-800">{noteDay}. Gün</span>
+                <div className="flex-1 h-px bg-slate-800"></div>
+              </li>
+            );
+            lastDay = noteDay;
+          }
+          let borderClass = 'border-slate-600';
+          if (note.align === 'Kırmızı') borderClass = 'border-blood-red';
+          if (note.align === 'Yeşil') borderClass = 'border-emerald-500';
+          if (note.align === 'Gri') borderClass = 'border-gray-400';
+          if (note.align === 'Yarı') borderClass = 'border-amber-500';
+          items.push(
+            <li key={i} className={`bg-slate-800 p-3 rounded-lg border-l-4 ${borderClass} shadow-inner text-[13px] flex items-center gap-4`}>
+              <span className="text-slate-300">{note.text}</span>
+            </li>
+          );
+        });
+        return items;
+      })() : (
+        <li className="text-slate-500 italic text-sm text-center mt-6">Henüz bir olay gerçekleşmedi...</li>
+      )}
+    </ul>
+  );
+}
+
+function WillEditor({ value, onChange }) {
+  return (
+    <div className="flex-1 min-h-0 flex flex-col p-4 gap-2">
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder="Öldüğünde köyün bilmesini istediğin şüphelerini buraya yaz..."
+        className="flex-1 w-full bg-slate-800/50 border border-slate-700 rounded-xl p-4 text-slate-200 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 resize-none font-serif leading-relaxed"
+      />
+      <p className="shrink-0 text-[10px] text-yellow-500/70 italic text-center uppercase tracking-widest">Öldüğünde tüm köye okunacaktır</p>
+    </div>
+  );
 }
 
 function PlayerList({ players, selected, onSelect, isNight, isDevMode, dousedList = [] }) {
