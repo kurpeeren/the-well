@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut, CheckCircle2 } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
+import { Button } from './ui/Button';
 
 function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback, trial = null }) {
   const [impersonateId, setImpersonateId] = useState(null);
@@ -516,26 +517,28 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
 
         <div className="flex items-stretch sm:items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
-           <button onClick={() => setShowGraveyard(true)} className="lg:hidden flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 py-3 sm:p-2.5 px-2 sm:px-0 bg-slate-800 rounded-2xl sm:rounded-full border border-slate-700 hover:border-slate-500 active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative min-h-[64px] sm:min-h-0">
+           <Button variant="neutral" size="sm" onClick={() => setShowGraveyard(true)} className="lg:hidden flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
              <Skull className="w-7 h-7 sm:w-5 sm:h-5" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Mezarlık</span>
-           </button>
-           <button onClick={() => setShowNotes(true)} className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 py-3 sm:p-2.5 px-2 sm:px-0 bg-slate-800 rounded-2xl sm:rounded-full border border-slate-700 hover:border-accent active:bg-slate-700 text-slate-400 hover:text-white transition-all shadow-md relative min-h-[64px] sm:min-h-0">
+           </Button>
+           <Button variant="neutral" size="sm" onClick={() => setShowNotes(true)} className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
              <BookOpen className="w-7 h-7 sm:w-5 sm:h-5" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Notlar</span>
              {systemNotes?.length > 0 && <span className="absolute top-2 right-2 sm:-top-1 sm:-right-1 bg-blood-red w-3.5 h-3.5 sm:w-3 sm:h-3 rounded-full animate-pulse border border-dark-bg"></span>}
-           </button>
+           </Button>
            <div className="hidden sm:block">
              <TimerDisplay socket={socket} />
            </div>
-           <button
+           <Button
+              variant="danger"
+              size="sm"
               onClick={() => setShowLeaveConfirm(true)}
               title="Kasabayı Terket"
-              className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 py-3 sm:p-2.5 px-2 sm:px-0 bg-red-950/40 rounded-2xl sm:rounded-full border border-red-900/60 hover:bg-red-900/60 hover:border-red-500 active:bg-red-900/60 text-red-400 hover:text-white transition-all shadow-md min-h-[64px] sm:min-h-0"
+              className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 min-h-[64px] sm:min-h-0"
            >
              <LogOut className="w-7 h-7 sm:w-5 sm:h-5" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Çıkış</span>
-           </button>
+           </Button>
         </div>
       </div>
 
@@ -582,7 +585,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                              )}
                           </div>
                           {selectedPlayer && (
-                             <button onClick={() => handleAction('target')} className="bg-blood-red text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-[0_0_10px_rgba(127,29,29,0.5)] animate-pulse shrink-0">Onayla</button>
+                             <Button variant="primary" size="sm" onClick={() => handleAction('target')} className="animate-pulse shrink-0">Onayla</Button>
                           )}
                        </div>
                        <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} />
@@ -595,8 +598,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                           <p className="text-[10px] sm:text-[9px] text-slate-400">Kalan: {3 - (me.uses || 0)}</p>
                        </div>
                        <div className="flex gap-2 shrink-0">
-                          <button onClick={() => handleAction('pusu', true)} disabled={(me.uses || 0) >= 3} className="px-5 sm:px-4 py-3 sm:py-2 bg-accent hover:bg-amber-700 text-white text-xs sm:text-[9px] font-black rounded-lg uppercase disabled:opacity-50 transition-colors">Pusu Kur</button>
-                          <button onClick={() => handleAction('bos', false)} className="px-5 sm:px-4 py-3 sm:py-2 bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black rounded-lg uppercase">Pas</button>
+                          <Button variant="primary" size="sm" onClick={() => handleAction('pusu', true)} disabled={(me.uses || 0) >= 3}>Pusu Kur</Button>
+                          <Button variant="neutral" size="sm" onClick={() => handleAction('bos', false)}>Pas</Button>
                        </div>
                     </div>
                  )}
@@ -605,8 +608,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                        <div className="flex justify-between items-center mb-2 px-2 gap-2">
                           <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
                           <div className="flex gap-2 shrink-0">
-                             <button onClick={() => handleAction('ignite', true)} className="bg-blood-red hover:bg-red-800 text-white text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full flex items-center gap-1 shadow-lg transition-colors"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</button>
-                             {selectedPlayer && <button onClick={() => handleAction('douse')} className="bg-orange-800 hover:bg-orange-700 text-white text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full transition-colors">Gazla</button>}
+                             <Button variant="primary" size="sm" onClick={() => handleAction('ignite', true)} className="flex items-center gap-1"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</Button>
+                             {selectedPlayer && <Button variant="primary" size="sm" onClick={() => handleAction('douse')}>Gazla</Button>}
                           </div>
                        </div>
                        <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} dousedList={dousedList} />
@@ -619,8 +622,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                           <p className="text-[10px] sm:text-[9px] text-slate-400">Kalan: {4 - (me.uses || 0)}</p>
                        </div>
                        <div className="flex gap-2 shrink-0">
-                          <button onClick={() => handleAction('protect', true)} disabled={(me.uses || 0) >= 4} className="px-5 sm:px-4 py-3 sm:py-2 bg-emerald-800 hover:bg-emerald-700 text-white text-xs sm:text-[9px] font-black rounded-lg uppercase disabled:opacity-50 transition-colors">Saklan</button>
-                          <button onClick={() => handleAction('bos', false)} className="px-5 sm:px-4 py-3 sm:py-2 bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black rounded-lg uppercase">Pas</button>
+                          <Button variant="primary" size="sm" onClick={() => handleAction('protect', true)} disabled={(me.uses || 0) >= 4}>Saklan</Button>
+                          <Button variant="neutral" size="sm" onClick={() => handleAction('bos', false)}>Pas</Button>
                        </div>
                     </div>
                  )}
@@ -633,8 +636,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  <div className="flex justify-between items-center mb-2 px-2 gap-2">
                     <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
-                       <button onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-slate-700 text-slate-300 text-xs sm:text-[9px] font-black uppercase px-4 sm:px-3 py-2.5 sm:py-1.5 rounded-full">Oyu Geri Al</button>
-                       {selectedPlayer && <button onClick={() => handleVote()} className="bg-accent text-white text-xs sm:text-[9px] font-black uppercase px-5 sm:px-4 py-2.5 sm:py-1.5 rounded-full shadow-lg">Oyla</button>}
+                       <Button variant="neutral" size="sm" onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Oyu Geri Al</Button>
+                       {selectedPlayer && <Button variant="accent" size="sm" onClick={() => handleVote()}>Oyla</Button>}
                     </div>
                  </div>
                  <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
@@ -661,9 +664,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                     <div className="flex flex-col items-center gap-3">
                        <p className="text-red-200 text-[11px] sm:text-[10px] font-black tracking-widest uppercase">{trial.accusedName} asılsın mı?</p>
                        <div className="flex gap-3">
-                          <button onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'GUILTY', impersonateId: isDevMode ? impersonateId : null })} className="bg-blood-red text-white text-sm sm:text-xs font-black uppercase px-6 py-3 rounded-xl shadow-lg">Suçlu</button>
-                          <button onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'SPARE', impersonateId: isDevMode ? impersonateId : null })} className="bg-emerald-800 text-white text-sm sm:text-xs font-black uppercase px-6 py-3 rounded-xl shadow-lg">Affet</button>
-                          <button onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-slate-700 text-slate-300 text-xs font-black uppercase px-4 py-3 rounded-xl">Geri Al</button>
+                          <Button variant="primary" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'GUILTY', impersonateId: isDevMode ? impersonateId : null })}>Suçlu</Button>
+                          <Button variant="accent" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'SPARE', impersonateId: isDevMode ? impersonateId : null })}>Affet</Button>
+                          <Button variant="neutral" size="sm" onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Geri Al</Button>
                        </div>
                        {judgmentCounts && <p className="text-[10px] text-slate-400 uppercase tracking-wider">Suçlu {judgmentCounts.guiltyW} — Affet {judgmentCounts.spareW}</p>}
                     </div>
@@ -724,19 +727,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'DAY' && isMuhtar && !me.isMayorRevealed && me.isAlive && !isSilenced && (
               <div className="bg-amber-900/20 p-2 border-b border-amber-800/30 flex justify-between items-center px-4 shrink-0">
                  <span className="text-[10px] text-amber-400 font-bold uppercase tracking-tight">Mührünü vurup oyları toplayabilirsin!</span>
-                 <button onClick={() => socket.emit('mayorReveal', { roomCode, impersonateId: isDevMode ? impersonateId : null })} className="bg-accent hover:bg-amber-700 active:bg-amber-800 text-white px-4 sm:px-3 py-2 sm:py-1 rounded-lg text-xs sm:text-[9px] font-black uppercase shadow-md transition-colors">Mührü Vur</button>
+                 <Button variant="primary" size="sm" onClick={() => socket.emit('mayorReveal', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Mührü Vur</Button>
               </div>
            )}
 
            {/* GÜNÜ ATLA PANELİ */}
            {gamePhase === 'DAY' && me.isAlive && !isSpectator && (
               <div className="flex justify-end p-2 bg-slate-800/10 shrink-0">
-                 <button
-                    onClick={() => socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}
-                    className="px-4 sm:px-3 py-2 sm:py-1 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg border border-slate-700 text-xs sm:text-[9px] font-bold uppercase"
-                 >
+                 <Button variant="neutral" size="sm" onClick={() => socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>
                     Günü Atla ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive && p.connected).length})
-                 </button>
+                 </Button>
               </div>
            )}
 
@@ -1384,7 +1384,7 @@ function PlayerList({ players, selected, onSelect, isNight, isDevMode, dousedLis
         <div 
           key={p.socketId} 
           onClick={() => onSelect(p.socketId)} 
-          className={`relative flex-shrink-0 w-24 snap-start p-2 rounded-xl cursor-pointer border-2 transition-all duration-300 flex flex-col items-center justify-center gap-1 ${selected === p.socketId ? (isNight ? 'bg-blood-red/20 border-blood-red shadow-[0_0_15px_rgba(127,29,29,0.3)]' : 'bg-accent/20 border-accent shadow-[0_0_15px_rgba(29,78,216,0.3)]') : 'bg-slate-800/40 border-slate-700/50 hover:border-slate-500'}`}
+          className={`relative flex-shrink-0 w-24 snap-start p-2 rounded-xl cursor-pointer border-2 transition-all duration-300 flex flex-col items-center justify-center gap-1 ${selected === p.socketId ? (isNight ? 'bg-blood-red/20 border-blood-red shadow-[0_0_15px_rgba(127,29,29,0.3)]' : 'bg-accent/20 border-accent shadow-[0_0_15px_rgba(217,119,6,0.3)]') : 'bg-slate-800/40 border-slate-700/50 hover:border-slate-500'}`}
         >
           {isDoused && <div className="absolute -top-2 -right-1 bg-orange-600 text-white p-0.5 rounded-full shadow-[0_0_8px_rgba(234,88,12,0.8)]"><Flame size={12} /></div>}
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black ${selected === p.socketId ? (isNight ? 'bg-blood-red text-white' : 'bg-accent text-white') : 'bg-slate-700 text-slate-400'}`}>
