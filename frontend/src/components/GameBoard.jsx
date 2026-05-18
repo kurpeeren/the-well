@@ -501,13 +501,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
                {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[10px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
                {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
-               <button onClick={() => setShowRoleModal(true)} className="text-slate-500 hover:text-yellow-500 active:text-yellow-400 transition-colors p-1 sm:p-0 -m-1 sm:m-0">
-                 <Info className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
-               </button>
+               <IconButton aria-label="Rol bilgisi" onClick={() => setShowRoleModal(true)} className="hover:text-yellow-500 active:text-yellow-400 p-1 sm:p-0 -m-1 sm:m-0"><Info className="w-5 h-5 sm:w-3.5 sm:h-3.5" /></IconButton>
                {onOpenFeedback && (
-                 <button onClick={onOpenFeedback} className="text-slate-500 hover:text-accent active:text-amber-400 transition-colors p-1 sm:p-0 -m-1 sm:m-0" title="Geri Bildirim">
-                   <MessageSquare className="w-5 h-5 sm:w-3.5 sm:h-3.5" />
-                 </button>
+                 <IconButton aria-label="Geri Bildirim" title="Geri Bildirim" onClick={onOpenFeedback} className="hover:text-accent active:text-amber-400 p-1 sm:p-0 -m-1 sm:m-0"><MessageSquare className="w-5 h-5 sm:w-3.5 sm:h-3.5" /></IconButton>
                )}
              </div>
            </div>
@@ -821,7 +817,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                                 className="flex-1 min-w-0 bg-transparent text-white px-3 py-2 focus:outline-none text-sm"
                                 placeholder={isSilenced && gamePhase === 'DAY' ? "Susturuldun!" : t.placeholder}
                              />
-                             <button type="submit" disabled={isSilenced && gamePhase === 'DAY'} className={`${t.send} px-4 shrink-0 rounded-lg transition-colors flex items-center justify-center text-white disabled:opacity-50`}><Send size={16} /></button>
+                             <button type="submit" disabled={isSilenced && gamePhase === 'DAY'} className={`${t.send} px-4 shrink-0 rounded-xl transition-colors flex items-center justify-center text-white disabled:opacity-50`}><Send size={16} /></button>
                           </form>
                        ) : (
                           <div className="p-2 text-center opacity-50"><p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Sohbet Kapalı</p></div>
