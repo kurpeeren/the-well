@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut, CheckCircle2 } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
-import { Button } from './ui/Button';
+import { Button, IconButton } from './ui/Button';
 
 function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback, trial = null }) {
   const [impersonateId, setImpersonateId] = useState(null);
@@ -874,11 +874,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  <p className="text-slate-500 text-sm tracking-widest text-center max-w-lg mb-2">Oyun sona erdi. Aynı odada devam etmek için kurucunun lobiyi başlatmasını bekleyin veya tamamen çıkış yapın.</p>
                  <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4">
                     {isHost ? (
-                       <button onClick={() => socket.emit('returnToLobby', roomCode)} className="flex-1 sm:flex-none px-8 py-4 bg-slate-800 text-white rounded-xl border border-slate-700 hover:bg-slate-700 hover:text-amber-500 hover:border-amber-500 transition-all uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(0,0,0,0.5)]">Odada Kal & Lobiye Dön</button>
+                       <Button variant="neutral" size="lg" className="flex-1 sm:flex-none" onClick={() => socket.emit('returnToLobby', roomCode)}>Odada Kal & Lobiye Dön</Button>
                     ) : (
                        <div className="flex-1 sm:flex-none px-8 py-4 bg-slate-900/50 text-slate-500 rounded-xl border border-slate-800/50 uppercase tracking-widest font-bold text-center flex items-center justify-center">Kurucuyu Bekliyorsun...</div>
                     )}
-                    <button onClick={() => onLeave ? onLeave() : window.location.reload()} className={`flex-1 sm:flex-none px-8 py-4 ${isHost ? 'bg-red-900/20 hover:bg-red-900/40 border-red-900/50' : 'bg-slate-800 hover:bg-slate-700 border-slate-700'} hover:text-red-400 text-slate-300 rounded-xl border transition-all uppercase tracking-widest font-bold shadow-[0_0_15px_rgba(0,0,0,0.5)]`}>Çıkış Yap</button>
+                    <Button variant="danger" size="lg" className="flex-1 sm:flex-none" onClick={() => onLeave ? onLeave() : window.location.reload()}>Çıkış Yap</Button>
                  </div>
              </div>
           </div>
@@ -941,7 +941,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  <BookOpen className="text-accent" size={22} />
                  <h3 className="text-lg sm:text-xl font-bold font-serif tracking-widest text-slate-200">Köy Defteri</h3>
               </div>
-              <button onClick={() => setShowNotes(false)} className="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700 transition"><X size={22} /></button>
+              <IconButton aria-label="Kapat" onClick={() => setShowNotes(false)}><X size={16} /></IconButton>
             </div>
 
             {/* Sekme bar */}
@@ -1048,9 +1048,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                   </span>
                 )}
               </div>
-              <button onClick={() => setShowRoleModal(false)} className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors bg-black/50 rounded-full p-1">
-                <X size={20} />
-              </button>
+              <IconButton aria-label="Kapat" onClick={() => setShowRoleModal(false)} className="absolute top-3 right-3 bg-black/50"><X size={16} /></IconButton>
             </div>
 
             {/* İçerik */}
@@ -1074,12 +1072,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                 </p>
               </div>
 
-              <button 
-                onClick={() => setShowRoleModal(false)} 
-                className="w-full py-3 bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700 font-bold tracking-widest uppercase text-sm transition-colors mt-1"
-              >
-                Anladım
-              </button>
+              <Button variant="accent" size="md" className="w-full mt-1" onClick={() => setShowRoleModal(false)}>Anladım</Button>
             </div>
           </div>
         </div>
@@ -1094,7 +1087,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                 <Skull className="text-slate-400" size={22} />
                 <h3 className="text-lg font-bold font-serif tracking-widest text-slate-200">Kuyunun Dibi</h3>
               </div>
-              <button onClick={() => setShowGraveyard(false)} className="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700 transition"><X size={22} /></button>
+              <IconButton aria-label="Kapat" onClick={() => setShowGraveyard(false)}><X size={16} /></IconButton>
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
@@ -1177,12 +1170,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              <p className="text-slate-300 text-sm leading-relaxed mb-8">
                Tefeci seni susturdu! Bugün konuşman kesinlikle yasak. Sadece diğerlerini dinleyebilirsin.
              </p>
-             <button 
-                onClick={() => setShowSilencedModal(false)} 
-                className="w-full py-4 bg-red-900/40 text-red-100 hover:bg-red-800/60 font-bold tracking-widest uppercase rounded-xl transition-colors border border-red-900/50"
-             >
-                Tamam, Susuyorum
-             </button>
+             <Button variant="neutral" size="md" className="w-full" onClick={() => setShowSilencedModal(false)}>Tamam, Susuyorum</Button>
           </div>
         </div>
       )}
@@ -1198,22 +1186,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                       Çıkarsan oyuna geri dönemezsin. Emin misin?
                    </p>
                 </div>
-                <div className="grid grid-cols-2 border-t border-slate-800">
-                   <button
-                      onClick={() => setShowLeaveConfirm(false)}
-                      className="py-4 text-slate-300 hover:bg-slate-800 font-bold tracking-widest uppercase text-sm transition-colors border-r border-slate-800"
-                   >
-                      Vazgeç
-                   </button>
-                   <button
+                <div className="flex gap-2 border-t border-slate-800 p-3">
+                   <Button variant="neutral" size="md" className="flex-1" onClick={() => setShowLeaveConfirm(false)}>Vazgeç</Button>
+                   <Button
+                      variant="danger"
+                      size="md"
+                      className="flex-1"
                       onClick={() => {
                          setShowLeaveConfirm(false);
                          onLeave ? onLeave() : window.location.reload();
                       }}
-                      className="py-4 text-red-100 bg-red-900/40 hover:bg-red-800/60 font-bold tracking-widest uppercase text-sm transition-colors"
-                   >
-                      Terket
-                   </button>
+                   >Terket</Button>
                 </div>
              </div>
           </div>
@@ -1225,9 +1208,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              <div className="w-full sm:max-w-sm bg-slate-900 border-t sm:border border-yellow-700/50 rounded-t-2xl sm:rounded-2xl shadow-[0_0_40px_rgba(202,138,4,0.3)] flex flex-col max-h-[70vh]" onClick={(e) => e.stopPropagation()}>
                 <div className="shrink-0 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
                    <h3 className="text-yellow-500 font-bold uppercase tracking-widest text-sm">Oyuncu Seç</h3>
-                   <button onClick={() => setShowImpersonateMenu(false)} className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-700 transition">
-                      <X size={20} />
-                   </button>
+                   <IconButton aria-label="Kapat" onClick={() => setShowImpersonateMenu(false)}><X size={16} /></IconButton>
                 </div>
                 <ul className="flex-1 overflow-y-auto custom-scrollbar p-2">
                    {players.map(p => (
