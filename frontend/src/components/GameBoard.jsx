@@ -557,6 +557,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       <div className="flex flex-col lg:flex-row gap-0 sm:gap-4 flex-1 mt-0 sm:mt-2 overflow-hidden min-h-0">
 
+      <div className="hidden lg:flex lg:w-64 flex-col bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-md lg:h-full shrink-0">
+         <h3 className="shrink-0 text-slate-400 font-bold border-b border-slate-700 p-3 text-center text-xs uppercase tracking-widest flex items-center justify-center gap-2"><BookOpen size={14} className="text-accent" /> Köy Defteri</h3>
+         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <EventsList systemNotes={systemNotes} />
+         </div>
+      </div>
+
       <div className="flex-1 flex flex-col relative sm:rounded-xl border-0 sm:border border-slate-800/50 bg-black/10 overflow-hidden min-h-0">
         
         {/* ÜST: AKSİYON ALANI (Gece Seçimleri, Oylama, Haberler) */}
@@ -893,8 +900,14 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
           </div>
         )}
 
-      <div className="hidden lg:flex w-full lg:w-56 flex-col gap-4 lg:h-full shrink-0">
-          <div className="flex flex-col bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex-1 overflow-hidden shadow-md">
+      <div className="hidden lg:flex w-full lg:w-64 flex-col gap-4 lg:h-full shrink-0">
+          <div className="flex flex-col bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-md flex-1 min-h-0">
+             <h3 className="shrink-0 text-yellow-500/90 font-bold border-b border-slate-700 p-3 text-center text-xs uppercase tracking-widest flex items-center justify-center gap-2">Vasiyetim</h3>
+             <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                <WillEditor value={personalNotesMap[activeSocketId] || ''} onChange={handleWillChange} />
+             </div>
+          </div>
+          <div className="flex flex-col bg-slate-900/60 border border-slate-800 rounded-xl p-3 max-h-[45%] overflow-hidden shadow-md">
              <h3 className="text-slate-400 font-bold border-b border-slate-700 pb-2 mb-2 text-center text-xs uppercase tracking-widest flex items-center justify-center gap-2">
                 Kuyunun Dibi
              </h3>
