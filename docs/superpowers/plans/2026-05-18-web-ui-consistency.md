@@ -10,6 +10,18 @@
 
 **Spec:** `docs/superpowers/specs/2026-05-18-web-ui-consistency-design.md`
 
+## Execution Status (2026-05-18, subagent-driven, continuous)
+
+- **T1** Button/IconButton + accent token — ✅ (`cb4df07`→fix `5436916`: `type=button` default + tek-radius). Spec ✅ Kalite ✅.
+- **T2** Lobby — ✅ (`1963185`). Ana CTA'lar Button'a; mod-kartları/sarı-sim/mor-spectator 5-variant'a oturmadığı için bilerek bırakıldı (plan onaylı). Spec ✅ Kalite ✅.
+- **T3** App + çift-Çıkış dedupe — ✅ (`3f359d1`→fix `5613479`: `pill` prop, davet butonu tek-radius). Header `hidden sm:block` reviewer ❌'i gerekçeli reddedildi (pre-existing + onaylı mobil tasarım). Spec ✅ Kalite ✅.
+- **T4** GameBoard aksiyon paneli + header — ✅ (`3f61179`→fix `ac58a8d`: header `pill` + Yak temizlik). Affet emerald→amber & Saklan→primary reviewer notları reddedildi (spec §3/§4.4 kasıtlı). Spec ✅ Kalite ✅.
+- **T5** GameBoard END + modallar — ✅ (`36cd02e`). leave-confirm grid→flex, 4 close→IconButton (aria-label), END neutral/danger. Silenced=neutral reviewer notu reddedildi (spec §4.4, semantik doğru). Spec ✅ Kalite ✅.
+- **T6** Admin — ✅ (`17ac997`→fix `7d218bd`: `active` prop — chip aktif durumu tek-set, kırılgan override giderildi). Spec ✅ Kalite ✅.
+- **T7** ShareInvite/Feedback modalları — ✅ (`586e2b4`). TimerDisplay dokunulmadı (buton yok). I2/M1/M2 reddedildi (onaylı Button-geneli karar / kasıtlı dil hizalaması). Spec ✅ Kalite ✅.
+- **T8** Final — `npx eslint src/` 12 sorun = hepsi pre-existing (set-state-in-effect/unused/exhaustive-deps; refactor'ın getirdiği YOK, spec §7 kabul); `npm run build` ✓.
+- **Manuel görsel checklist (§7):** KULLANICIDA — deploy sonrası gerçek tarayıcıda doğrulanmalı (dürüstlük: işaretlenmedi).
+
 ## Commit kuralları (TÜM task'lar — STRICT)
 
 - `main` dalında çalış. Yalnız o task'ın dosyalarını `git add <dosya>` ile stage'le — **asla `git add -A`/`.`** (repoda alakasız dirty/untracked dosyalar var).
