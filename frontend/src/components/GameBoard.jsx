@@ -517,11 +517,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         </div>
 
         <div className="flex items-stretch sm:items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
-           <Button variant="neutral" size="sm" onClick={() => setShowGraveyard(true)} className="lg:hidden flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
+           <Button variant="neutral" size="sm" pill onClick={() => setShowGraveyard(true)} className="lg:hidden flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
              <Skull className="w-7 h-7 sm:w-5 sm:h-5" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Mezarlık</span>
            </Button>
-           <Button variant="neutral" size="sm" onClick={() => setShowNotes(true)} className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
+           <Button variant="neutral" size="sm" pill onClick={() => setShowNotes(true)} className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
              <BookOpen className="w-7 h-7 sm:w-5 sm:h-5" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Notlar</span>
              {systemNotes?.length > 0 && <span className="absolute top-2 right-2 sm:-top-1 sm:-right-1 bg-blood-red w-3.5 h-3.5 sm:w-3 sm:h-3 rounded-full animate-pulse border border-dark-bg"></span>}
@@ -532,6 +532,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            <Button
               variant="danger"
               size="sm"
+              pill
               onClick={() => setShowLeaveConfirm(true)}
               title="Kasabayı Terket"
               className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 min-h-[64px] sm:min-h-0"
@@ -608,7 +609,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                        <div className="flex justify-between items-center mb-2 px-2 gap-2">
                           <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
                           <div className="flex gap-2 shrink-0">
-                             <Button variant="primary" size="sm" onClick={() => handleAction('ignite', true)} className="flex items-center gap-1"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</Button>
+                             <Button variant="primary" size="sm" onClick={() => handleAction('ignite', true)} className="gap-1"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</Button>
                              {selectedPlayer && <Button variant="primary" size="sm" onClick={() => handleAction('douse')}>Gazla</Button>}
                           </div>
                        </div>
