@@ -4,6 +4,7 @@ import {
     Search, Megaphone, Trash2, UserMinus, LogOut, ArrowLeft, Send, Radio,
     Eye, Skull, Crown, KeyRound, AlertCircle, Send as SendIcon, MessageSquare, Mail,
 } from 'lucide-react';
+import { Button } from './ui/Button';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -405,9 +406,9 @@ export default function Admin({ onExit }) {
                                 className="w-full bg-black/60 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blood-red focus:ring-1 focus:ring-blood-red transition-colors mb-4"
                                 placeholder="Şifrenizi fısılda..."
                             />
-                            <button type="submit" className="w-full bg-blood-red hover:bg-red-800 active:bg-red-900 text-white font-black py-3 rounded-lg transition-colors uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(127,29,29,0.4)]">
+                            <Button variant="primary" size="lg" type="submit" className="w-full">
                                 Mührü Çöz
-                            </button>
+                            </Button>
                         </form>
 
                         {error && (
@@ -528,10 +529,10 @@ export default function Admin({ onExit }) {
                                 { id: 'day', label: 'Gün' },
                                 { id: 'week', label: 'Hafta' },
                             ].map(r => (
-                                <button key={r.id} onClick={() => setMetricsRange(r.id)}
-                                    className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${metricsRange === r.id ? 'bg-blood-red text-white' : 'text-slate-400 hover:text-white'}`}>
+                                <Button key={r.id} variant="chip" size="sm" onClick={() => setMetricsRange(r.id)}
+                                    className={metricsRange === r.id ? 'bg-blood-red text-white border-blood-red' : ''}>
                                     {r.label}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     }
@@ -563,9 +564,9 @@ export default function Admin({ onExit }) {
                             placeholder="Tüm aktif kullanıcılara fısılda..."
                             className="flex-1 bg-black/60 border border-slate-700 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent text-sm placeholder:text-slate-600"
                         />
-                        <button type="submit" disabled={!broadcastMsg.trim()} className="px-5 py-2.5 bg-accent hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg font-bold text-xs uppercase tracking-widest transition-colors flex items-center justify-center gap-2 shrink-0">
+                        <Button variant="accent" size="md" type="submit" disabled={!broadcastMsg.trim()} className="shrink-0">
                             <Send size={14} /> Gönder
-                        </button>
+                        </Button>
                     </form>
                     <p className="text-[10px] text-slate-600 mt-2 uppercase tracking-widest">{broadcastMsg.length}/280 karakter</p>
                 </Section>
@@ -666,14 +667,14 @@ export default function Admin({ onExit }) {
                                                                 <div className="mt-5">
                                                                     <div className="flex gap-1 mb-3">
                                                                         {[['chat', 'Sohbet'], ['events', 'Olaylar']].map(([k, lbl]) => (
-                                                                            <button key={k} onClick={() => setRoomLogView(r.id, { tab: k })} className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${tab === k ? 'bg-blood-red text-white' : 'bg-slate-900/60 text-slate-400 hover:text-white'}`}>{lbl}</button>
+                                                                            <Button key={k} variant="chip" size="sm" onClick={() => setRoomLogView(r.id, { tab: k })} className={tab === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
                                                                         ))}
                                                                     </div>
                                                                     {tab === 'chat' ? (
                                                                         <>
                                                                             <div className="flex flex-wrap gap-1 mb-2">
                                                                                 {[['all', 'Hepsi'], ['day', 'Gündüz'], ['dead', 'Ölüler'], ['mafia', 'Çete']].map(([k, lbl]) => (
-                                                                                    <button key={k} onClick={() => setRoomLogView(r.id, { ch: k })} className={`px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-full border transition-colors ${ch === k ? 'border-accent text-accent' : 'border-slate-700 text-slate-500 hover:text-slate-300'}`}>{lbl}</button>
+                                                                                    <Button key={k} variant="chip" size="sm" onClick={() => setRoomLogView(r.id, { ch: k })} className={ch === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
                                                                                 ))}
                                                                             </div>
                                                                             {chatRows.length === 0 ? (
@@ -803,14 +804,14 @@ export default function Admin({ onExit }) {
                                                                     <div className="mt-5">
                                                                         <div className="flex gap-1 mb-3">
                                                                             {[['chat', 'Sohbet'], ['events', 'Olaylar']].map(([k, lbl]) => (
-                                                                                <button key={k} onClick={() => setLogView(h.id, { tab: k })} className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full transition-colors ${tab === k ? 'bg-blood-red text-white' : 'bg-slate-900/60 text-slate-400 hover:text-white'}`}>{lbl}</button>
+                                                                                <Button key={k} variant="chip" size="sm" onClick={() => setLogView(h.id, { tab: k })} className={tab === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
                                                                             ))}
                                                                         </div>
                                                                         {tab === 'chat' ? (
                                                                             <>
                                                                                 <div className="flex flex-wrap gap-1 mb-2">
                                                                                     {[['all', 'Hepsi'], ['day', 'Gündüz'], ['dead', 'Ölüler'], ['mafia', 'Çete']].map(([k, lbl]) => (
-                                                                                        <button key={k} onClick={() => setLogView(h.id, { ch: k })} className={`px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-full border transition-colors ${ch === k ? 'border-accent text-accent' : 'border-slate-700 text-slate-500 hover:text-slate-300'}`}>{lbl}</button>
+                                                                                        <Button key={k} variant="chip" size="sm" onClick={() => setLogView(h.id, { ch: k })} className={ch === k ? 'bg-blood-red text-white border-blood-red' : ''}>{lbl}</Button>
                                                                                     ))}
                                                                                 </div>
                                                                                 {chatRows.length === 0 ? (
