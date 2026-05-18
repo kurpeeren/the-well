@@ -144,17 +144,6 @@ button, a, [role="button"] {
   -webkit-touch-callout: none;
 }
 
-@media (min-width: 640px) {
-  html, body, #root {
-    height: auto;
-    min-height: 100vh;
-    min-height: 100svh;
-  }
-  body {
-    overflow: auto;
-    overflow-x: hidden;
-  }
-}
 
 input, textarea, .selectable, .selectable * {
   user-select: text;

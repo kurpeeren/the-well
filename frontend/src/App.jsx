@@ -303,7 +303,7 @@ function App() {
 
   const isInGame = gameState === 'GAME';
   return (
-    <div className="text-slate-100 font-sans flex flex-col items-center bg-[#050505] h-[100svh] sm:min-h-[100svh] overflow-hidden sm:overflow-visible sm:p-4">
+    <div className="text-slate-100 font-sans flex flex-col items-center bg-[#050505] h-[100svh] overflow-hidden sm:p-4">
       {toast && (
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
           {toast}
@@ -422,7 +422,7 @@ function App() {
       )}
 
       {gameState !== 'INTRO' && (
-        <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden sm:overflow-visible sm:pb-20">
+        <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden sm:pb-20">
 
           {!isInGame && gameState !== 'JOIN' && (
             <header className={`w-full max-w-4xl text-center relative z-40 mt-2 mb-3 sm:mb-8 shrink-0 px-4 ${gameState === 'LOBBY' ? 'hidden sm:block' : ''}`}>
