@@ -10,6 +10,14 @@
 
 **Spec:** `docs/superpowers/specs/2026-05-18-desktop-side-panels-design.md`
 
+## Execution Status (2026-05-18, subagent-driven; reviews controller-direct)
+
+- **SP1** EventsList/WillEditor/handleWillChange çıkar + modal kullanır — ✅ `0c626ae`. Spec ✅ Kalite ✅ (bileşenler eski modal JSX'in byte-eşi; handleWillChange eski onChange birebir; davranış değişmedi; DRY temel).
+- **SP2** Çıkış `sm:w-20 sm:h-20 sm:p-0` (=TimerDisplay) + Notlar `lg:hidden` — ✅ `5fd4b57`. Spec ✅ Kalite ✅ (tam 2 className, mantık dokunulmadı).
+- **SP3** Desktop 3-kolon: sol Köy Defteri (`EventsList`) + sağ Vasiyetim (`WillEditor`) üst / Kuyunun Dibi alt (`max-h-[45%]`), `lg:w-64` — ✅ `b37a32d`. Spec ✅ Kalite ✅ (yeni markup hep `hidden lg:flex`; Kuyunun Dibi liste/Meydan Şahitleri birebir; JSX dengeli — build ✓; bileşenler yeniden kullanıldı, DRY).
+- **SP4** Final — `npx eslint src/` 12 sorun = bu iş öncesiyle aynı (pre-existing; SP1-3 yeni yok); `npm run build` ✓; `EventsList`/`WillEditor` tek tanım (kopya yok). Bütünsel: DRY uçtan uca, `<lg` birebir korundu, Vasiyetim tek emit, Çıkış=Timer. Kritik sorun yok.
+- **Manuel görsel checklist (§7):** KULLANICIDA — deploy sonrası gerçek tarayıcıda (desktop/tablet/mobil) doğrulanmalı (dürüstlük: işaretlenmedi).
+
 ## Commit kuralları (TÜM task'lar — STRICT)
 - `main` dalında çalış. Yalnız `git add frontend/src/components/GameBoard.jsx` (tek dosya). **Asla `-A`/`.`**.
 - Git hook'larını atlama yok (`--no-verify`/`-c core.hooksPath`/override). Hook hata→STOP+bildir.
