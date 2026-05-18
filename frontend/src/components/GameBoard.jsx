@@ -570,7 +570,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'DAY', 'DEFENSE', 'JUDGMENT', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[220px] sm:max-h-[320px]' : 'max-h-[0px]'}`}>
 
            {/* ONAYLANMIŞ EYLEM DURUMU — panel kapanmasın, kullanıcı geri bildirim görsün */}
-           {hasActioned && ['NIGHT'].includes(gamePhase) && me.isAlive && !isSpectator && (
+           {hasActioned && ['NIGHT', 'DAY'].includes(gamePhase) && me.isAlive && !isSpectator && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-emerald-950/30 border border-emerald-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(110,231,183,0.08)] max-w-sm w-full">
                     <CheckCircle2 className="text-emerald-300 shrink-0 w-8 h-8" />
@@ -643,13 +643,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            )}
 
            {/* GÜNDÜZ CANLI SUÇLAMA OYU */}
-           {gamePhase === 'DAY' && me.isAlive && !isSpectator && (
+           {gamePhase === 'DAY' && me.isAlive && !isSpectator && !hasActioned && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
                  <div className="flex justify-between items-center mb-2 px-2 gap-2">
                     <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
-                       <Button variant="neutral" size="sm" onClick={() => { socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null }); setSelectedPlayer(null); setHasActioned(false); setLastActionLabel(null); }}>Oyu Geri Al</Button>
-                       {selectedPlayer && <Button variant="accent" size="sm" onClick={() => handleVote()}>Oyla</Button>}
+                       <Button variant="neutral" size="sm" onClick={() => { socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null }); setSelectedPlayer(null); setHasActioned(true); setLastActionLabel('Pas geçtin — günü atlama oyu verildi'); }}>Pas Geç ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive && p.connected).length})</Button>
+                       <Button variant="accent" size="sm" disabled={!selectedPlayer} onClick={() => handleVote()}>Oyla</Button>
                     </div>
                  </div>
                  <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
@@ -745,15 +745,6 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               <div className="bg-amber-900/20 p-2 border-b border-amber-800/30 flex justify-between items-center px-4 shrink-0">
                  <span className="text-[10px] text-amber-400 font-bold uppercase tracking-tight">Mührünü vurup oyları toplayabilirsin!</span>
                  <Button variant="primary" size="sm" onClick={() => socket.emit('mayorReveal', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Mührü Vur</Button>
-              </div>
-           )}
-
-           {/* GÜNÜ ATLA PANELİ */}
-           {gamePhase === 'DAY' && me.isAlive && !isSpectator && (
-              <div className="flex justify-end p-2 bg-slate-800/10 shrink-0">
-                 <Button variant="neutral" size="sm" onClick={() => socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>
-                    Günü Atla ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive && p.connected).length})
-                 </Button>
               </div>
            )}
 
