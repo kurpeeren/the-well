@@ -6,6 +6,7 @@ import Admin from './components/Admin';
 import ShareInviteModal from './components/ShareInviteModal';
 import FeedbackModal from './components/FeedbackModal';
 import { LogOut, Share2, MessageSquare } from 'lucide-react';
+import { Button } from './components/ui/Button';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 const socket = io(BACKEND_URL, {
@@ -433,15 +434,6 @@ function App() {
                 <p className="text-[9px] md:text-[11px] text-slate-500 mt-1 sm:mt-2 tracking-[0.3em] uppercase font-bold italic opacity-60 select-none">Fısıltılar Köyü</p>
               </div>
 
-              {gameState === 'LOBBY' && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleLeave(); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 group flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 active:scale-95 transition-all duration-300 shadow-xl"
-                >
-                  <LogOut size={16} className="text-red-400 group-hover:text-red-300 transition-colors" />
-                  <span className="text-[11px] sm:text-xs tracking-[0.2em] uppercase font-black text-slate-300 group-hover:text-red-300 transition-colors hidden sm:inline">Çıkış</span>
-                </button>
-              )}
             </header>
           )}
 
@@ -522,23 +514,27 @@ function App() {
               <h2 className="text-lg sm:text-2xl font-semibold text-accent tracking-widest truncate">Oda: <span className="selectable">{roomCode}</span></h2>
               <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
                  {isHost && (
-                    <button
+                    <Button
+                       variant="accent"
+                       size="sm"
+                       className="rounded-full"
                        onClick={(e) => { e.stopPropagation(); handleOpenInvite(); }}
-                       className="group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full border border-accent/40 bg-accent/10 hover:bg-accent/20 hover:border-accent active:scale-95 transition-all shadow-[0_0_12px_rgba(217,119,6,0.25)]"
                        title="Davet ve QR"
                     >
-                       <Share2 size={16} className="text-accent" />
-                       <span className="text-[11px] sm:text-xs uppercase tracking-widest font-bold text-accent">Davet</span>
-                    </button>
+                       <Share2 size={16} />
+                       Davet
+                    </Button>
                  )}
                  <span className="px-2.5 py-1.5 rounded-full bg-slate-900/60 border border-slate-800 text-[11px] text-slate-300 font-bold uppercase tracking-widest tabular-nums">{players.length}/16</span>
-                 <button
+                 <Button
+                    variant="danger"
+                    size="sm"
                     onClick={(e) => { e.stopPropagation(); handleLeave(); }}
-                    className="sm:hidden p-2.5 rounded-full border border-red-900/50 bg-black/40 hover:bg-red-950/40 hover:border-red-500 active:scale-95 transition-all"
                     title="Çıkış"
                  >
-                    <LogOut size={18} className="text-red-400" />
-                 </button>
+                    <LogOut size={15} />
+                    Çıkış
+                 </Button>
               </div>
            </div>
 
@@ -668,9 +664,9 @@ function App() {
            {/* Sticky CTA */}
            <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
               {isHost ? (
-                 <button onClick={() => socket.emit('startGame', roomCode)} className="w-full bg-blood-red hover:bg-red-800 text-white font-bold py-3 sm:py-4 rounded-lg transition-all uppercase tracking-widest shadow-[0_0_20px_rgba(127,29,29,0.4)]">
+                 <Button variant="primary" size="lg" className="w-full" onClick={() => socket.emit('startGame', roomCode)}>
                     Oyunu Başlat ({players.length}/16)
-                 </button>
+                 </Button>
               ) : (
                  <p className="text-center text-slate-400 animate-pulse text-sm">Köyün kurucusu bekleniyor...</p>
               )}
