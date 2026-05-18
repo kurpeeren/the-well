@@ -168,12 +168,12 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   const getPhaseIcon = () => {
     switch(gamePhase) {
-       case 'NIGHT': return <Moon className="w-8 h-8 sm:w-6 sm:h-6 text-slate-300 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />;
-       case 'MORNING': return <Sun className="w-8 h-8 sm:w-6 sm:h-6 text-amber-300 animate-spin-slow drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />;
-       case 'DAY': return <MessageSquare className="w-8 h-8 sm:w-6 sm:h-6 text-blue-300 drop-shadow-[0_0_6px_rgba(96,165,250,0.4)]" />;
-       case 'DEFENSE': return <ShieldAlert className="w-8 h-8 sm:w-6 sm:h-6 text-amber-300 animate-pulse drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />;
-       case 'JUDGMENT': return <AlertTriangle className="w-8 h-8 sm:w-6 sm:h-6 text-red-300 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />;
-       case 'END': return <ShieldAlert className="w-8 h-8 sm:w-6 sm:h-6 text-accent drop-shadow-[0_0_8px_rgba(217,119,6,0.4)]" />;
+       case 'NIGHT': return <Moon className="w-8 h-8 text-slate-300 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />;
+       case 'MORNING': return <Sun className="w-8 h-8 text-amber-300 animate-spin-slow drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]" />;
+       case 'DAY': return <MessageSquare className="w-8 h-8 text-blue-300 drop-shadow-[0_0_6px_rgba(96,165,250,0.4)]" />;
+       case 'DEFENSE': return <ShieldAlert className="w-8 h-8 text-amber-300 animate-pulse drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />;
+       case 'JUDGMENT': return <AlertTriangle className="w-8 h-8 text-red-300 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />;
+       case 'END': return <ShieldAlert className="w-8 h-8 text-accent drop-shadow-[0_0_8px_rgba(217,119,6,0.4)]" />;
        default: return null;
     }
   }
@@ -484,7 +484,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-slate-900/80 sm:bg-slate-900/60 px-3 py-2 sm:p-4 rounded-none sm:rounded-xl border-0 border-b sm:border border-slate-800 backdrop-blur-sm gap-2 sm:gap-2 shrink-0">
 
         <div className="flex gap-2 sm:gap-4 items-center flex-1 min-w-0 w-full sm:w-auto">
-           <div className={`p-3 sm:p-2.5 rounded-full border shadow-inner shrink-0 transition-colors duration-700 ${getPhasePillClass()}`}>
+           <div className={`p-3 rounded-full border shadow-inner shrink-0 transition-colors duration-700 ${getPhasePillClass()}`}>
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
@@ -493,17 +493,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              </div>
              <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-0.5 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
                <span
-                 className={`uppercase tracking-widest cursor-pointer select-none px-2.5 sm:px-1.5 py-1 sm:py-0.5 rounded-lg sm:rounded transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
+                 className={`uppercase tracking-widest cursor-pointer select-none px-2.5 py-1 rounded-lg transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
                  onClick={() => !isSpectator && setIsRoleVisible(!isRoleVisible)}
                >
                  {isSpectator ? 'İzleyici' : (isRoleVisible ? activeRole : 'ROLÜN')}
                </span>
-               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[10px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 sm:px-1.5 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
-               <IconButton aria-label="Rol bilgisi" onClick={() => setShowRoleModal(true)} className="hover:text-yellow-500 active:text-yellow-400 p-1 sm:p-0 -m-1 sm:m-0"><Info className="w-5 h-5 sm:w-3.5 sm:h-3.5" /></IconButton>
+               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
+               {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[10px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-2 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
+               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
+               <IconButton aria-label="Rol bilgisi" onClick={() => setShowRoleModal(true)} className="hover:text-yellow-500 active:text-yellow-400 p-1 sm:p-0 -m-1 sm:m-0"><Info className="w-5 h-5" /></IconButton>
                {onOpenFeedback && (
-                 <IconButton aria-label="Geri Bildirim" title="Geri Bildirim" onClick={onOpenFeedback} className="hover:text-accent active:text-amber-400 p-1 sm:p-0 -m-1 sm:m-0"><MessageSquare className="w-5 h-5 sm:w-3.5 sm:h-3.5" /></IconButton>
+                 <IconButton aria-label="Geri Bildirim" title="Geri Bildirim" onClick={onOpenFeedback} className="hover:text-accent active:text-amber-400 p-1 sm:p-0 -m-1 sm:m-0"><MessageSquare className="w-5 h-5" /></IconButton>
                )}
              </div>
            </div>
@@ -514,13 +514,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
         <div className="flex items-stretch sm:items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
            <Button variant="neutral" size="sm" pill onClick={() => setShowGraveyard(true)} className="lg:hidden flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
-             <Skull className="w-7 h-7 sm:w-5 sm:h-5" />
+             <Skull className="w-7 h-7" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Mezarlık</span>
            </Button>
            <Button variant="neutral" size="sm" pill onClick={() => setShowNotes(true)} className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 relative min-h-[64px] sm:min-h-0">
-             <BookOpen className="w-7 h-7 sm:w-5 sm:h-5" />
+             <BookOpen className="w-7 h-7" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Notlar</span>
-             {systemNotes?.length > 0 && <span className="absolute top-2 right-2 sm:-top-1 sm:-right-1 bg-blood-red w-3.5 h-3.5 sm:w-3 sm:h-3 rounded-full animate-pulse border border-dark-bg"></span>}
+             {systemNotes?.length > 0 && <span className="absolute top-2 right-2 sm:-top-1 sm:-right-1 bg-blood-red w-3.5 h-3.5 rounded-full animate-pulse border border-dark-bg"></span>}
            </Button>
            <div className="hidden sm:block">
              <TimerDisplay socket={socket} />
@@ -533,7 +533,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               title="Kasabayı Terket"
               className="flex-1 sm:flex-none flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 min-h-[64px] sm:min-h-0"
            >
-             <LogOut className="w-7 h-7 sm:w-5 sm:h-5" />
+             <LogOut className="w-7 h-7" />
              <span className="sm:hidden text-[10px] font-bold uppercase tracking-widest">Çıkış</span>
            </Button>
         </div>
@@ -558,10 +558,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {hasActioned && ['NIGHT'].includes(gamePhase) && me.isAlive && !isSpectator && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-emerald-950/30 border border-emerald-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(110,231,183,0.08)] max-w-sm w-full">
-                    <CheckCircle2 className="text-emerald-300 shrink-0 w-8 h-8 sm:w-6 sm:h-6" />
+                    <CheckCircle2 className="text-emerald-300 shrink-0 w-8 h-8" />
                     <div className="flex flex-col min-w-0 flex-1">
-                       <p className="text-emerald-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Onaylandı</p>
-                       <p className="text-slate-200 text-sm sm:text-xs font-medium truncate">{lastActionLabel || 'Eylem kaydedildi'}</p>
+                       <p className="text-emerald-300 text-xs font-black uppercase tracking-widest">Onaylandı</p>
+                       <p className="text-slate-200 text-sm font-medium truncate">{lastActionLabel || 'Eylem kaydedildi'}</p>
                     </div>
                  </div>
               </div>
@@ -679,7 +679,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'MORNING' && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-amber-950/30 border border-amber-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(251,191,36,0.10)] max-w-sm w-full">
-                    <Sun className="text-amber-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 animate-spin-slow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                    <Sun className="text-amber-300 shrink-0 w-9 h-9 animate-spin-slow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
                     <div className="flex flex-col min-w-0 flex-1">
                        <p className="text-amber-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Sabah</p>
                        <p className="text-slate-200 text-sm sm:text-xs font-serif italic">Haberler hazırlanıyor...</p>
@@ -692,7 +692,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'NIGHT' && !hasActioned && (isSpectator || !me.isAlive || (!hasNightTargetAction && !isAvci && !isKundakci && !isYanasma)) && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-700/60 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(148,163,184,0.06)] max-w-sm w-full">
-                    <Moon className="text-slate-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />
+                    <Moon className="text-slate-300 shrink-0 w-9 h-9 drop-shadow-[0_0_8px_rgba(148,163,184,0.4)]" />
                     <div className="flex flex-col min-w-0 flex-1">
                        <p className="text-slate-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Gece</p>
                        <p className="text-slate-200 text-sm sm:text-xs font-serif italic">{isSpectator ? 'Ruh olarak köyü izliyorsun...' : !me.isAlive ? 'Mezarından olanları izliyorsun...' : 'Köy uykuda, gölgeler hareketleniyor...'}</p>
@@ -705,7 +705,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'JUDGMENT' && (isSpectator || !me.isAlive) && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-red-950/30 border border-red-900/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(127,29,29,0.12)] max-w-sm w-full">
-                    <AlertTriangle className="text-red-300 shrink-0 w-9 h-9 sm:w-7 sm:h-7 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />
+                    <AlertTriangle className="text-red-300 shrink-0 w-9 h-9 animate-pulse drop-shadow-[0_0_8px_rgba(248,113,113,0.5)]" />
                     <div className="flex flex-col min-w-0 flex-1">
                        <p className="text-red-300 text-xs sm:text-[11px] font-black uppercase tracking-widest">Hüküm</p>
                        <p className="text-slate-200 text-sm sm:text-xs font-serif italic">Köy oyunu kullanıyor, sonuç bekleniyor...</p>
