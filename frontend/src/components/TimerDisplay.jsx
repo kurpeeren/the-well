@@ -20,11 +20,11 @@ function TimerDisplay({ socket, initialTime }) {
   }, [socket]);
 
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-800 w-16 h-16 sm:w-14 sm:h-14 rounded-2xl sm:rounded-full border border-slate-700 shadow-inner shrink-0 transition-transform">
-      <span className={`text-2xl sm:text-xl font-black leading-none ${timeRemaining <= 10 ? 'text-blood-red animate-pulse' : 'text-white'}`}>
+    <div className="flex flex-col items-center justify-center bg-slate-800 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-slate-700 shadow-inner shrink-0 transition-transform">
+      <span className={`text-2xl sm:text-3xl font-black leading-none ${timeRemaining <= 10 ? 'text-blood-red animate-pulse' : 'text-white'}`}>
         {timeRemaining}
       </span>
-      <span className="text-[9px] sm:text-[7px] text-slate-500 uppercase font-bold tracking-tighter mt-0.5">Sn</span>
+      <span className="text-[9px] sm:text-[10px] text-slate-500 uppercase font-bold tracking-tighter mt-0.5">Sn</span>
     </div>
   );
 }
