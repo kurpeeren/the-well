@@ -501,7 +501,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                <StatBadge
                  tone="phase"
                  size="sm"
-                 className={`cursor-pointer select-none transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) : 'text-slate-600'}`}
+                 className={`cursor-pointer select-none transition-all duration-300 sm:text-[13px] ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border-current' : 'text-slate-600'}`}
                  onClick={() => !isSpectator && setIsRoleVisible(!isRoleVisible)}
                >
                  {isSpectator ? 'İzleyici' : (isRoleVisible ? activeRole : 'ROLÜN')}
@@ -648,7 +648,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  <div className="flex justify-between items-center mb-2 px-2 gap-2">
                     <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
-                       <Button variant="neutral" size="sm" onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Oyu Geri Al</Button>
+                       <Button variant="neutral" size="sm" onClick={() => { socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null }); setSelectedPlayer(null); setHasActioned(false); setLastActionLabel(null); }}>Oyu Geri Al</Button>
                        {selectedPlayer && <Button variant="accent" size="sm" onClick={() => handleVote()}>Oyla</Button>}
                     </div>
                  </div>
@@ -678,7 +678,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                        <div className="flex gap-3">
                           <Button variant="primary" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'GUILTY', impersonateId: isDevMode ? impersonateId : null })}>Suçlu</Button>
                           <Button variant="accent" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'SPARE', impersonateId: isDevMode ? impersonateId : null })}>Affet</Button>
-                          <Button variant="neutral" size="sm" onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Geri Al</Button>
+                          <Button variant="neutral" size="sm" onClick={() => { socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null }); setSelectedPlayer(null); setHasActioned(false); setLastActionLabel(null); }}>Geri Al</Button>
                        </div>
                        {judgmentCounts && (
                          <div className="flex items-center justify-center gap-2">
