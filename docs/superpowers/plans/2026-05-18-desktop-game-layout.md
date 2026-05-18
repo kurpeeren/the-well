@@ -10,6 +10,15 @@
 
 **Spec:** `docs/superpowers/specs/2026-05-18-desktop-game-layout-design.md`
 
+## Execution Status (2026-05-18, subagent-driven; reviews controller-direct after subagent rate-limit)
+
+- **DT1** StatBadge + TimerDisplay — ✅ `a3edea8`. Spec ✅ (byte-match) Kalite ✅ (iç-çakışma yok kesin doğrulandı; `phase`≈`neutral` minor/kasıtlı, Timer pre-existing listener-leak kapsam dışı).
+- **DT2** Desktop tek-sayfa (App.jsx+index.css+GameBoard kap) — ✅ `7b3923c`. Spec ✅ Kalite ✅ (kritik clip riski 4 ekranda iç-scroll'la kesin temizlendi; body-scroll'a bağımlılık yok).
+- **DT3** `sm:` küçültmeleri kaldırma — ✅ `d0b4e07`. Spec ✅ Kalite ✅ (1:1 token silme, taban değerler korundu, korunması gerekenler dokunulmadı). Not: yetenek rozeti `sm:text-[9px]` artığı plan tablosunda yoktu → DT4'te StatBadge'e geçince eridi.
+- **DT4** Göstergeler→StatBadge + PlayerList wrap + aksiyon max-h — ✅ `087b90b`. Spec ✅ Kalite ✅ (rol-rozeti onClick/children/koşul birebir; hüküm sayaçları gerçek ifade `judgmentCounts.guiltyW/spareW`; `getPhasePillClass` bg kaldırma kasıtlı birleşme — faz rengi h2/ikonda; `snap-x/no-scrollbar` doğru temizlik).
+- **DT5** Final — `npx eslint src/` 12 sorun = bu iş öncesiyle aynı (pre-existing set-state-in-effect/unused/exhaustive-deps; DT1-4 yeni hata getirmedi); `npm run build` ✓.
+- **Manuel görsel checklist (§7):** KULLANICIDA — deploy sonrası gerçek tarayıcıda doğrulanmalı (dürüstlük: işaretlenmedi).
+
 ## Commit kuralları (TÜM task'lar — STRICT)
 - `main` dalında çalış. Yalnız o task'ın dosyalarını `git add <dosya>` ile stage'le — **asla `git add -A`/`.`**.
 - Git hook'larını **asla** atlama (`--no-verify`/`-c core.hooksPath`/herhangi override yok). Hook hata verirse STOP+bildir.
