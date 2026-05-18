@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, MessageSquare, Send, Heart, Check } from 'lucide-react';
+import { Button, IconButton } from './ui/Button';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -67,9 +68,9 @@ function FeedbackModal({ onClose, showToast, gameState }) {
             <MessageSquare size={14} className="text-accent" />
             <h3 className="text-[11px] font-black uppercase tracking-[0.3em] font-serif text-accent">Geri Bildirim</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-full text-slate-500 hover:text-white hover:bg-slate-800 transition-colors" title="Kapat">
+          <IconButton aria-label="Kapat" onClick={onClose}>
             <X size={16} />
-          </button>
+          </IconButton>
         </div>
 
         {sent ? (
@@ -142,13 +143,9 @@ function FeedbackModal({ onClose, showToast, gameState }) {
             )}
 
             {/* Gönder */}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-accent hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(217,119,6,0.4)]"
-            >
+            <Button variant="accent" size="lg" type="submit" disabled={submitting} className="w-full">
               {submitting ? 'Gönderiliyor...' : <><Send size={14} /> Gönder</>}
-            </button>
+            </Button>
           </form>
         )}
       </div>

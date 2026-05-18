@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, Copy, Share2, QrCode, Check } from 'lucide-react';
+import { Button, IconButton } from './ui/Button';
 import QRCode from 'qrcode';
 
 // Davet linki/QR daima public domain üzerinden (yerel/preview origin değil).
@@ -65,9 +66,9 @@ function ShareInviteModal({ roomCode, onClose, showToast }) {
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
             <h3 className="text-[11px] font-black uppercase tracking-[0.3em] font-serif text-accent">Köy Daveti</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-full text-slate-500 hover:text-white hover:bg-slate-800 transition-colors" title="Kapat">
+          <IconButton aria-label="Kapat" onClick={onClose}>
             <X size={16} />
-          </button>
+          </IconButton>
         </div>
 
         {/* İçerik */}
@@ -102,29 +103,20 @@ function ShareInviteModal({ roomCode, onClose, showToast }) {
 
           {/* Aksiyonlar */}
           <div className="w-full grid grid-cols-2 gap-2">
-            <button
-              onClick={handleCopy}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-slate-700 bg-slate-900/60 hover:bg-slate-800 active:scale-95 transition-all text-xs uppercase tracking-widest font-bold text-slate-200"
-            >
+            <Button variant="neutral" size="md" onClick={handleCopy}>
               {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
               {copied ? 'Kopyalandı' : 'Kopyala'}
-            </button>
+            </Button>
             {navigator.share ? (
-              <button
-                onClick={handleNativeShare}
-                className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-accent/50 bg-accent/15 hover:bg-accent/25 active:scale-95 transition-all text-xs uppercase tracking-widest font-bold text-accent"
-              >
+              <Button variant="accent" size="md" onClick={handleNativeShare}>
                 <Share2 size={14} />
                 Paylaş
-              </button>
+              </Button>
             ) : (
-              <button
-                onClick={handleCopy}
-                className="flex items-center justify-center gap-2 py-2.5 rounded-lg border border-accent/50 bg-accent/15 hover:bg-accent/25 active:scale-95 transition-all text-xs uppercase tracking-widest font-bold text-accent"
-              >
+              <Button variant="accent" size="md" onClick={handleCopy}>
                 <Copy size={14} />
                 Linki Al
-              </button>
+              </Button>
             )}
           </div>
         </div>
