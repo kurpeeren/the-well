@@ -494,10 +494,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
-             <StatBadge tone="phase" size="md" className="inline-flex max-w-full backdrop-blur-sm transition-all duration-700">
+             <StatBadge tone="phase" size="md" className="inline-flex max-w-full sm:px-4 sm:py-2.5 sm:rounded-2xl sm:shadow-inner backdrop-blur-sm transition-all duration-700">
                <h2 className={`text-sm sm:text-lg font-bold tracking-[0.2em] sm:tracking-[0.25em] font-serif uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
              </StatBadge>
-             <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-0.5 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
+             <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-3 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
                <StatBadge
                  tone="phase"
                  size="sm"
