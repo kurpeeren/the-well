@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Moon, Sun, MessageSquare, AlertTriangle, ShieldAlert, BookOpen, X, Flame, Shield, Info, VolumeX, Skull, LogOut, CheckCircle2 } from 'lucide-react';
 import TimerDisplay from './TimerDisplay';
 import { Button, IconButton } from './ui/Button';
+import { StatBadge } from './ui/StatBadge';
 
 function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback, trial = null }) {
   const [impersonateId, setImpersonateId] = useState(null);
@@ -488,19 +489,21 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              {getPhaseIcon()}
            </div>
            <div className="flex-1 min-w-0">
-             <div className={`inline-flex max-w-full items-center px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg border backdrop-blur-sm transition-all duration-700 ${getPhasePillClass()}`}>
+             <StatBadge tone="phase" size="md" className="inline-flex max-w-full backdrop-blur-sm transition-all duration-700">
                <h2 className={`text-sm sm:text-lg font-bold tracking-[0.2em] sm:tracking-[0.25em] font-serif uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
-             </div>
+             </StatBadge>
              <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-0.5 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
-               <span
-                 className={`uppercase tracking-widest cursor-pointer select-none px-2.5 py-1 rounded-lg transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) + ' bg-slate-900/80 border border-current' : 'text-slate-600 bg-slate-800 border border-slate-700'}`}
+               <StatBadge
+                 tone="phase"
+                 size="sm"
+                 className={`cursor-pointer select-none transition-all duration-300 ${isRoleVisible || isSpectator ? getTeamColor(activeRole) : 'text-slate-600'}`}
                  onClick={() => !isSpectator && setIsRoleVisible(!isRoleVisible)}
                >
                  {isSpectator ? 'İzleyici' : (isRoleVisible ? activeRole : 'ROLÜN')}
-               </span>
-               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <span className="text-[10px] sm:text-[9px] bg-amber-900/50 text-amber-400 px-2 py-0.5 rounded font-bold border border-amber-700/50 uppercase tracking-widest" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</span>}
-               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <span className="text-[10px] sm:text-[9px] bg-emerald-950/50 text-emerald-300 px-2 py-0.5 rounded font-bold border border-emerald-800/50 uppercase tracking-widest" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</span>}
+               </StatBadge>
+               {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <StatBadge tone="green" size="sm" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</StatBadge>}
+               {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <StatBadge tone="amber" size="sm" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</StatBadge>}
+               {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <StatBadge tone="green" size="sm" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</StatBadge>}
                <IconButton aria-label="Rol bilgisi" onClick={() => setShowRoleModal(true)} className="hover:text-yellow-500 active:text-yellow-400 p-1 sm:p-0 -m-1 sm:m-0"><Info className="w-5 h-5" /></IconButton>
                {onOpenFeedback && (
                  <IconButton aria-label="Geri Bildirim" title="Geri Bildirim" onClick={onOpenFeedback} className="hover:text-accent active:text-amber-400 p-1 sm:p-0 -m-1 sm:m-0"><MessageSquare className="w-5 h-5" /></IconButton>
@@ -552,7 +555,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       <div className="flex-1 flex flex-col relative sm:rounded-xl border-0 sm:border border-slate-800/50 bg-black/10 overflow-hidden min-h-0">
         
         {/* ÜST: AKSİYON ALANI (Gece Seçimleri, Oylama, Haberler) */}
-        <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'DAY', 'DEFENSE', 'JUDGMENT', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[220px]' : 'max-h-[0px]'}`}>
+        <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'DAY', 'DEFENSE', 'JUDGMENT', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[220px] sm:max-h-[320px]' : 'max-h-[0px]'}`}>
 
            {/* ONAYLANMIŞ EYLEM DURUMU — panel kapanmasın, kullanıcı geri bildirim görsün */}
            {hasActioned && ['NIGHT'].includes(gamePhase) && me.isAlive && !isSpectator && (
@@ -665,7 +668,12 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                           <Button variant="accent" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'SPARE', impersonateId: isDevMode ? impersonateId : null })}>Affet</Button>
                           <Button variant="neutral" size="sm" onClick={() => socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null })}>Geri Al</Button>
                        </div>
-                       {judgmentCounts && <p className="text-[10px] text-slate-400 uppercase tracking-wider">Suçlu {judgmentCounts.guiltyW} — Affet {judgmentCounts.spareW}</p>}
+                       {judgmentCounts && (
+                         <div className="flex items-center justify-center gap-2">
+                           <StatBadge tone="red" size="sm">Suçlu {judgmentCounts.guiltyW}</StatBadge>
+                           <StatBadge tone="amber" size="sm">Affet {judgmentCounts.spareW}</StatBadge>
+                         </div>
+                       )}
                     </div>
                  ) : (
                     <div className="flex items-center justify-center h-full">
@@ -1355,7 +1363,7 @@ function PlayerList({ players, selected, onSelect, isNight, isDevMode, dousedLis
   if (players.length === 0) return <div className="h-16 flex items-center justify-center italic text-slate-600 text-[10px] uppercase tracking-widest">Yaşayan Kimse Kalmadı...</div>;
   
   return (
-    <div className="flex overflow-x-auto gap-2 py-2 px-1 custom-scrollbar snap-x no-scrollbar">
+    <div className="flex flex-wrap justify-center gap-2 py-2 px-1 custom-scrollbar overflow-y-auto">
       {players.map(p => {
         const isDoused = dousedList.includes(p.socketId);
         return (
