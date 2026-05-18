@@ -2,7 +2,7 @@ import React from 'react';
 
 // Tek tasarım dili: tüm butonlar bunu kullanır. Saf sunum; mantık yok.
 // variant: primary | accent | neutral | danger | chip
-// size:    sm | md | lg     (chip'te radius full'a override edilir)
+// size:    sm | md | lg
 // className: konumlandırma/animasyon/aktif-durum için sona eklenir (override eder).
 
 const BASE =
@@ -14,33 +14,37 @@ const VARIANTS = {
   accent:  'bg-accent hover:bg-amber-700 text-white border border-accent shadow-[0_0_20px_rgba(217,119,6,0.4)]',
   neutral: 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700',
   danger:  'bg-red-950/30 hover:bg-red-900/50 text-red-300 border border-red-900/60',
-  chip:    'bg-slate-900/60 hover:text-white text-slate-400 border border-slate-700 rounded-full',
+  chip:    'bg-slate-900/60 hover:text-white text-slate-400 border border-slate-700',
 };
+
+// Radius variant'a göre TEK utility olarak üretilir (chip tam yuvarlak, diğerleri
+// rounded-xl). Aynı border-radius için iki utility yan yana basmak Tailwind emit
+// sırasına güvenmek demek — kırılgan; bu yüzden tek radius üretilir.
+const RADIUS = { chip: 'rounded-full' };
 
 const SIZES = {
-  sm: 'text-[10px] px-3 py-1.5 rounded-xl',
-  md: 'text-xs px-5 py-3 rounded-xl',
-  lg: 'text-sm px-6 py-3.5 rounded-xl',
+  sm: 'text-[10px] px-3 py-1.5',
+  md: 'text-xs px-5 py-3',
+  lg: 'text-sm px-6 py-3.5',
 };
 
-export function Button({ variant = 'primary', size = 'md', className = '', children, ...rest }) {
-  // chip variant kendi radius'unu (rounded-full) VARIANTS'ta verir; SIZES'taki
-  // rounded-xl'i ezmesi için variant sınıfı size'dan SONRA gelir.
-  const cls = `${BASE} ${SIZES[size] || SIZES.md} ${VARIANTS[variant] || VARIANTS.primary} ${className}`;
+export function Button({ variant = 'primary', size = 'md', type = 'button', className = '', children, ...rest }) {
+  const radius = RADIUS[variant] || 'rounded-xl';
+  const cls = `${BASE} ${SIZES[size] || SIZES.md} ${radius} ${VARIANTS[variant] || VARIANTS.primary} ${className}`;
   return (
-    <button className={cls} {...rest}>
+    <button type={type} className={cls} {...rest}>
       {children}
     </button>
   );
 }
 
-export function IconButton({ 'aria-label': ariaLabel, className = '', children, ...rest }) {
+export function IconButton({ 'aria-label': ariaLabel, type = 'button', className = '', children, ...rest }) {
   const cls =
     'inline-flex items-center justify-center p-1.5 rounded-full text-slate-500 ' +
     'hover:text-white hover:bg-slate-800 transition-colors active:scale-95 ' +
     'disabled:opacity-50 disabled:pointer-events-none ' + className;
   return (
-    <button aria-label={ariaLabel} className={cls} {...rest}>
+    <button type={type} aria-label={ariaLabel} className={cls} {...rest}>
       {children}
     </button>
   );
