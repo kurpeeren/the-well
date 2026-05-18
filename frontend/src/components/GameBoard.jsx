@@ -24,6 +24,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
      }
   }, [isDevMode, players, impersonateId]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedVerdict, setSelectedVerdict] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [hasActioned, setHasActioned] = useState(false);
@@ -67,6 +68,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   useEffect(() => {
     setSelectedPlayer(null);
+    setSelectedVerdict(null);
     setHasActioned(false);
     setLastActionLabel(null);
     // DAY veya NIGHT fazına geçişte sohbete gün ayracı koy (silme — geçmiş kalsın)
@@ -570,7 +572,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
         <div className={`transition-all duration-500 overflow-hidden border-b border-slate-800/30 bg-slate-900/40 ${['NIGHT', 'DAY', 'DEFENSE', 'JUDGMENT', 'MORNING'].includes(gamePhase) ? 'min-h-[140px] max-h-[220px] sm:max-h-[320px]' : 'max-h-[0px]'}`}>
 
            {/* ONAYLANMIŞ EYLEM DURUMU — panel kapanmasın, kullanıcı geri bildirim görsün */}
-           {hasActioned && ['NIGHT', 'DAY'].includes(gamePhase) && me.isAlive && !isSpectator && (
+           {hasActioned && ['NIGHT', 'DAY', 'JUDGMENT'].includes(gamePhase) && me.isAlive && !isSpectator && (
               <div className="p-3 h-full flex items-center justify-center animate-in fade-in duration-300">
                  <div className="flex items-center gap-3 bg-emerald-950/30 border border-emerald-800/50 px-5 py-3 rounded-2xl shadow-[0_0_18px_rgba(110,231,183,0.08)] max-w-sm w-full">
                     <CheckCircle2 className="text-emerald-300 shrink-0 w-8 h-8" />
@@ -670,15 +672,15 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            )}
 
            {/* HÜKÜM */}
-           {gamePhase === 'JUDGMENT' && me.isAlive && !isSpectator && (
+           {gamePhase === 'JUDGMENT' && me.isAlive && !isSpectator && !hasActioned && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
                  {trial && me.socketId !== trial.accusedId ? (
                     <div className="flex flex-col items-center gap-3">
                        <p className="text-red-200 text-[11px] sm:text-[10px] font-black tracking-widest uppercase">{trial.accusedName} asılsın mı?</p>
-                       <div className="flex gap-3">
-                          <Button variant="primary" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'GUILTY', impersonateId: isDevMode ? impersonateId : null })}>Suçlu</Button>
-                          <Button variant="accent" size="md" onClick={() => socket.emit('judgmentVote', { roomCode, verdict: 'SPARE', impersonateId: isDevMode ? impersonateId : null })}>Affet</Button>
-                          <Button variant="neutral" size="sm" onClick={() => { socket.emit('withdrawVote', { roomCode, impersonateId: isDevMode ? impersonateId : null }); setSelectedPlayer(null); setHasActioned(false); setLastActionLabel(null); }}>Geri Al</Button>
+                       <div className="flex gap-3 items-center">
+                          <Button variant={selectedVerdict === 'GUILTY' ? 'primary' : 'neutral'} size="md" onClick={() => setSelectedVerdict('GUILTY')}>Suçlu</Button>
+                          <Button variant={selectedVerdict === 'SPARE' ? 'accent' : 'neutral'} size="md" onClick={() => setSelectedVerdict('SPARE')}>Affet</Button>
+                          <Button variant="primary" size="md" disabled={!selectedVerdict} className={selectedVerdict ? 'animate-pulse' : ''} onClick={() => { socket.emit('judgmentVote', { roomCode, verdict: selectedVerdict, impersonateId: isDevMode ? impersonateId : null }); setHasActioned(true); setLastActionLabel(selectedVerdict === 'GUILTY' ? 'Suçlu oyu verildi' : 'Affet oyu verildi'); }}>Onayla</Button>
                        </div>
                        {judgmentCounts && (
                          <div className="flex items-center justify-center gap-2">
