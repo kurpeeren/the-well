@@ -518,10 +518,26 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                {!isSpectator && isRoleVisible && activeRole === 'Şifacı' && <StatBadge tone="green" size="sm" title="Kendini Koruma Hakkı">Kalkan: {2 - (me.uses || 0)}</StatBadge>}
                {!isSpectator && isRoleVisible && activeRole === 'Avcı' && <StatBadge tone="amber" size="sm" title="Pusu Kurma Hakkı">Pusu: {3 - (me.uses || 0)}</StatBadge>}
                {!isSpectator && isRoleVisible && activeRole === 'Kaçak' && <StatBadge tone="green" size="sm" title="Saklanma Hakkı">Saklanma: {4 - (me.uses || 0)}</StatBadge>}
-               <IconButton aria-label="Rol bilgisi" onClick={() => setShowRoleModal(true)} className="hover:text-yellow-500 active:text-yellow-400 p-1 sm:p-0 -m-1 sm:m-0"><Info className="w-5 h-5" /></IconButton>
-               {onOpenFeedback && (
-                 <IconButton aria-label="Geri Bildirim" title="Geri Bildirim" onClick={onOpenFeedback} className="hover:text-accent active:text-amber-400 p-1 sm:p-0 -m-1 sm:m-0"><MessageSquare className="w-5 h-5" /></IconButton>
-               )}
+               <div className="flex items-center gap-2.5 sm:gap-3 ml-2 sm:ml-3">
+                 <IconButton
+                    aria-label="Rol bilgisi"
+                    title="Rol bilgisi"
+                    onClick={() => setShowRoleModal(true)}
+                    className="bg-slate-900/60 border border-slate-700/70 hover:border-yellow-700/70 hover:text-yellow-500 active:text-yellow-400"
+                 >
+                    <Info size={20} />
+                 </IconButton>
+                 {onOpenFeedback && (
+                    <IconButton
+                       aria-label="Geri Bildirim"
+                       title="Geri Bildirim"
+                       onClick={onOpenFeedback}
+                       className="bg-slate-900/60 border border-slate-700/70 hover:border-amber-700/70 hover:text-accent active:text-amber-400"
+                    >
+                       <MessageSquare size={20} />
+                    </IconButton>
+                 )}
+               </div>
              </div>
            </div>
            <div className="sm:hidden shrink-0">
