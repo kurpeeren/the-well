@@ -97,6 +97,7 @@ function App() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [kickTarget, setKickTarget] = useState(null); // { socketId, name }
+  const [kickedNotice, setKickedNotice] = useState(null); // sebebi tutan string, modal trigger
 
   useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
 
@@ -194,7 +195,7 @@ function App() {
       setPlayers([]);
       setIsSpectator(false);
       setGameState('JOIN');
-      showToast(reason || 'Odadan atildin');
+      setKickedNotice(reason || 'Oda kurucusu tarafindan atildin.');
     });
 
     socket.on('gameStarted', (playerList) => {
@@ -328,6 +329,30 @@ function App() {
       {toast && (
         <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
           {toast}
+        </div>
+      )}
+
+      {/* ATILDIN MODAL — host tarafindan odadan atilinca acilir */}
+      {kickedNotice && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-sm bg-slate-900 border border-red-900/60 rounded-2xl shadow-[0_0_60px_rgba(220,38,38,0.4)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+            <div className="p-7 flex flex-col items-center text-center">
+              <div className="relative mb-4">
+                <div className="absolute inset-0 bg-red-600/30 blur-2xl rounded-full" />
+                <UserMinus size={56} className="text-red-500 relative drop-shadow-[0_0_12px_rgba(220,38,38,0.7)]" />
+              </div>
+              <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-3 drop-shadow-[0_0_8px_rgba(220,38,38,0.5)]">Odadan Atıldın</h3>
+              <p className="text-slate-300 text-sm leading-relaxed font-serif italic">
+                {kickedNotice}
+              </p>
+              <p className="text-slate-500 text-[11px] mt-4 uppercase tracking-widest">İstersen oda koduyla geri dönebilirsin</p>
+            </div>
+            <div className="border-t border-slate-800 p-3">
+              <Button variant="danger" size="md" className="w-full" onClick={() => setKickedNotice(null)}>
+                Tamam
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
