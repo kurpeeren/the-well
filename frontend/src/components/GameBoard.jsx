@@ -588,8 +588,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'NIGHT' && me.isAlive && !isSpectator && !hasActioned && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
                  {hasNightTargetAction && (
-                    <div className="w-full">
-                       <div className="flex justify-between items-center mb-2 px-2 gap-2">
+                    <div className="w-full h-full flex flex-col min-h-0">
+                       <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
                           <div className="flex items-center gap-2 min-w-0">
                              <p className="text-blood-red text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Hedef Seç</p>
                              {activeRole === 'Şifacı' && (
@@ -602,7 +602,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                              <Button variant="primary" size="sm" onClick={() => handleAction('target')} className="animate-pulse shrink-0">Onayla</Button>
                           )}
                        </div>
-                       <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} />
+                       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                          <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} />
+                       </div>
                     </div>
                  )}
                  {isAvci && (
@@ -618,15 +620,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                     </div>
                  )}
                  {isKundakci && (
-                    <div className="w-full">
-                       <div className="flex justify-between items-center mb-2 px-2 gap-2">
+                    <div className="w-full h-full flex flex-col min-h-0">
+                       <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
                           <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
                           <div className="flex gap-2 shrink-0">
                              <Button variant="primary" size="sm" onClick={() => handleAction('ignite', true)} className="gap-1"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</Button>
                              {selectedPlayer && <Button variant="primary" size="sm" onClick={() => handleAction('douse')}>Gazla</Button>}
                           </div>
                        </div>
-                       <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} dousedList={dousedList} />
+                       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                          <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} dousedList={dousedList} />
+                       </div>
                     </div>
                  )}
                  {isYanasma && (
@@ -646,15 +650,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
            {/* GÜNDÜZ CANLI SUÇLAMA OYU */}
            {gamePhase === 'DAY' && me.isAlive && !isSpectator && !hasActioned && (
-              <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
-                 <div className="flex justify-between items-center mb-2 px-2 gap-2">
+              <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col">
+                 <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
                     <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
                        <Button variant="neutral" size="sm" onClick={() => { socket.emit('skipDayVote', { roomCode, impersonateId: isDevMode ? impersonateId : null }); setSelectedPlayer(null); setHasActioned(true); setLastActionLabel('Pas geçtin — günü atlama oyu verildi'); }}>Pas Geç ({skipDayCount.count}/{skipDayCount.total || players.filter(p => p.isAlive && p.connected).length})</Button>
                        <Button variant="accent" size="sm" disabled={!selectedPlayer} onClick={() => handleVote()}>Oyla</Button>
                     </div>
                  </div>
-                 <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
+                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                    <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
+                 </div>
               </div>
            )}
 
