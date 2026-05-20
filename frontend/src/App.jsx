@@ -88,7 +88,7 @@ function App() {
   const [trial, setTrial] = useState(null);
   const dayCountRef = useRef(1);
   const [dousedList, setDousedList] = useState([]);
-  const [settings, setSettings] = useState({ nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, defenseTimer: 60, kirmizi: 4, gri: 2, yesil: 9 });
+  const [settings, setSettings] = useState({ nightTimer: 35, morningTimer: 8, dayTimer: 75, votingTimer: 25, defenseTimer: 30, kirmizi: 2, gri: 1, yesil: 5 });
   const [isRatioManuallySet, setIsRatioManuallySet] = useState(false);
   const [gameResults, setGameResults] = useState(null);
   const [revealedNotes, setRevealedNotes] = useState([]);
@@ -590,12 +590,21 @@ function App() {
                              return (
                                 <div key={k} className="flex flex-col">
                                    <label className="text-xs text-slate-300 mb-1.5 font-medium">{labelMap[k]}</label>
-                                   <input type="number" disabled={!isHost} value={settings[k] || 0}
+                                   <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      pattern="[0-9]*"
+                                      maxLength={3}
+                                      disabled={!isHost}
+                                      value={settings[k] ?? 0}
+                                      onFocus={(e) => e.target.select()}
                                       onChange={(e) => {
-                                         const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
+                                         const raw = e.target.value.replace(/\D/g, '').slice(0, 3);
+                                         const num = raw === '' ? 0 : parseInt(raw, 10);
+                                         const newSettings = { ...settings, [k]: num };
                                          setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
                                       }}
-                                      className="bg-black border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-yellow-500 focus:ring-1 text-base w-full"
+                                      className="bg-black border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:border-yellow-500 focus:ring-1 text-base w-full text-center tabular-nums"
                                    />
                                 </div>
                              )
@@ -615,13 +624,22 @@ function App() {
                              return (
                                 <div key={k} className="flex flex-col">
                                    <label className={`text-xs ${colorMap[k]} font-bold mb-1.5 uppercase tracking-wider`}>{labelMap[k]}</label>
-                                   <input type="number" disabled={!isHost} value={settings[k] || 0}
+                                   <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      pattern="[0-9]*"
+                                      maxLength={2}
+                                      disabled={!isHost}
+                                      value={settings[k] ?? 0}
+                                      onFocus={(e) => e.target.select()}
                                       onChange={(e) => {
                                          setIsRatioManuallySet(true);
-                                         const newSettings = { ...settings, [k]: parseInt(e.target.value) || 0 };
+                                         const raw = e.target.value.replace(/\D/g, '').slice(0, 2);
+                                         const num = raw === '' ? 0 : parseInt(raw, 10);
+                                         const newSettings = { ...settings, [k]: num };
                                          setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
                                       }}
-                                      className="bg-black border border-slate-700 shadow-inner rounded-lg p-2.5 text-white outline-none focus:border-yellow-500 focus:ring-1 text-base w-full"
+                                      className="bg-black border border-slate-700 shadow-inner rounded-lg p-2.5 text-white outline-none focus:border-yellow-500 focus:ring-1 text-base w-full text-center tabular-nums"
                                    />
                                 </div>
                              )

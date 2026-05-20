@@ -523,7 +523,32 @@ io.on('connection', (socket) => {
       createdAt: Date.now(),
       lastActivity: Date.now(),
       spectators: [],
-      settings: { nightTimer: 40, morningTimer: 10, dayTimer: 90, votingTimer: 30, defenseTimer: 60 }
+      settings: {
+        nightTimer: 35, morningTimer: 8, dayTimer: 75, votingTimer: 25, defenseTimer: 30,
+        kirmizi: 2, gri: 1, yesil: 5,
+        roles: {
+          // 8 eglenceli rol — sabit ikili (EB+SK) + 1 tarafsiz + 5 koylu
+          'Eşkıya Başı': true,
+          'Seri Katil':  true,
+          'Köy Delisi':  true,
+          'Şifacı':      true,
+          'Bekçi':       true,
+          'Muhtar':      true,
+          'Falcı':       true,
+          'Avcı':        true,
+          // Default kapali — host lobide acabilir
+          'Gözcü':       false,
+          'Gassal':      false,
+          'Eskort':      false,
+          'Münafık':     false,
+          'Eşkıya':      false,
+          'Tefeci':      false,
+          'Meyhaneci':   false,
+          'Kan Davalı':  false,
+          'Kundakçı':    false,
+          'Kaçak':       false,
+        },
+      }
     };
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: true, token, settings: rooms[roomCode].settings });
