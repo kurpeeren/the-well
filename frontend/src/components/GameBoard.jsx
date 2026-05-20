@@ -34,7 +34,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showImpersonateMenu, setShowImpersonateMenu] = useState(false);
   const [personalNotesMap, setPersonalNotesMap] = useState({});
-  const [isRoleVisible, setIsRoleVisible] = useState(false);
+  const [isRoleVisible, setIsRoleVisible] = useState(true);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showGraveyard, setShowGraveyard] = useState(false);
   const [voteDetails, setVoteDetails] = useState({});
@@ -336,9 +336,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
     const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
 
-    if (evils.includes(role)) return 'text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
-    if (neutrals.includes(role)) return 'text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)]'; // Gri
-    return 'text-emerald-300 drop-shadow-[0_0_5px_rgba(110,231,183,0.35)]'; // Yeşil (Masumlar) — muted
+    if (evils.includes(role)) return '!text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
+    if (neutrals.includes(role)) return '!text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)]'; // Gri
+    return '!text-emerald-300 drop-shadow-[0_0_5px_rgba(110,231,183,0.35)]'; // Yeşil (Masumlar) — muted
   };
 
   const getTeamName = (role) => {
@@ -497,7 +497,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            </div>
            <div className="flex-1 min-w-0">
              <StatBadge tone="phase" size="md" className="inline-flex max-w-full sm:px-4 sm:py-2.5 sm:rounded-2xl sm:shadow-inner backdrop-blur-sm transition-all duration-700">
-               <h2 className={`text-sm sm:text-lg font-bold tracking-[0.2em] sm:tracking-[0.25em] font-serif uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
+               <h2 className={`text-sm sm:text-lg font-semibold tracking-[0.15em] sm:tracking-[0.18em] uppercase truncate leading-tight transition-colors duration-700 ${getPhaseTextClass()}`}>{getPhaseNameTR()}</h2>
              </StatBadge>
              <div className="text-[11px] sm:text-xs font-medium mt-1 sm:mt-3 text-slate-400 flex items-center gap-1.5 sm:gap-1 flex-wrap">
                <StatBadge
