@@ -325,9 +325,20 @@ function App() {
 
   const isInGame = gameState === 'GAME';
   return (
-    <div className="text-slate-100 font-sans flex flex-col items-center bg-[#050505] h-[100svh] overflow-hidden sm:p-4">
+    <div
+      className="text-slate-100 font-sans flex flex-col items-center bg-[#050505] h-[100svh] overflow-hidden sm:p-4"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
+    >
       {toast && (
-        <div className="fixed top-10 left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500">
+        <div
+          className="fixed left-1/2 transform -translate-x-1/2 bg-blood-red text-white px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(127,29,29,0.5)] z-50 animate-bounce font-bold tracking-wider text-sm border border-red-500"
+          style={{ top: 'calc(env(safe-area-inset-top) + 1rem)' }}
+        >
           {toast}
         </div>
       )}
@@ -743,7 +754,7 @@ function App() {
            </div>
 
            {/* Sticky CTA */}
-           <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+           <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40">
               {isHost ? (
                  <Button variant="primary" size="lg" className="w-full" onClick={() => socket.emit('startGame', roomCode)}>
                     Oyunu Başlat ({players.length}/16)
