@@ -96,8 +96,17 @@ function App() {
   const [lobbyTab, setLobbyTab] = useState('players'); // 'players' | 'settings' | 'roles'
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [kickTarget, setKickTarget] = useState(null); // { socketId, name }
 
   useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
+
+  // Atma onay modali acik kalmis ama oyuncu kendiliginden ayrilmis ya da faz degismis → modal'i kapat
+  useEffect(() => {
+    if (!kickTarget) return;
+    if (gameState !== 'LOBBY' || !players.some(p => p.socketId === kickTarget.socketId)) {
+      setKickTarget(null);
+    }
+  }, [players, gameState, kickTarget]);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -587,11 +596,7 @@ function App() {
                                 {canKick && (
                                    <button
                                       type="button"
-                                      onClick={() => {
-                                         if (window.confirm(`${p.name} odadan atilsin mi?`)) {
-                                            socket.emit('hostKick', { roomCode, targetSocketId: p.socketId });
-                                         }
-                                      }}
+                                      onClick={() => setKickTarget({ socketId: p.socketId, name: p.name })}
                                       title={`${p.name} adli oyuncuyu odadan at`}
                                       className="p-1.5 rounded-md text-slate-400 hover:text-blood-red hover:bg-red-950/40 active:bg-red-900/40 transition-colors"
                                    >
@@ -725,6 +730,33 @@ function App() {
                  {__APP_COMMIT__} · {__APP_BUILD_DATE__}
               </p>
            </div>
+
+           {/* ODADAN ATMA ONAYI MODAL */}
+           {kickTarget && (
+              <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setKickTarget(null)}>
+                 <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                    <div className="p-6 flex flex-col items-center text-center">
+                       <UserMinus size={48} className="text-red-500 mb-3" />
+                       <h3 className="font-serif tracking-widest uppercase text-xl text-red-500 font-bold mb-2">Oyuncuyu At?</h3>
+                       <p className="text-slate-300 text-sm leading-relaxed">
+                          <span className="text-slate-100 font-bold">{kickTarget.name}</span> odadan çıkarılsın mı? Bu kişi isterse yine de oda koduyla geri dönebilir.
+                       </p>
+                    </div>
+                    <div className="flex gap-2 border-t border-slate-800 p-3">
+                       <Button variant="neutral" size="md" className="flex-1" onClick={() => setKickTarget(null)}>Vazgeç</Button>
+                       <Button
+                          variant="danger"
+                          size="md"
+                          className="flex-1"
+                          onClick={() => {
+                             socket.emit('hostKick', { roomCode, targetSocketId: kickTarget.socketId });
+                             setKickTarget(null);
+                          }}
+                       >Kuyuya Yolla</Button>
+                    </div>
+                 </div>
+              </div>
+           )}
          </div>
       )}
 
