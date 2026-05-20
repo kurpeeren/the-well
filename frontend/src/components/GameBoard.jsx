@@ -224,6 +224,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   // ROLE LOGIC
   const isEskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(activeRole);
+  // Kullanici rol rozetine basip rolu gizlediginde rol-aciklayan tum gorsel ipuclarini da gizle
+  // (chat temalari, baloncuk renkleri, takim vurgusu). Spectator zaten ayri davraniyor.
+  const roleHidden = !isRoleVisible && !isSpectator;
   const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Gözcü', 'Falcı', 'Tefeci', 'Meyhaneci', 'Eskort'].includes(activeRole);
   
   const isAvci = activeRole === 'Avcı';
@@ -323,7 +326,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
      return true;
   });
 
-  if (isEskiya) {
+  if (isEskiya && !roleHidden) {
      nightTargets = nightTargets.map(p => {
         if (['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'].includes(p.role)) {
            return { ...p, isTeam: true };
@@ -776,7 +779,14 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                   let bubbleClass = 'bg-slate-800 text-slate-200 border-slate-700';
                   let senderClass = 'text-slate-400';
 
-                  if (c.type === 'dead') {
+                  // Rol gizliyken kanal renkleri (mor/kirmizi) ayirt edilmesin diye herkesi day temasiyla goster.
+                  // Kendi balonun aksent renginde kalir (rol acigi vermez, sadece "ben" gostergesi).
+                  if (roleHidden) {
+                     if (isMe) {
+                        bubbleClass = 'bg-accent text-white ml-auto rounded-br-sm border-accent';
+                        senderClass = 'text-blue-200';
+                     }
+                  } else if (c.type === 'dead') {
                      bubbleClass = 'bg-purple-900/30 border-purple-800/50 text-purple-200';
                      senderClass = 'text-purple-400';
                   } else if (c.type === 'mafia') {
@@ -812,14 +822,16 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  day:   { wrap: 'bg-slate-900/60 border-slate-800/50',    form: 'bg-slate-800 border-slate-700',          send: 'bg-accent hover:bg-amber-700',       label: null,                placeholder: 'Zanlıları tartış...',     text: 'text-slate-300' },
               };
               const canMafiaShortcut = me.isAlive && isEskiya && gamePhase === 'DAY';
-              // Eşkıya gündüz /c ile yazarken input kırmızı tema'ya geçer
+              // Eşkıya gündüz /c ile yazarken input kırmızı tema'ya geçer (rol gizliyken bu disguise edilir)
               const isMafiaShortcut = canMafiaShortcut && currentMessage.trim().startsWith('/c');
-              const t = isMafiaShortcut ? channelTheme.mafia : (channelTheme[chatChannel] || channelTheme.day);
-              if (canMafiaShortcut && !isMafiaShortcut) t.placeholder = 'Zanlıları tartış...  ·  /c ile çete';
+              const baseT = isMafiaShortcut ? channelTheme.mafia : (channelTheme[chatChannel] || channelTheme.day);
+              // Rol gizliyken kanal temasi (mor/kirmizi) ele verir → day temasiyla degistir, label ve /c ipucunu bastir
+              const t = roleHidden ? { ...channelTheme.day } : baseT;
+              if (canMafiaShortcut && !isMafiaShortcut && !roleHidden) t.placeholder = 'Zanlıları tartış...  ·  /c ile çete';
 
               return (
                  <div className={`shrink-0 border-t ${t.wrap}`}>
-                    {chatChannel && channelTheme[chatChannel].label && (
+                    {chatChannel && t.label && (
                        <div className={`px-3 py-1 text-center text-[9px] font-black uppercase tracking-[0.3em] ${t.text} border-b ${t.wrap.split(' ')[1]}`}>
                           — {t.label} —
                        </div>
