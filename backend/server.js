@@ -735,6 +735,30 @@ io.on('connection', (socket) => {
      }
   });
 
+  // Host odadan oyuncu atar — yalniz LOBBY fazinda, kendini atamaz.
+  // Atilan oyuncunun tokeni gecersiz kilinmaz; isterse yeniden manuel girebilir.
+  socket.on('hostKick', ({ roomCode, targetSocketId }) => {
+     const room = rooms[roomCode];
+     if (!room) return;
+     if (room.host !== socket.id) return;
+     if (room.status !== 'LOBBY') return;
+     if (!targetSocketId || targetSocketId === socket.id) return;
+
+     const idx = room.players.findIndex(p => p.socketId === targetSocketId);
+     if (idx === -1) return;
+
+     const kickedName = room.players[idx].name;
+     room.players.splice(idx, 1);
+
+     const targetSocket = io.sockets.sockets.get(targetSocketId);
+     if (targetSocket) {
+        targetSocket.emit('kicked', { reason: `${kickedName}, oda kurucusu tarafindan atildin.` });
+        targetSocket.leave(roomCode);
+     }
+     io.to(roomCode).emit('updateLobby', room.players);
+     console.log(`[host-kick] ${kickedName} (${targetSocketId}) ${roomCode} odasindan host tarafindan atildi`);
+  });
+
   socket.on('updateSettings', ({ roomCode, settings }) => {
     const room = rooms[roomCode];
     if (room && room.host === socket.id) {

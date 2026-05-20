@@ -5,7 +5,7 @@ import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
 import ShareInviteModal from './components/ShareInviteModal';
 import FeedbackModal from './components/FeedbackModal';
-import { LogOut, Share2, MessageSquare } from 'lucide-react';
+import { LogOut, Share2, MessageSquare, UserMinus } from 'lucide-react';
 import { Button } from './components/ui/Button';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
@@ -24,7 +24,7 @@ const THROTTLED_EVENTS = new Set([
   'nightAction', 'votePlayer',
   'chatMessage', 'deadChatMessage', 'mafiaChatMessage',
   'mayorReveal', 'skipDayVote', 'startGame', 'returnToLobby',
-  'forceNextPhase', 'leaveRoom',
+  'forceNextPhase', 'leaveRoom', 'hostKick',
   'judgmentVote', 'withdrawVote',
 ]);
 const _lastEmit = new Map();
@@ -177,6 +177,17 @@ function App() {
       setGameState('JOIN');
     });
 
+    socket.on('kicked', ({ reason } = {}) => {
+      localStorage.removeItem('kuyu_token');
+      localStorage.removeItem('kuyu_room');
+      setRoomCode('');
+      setIsHost(false);
+      setPlayers([]);
+      setIsSpectator(false);
+      setGameState('JOIN');
+      showToast(reason || 'Odadan atildin');
+    });
+
     socket.on('gameStarted', (playerList) => {
       setPlayers(playerList);
       setGameState('GAME');
@@ -263,6 +274,7 @@ function App() {
       socket.off('gameOver');
       socket.off('settingsUpdated');
       socket.off('reconnectFailed');
+      socket.off('kicked');
       socket.off('returnedToLobby');
     };
   }, []);
@@ -563,12 +575,33 @@ function App() {
            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 sm:p-5">
               {lobbyTab === 'players' && (
                  <ul className="space-y-2">
-                    {players.map((p, i) => (
-                       <li key={i} className="bg-slate-800 px-4 py-3 rounded-lg flex justify-between items-center shadow-inner">
-                          <span className="font-medium text-slate-200">{p.name} {p.socketId === socket.id && <span className="text-slate-500 text-sm ml-2">(Sen)</span>}</span>
-                          {p.socketId === players[0]?.socketId && <span className="text-amber-500 text-xs font-bold tracking-wider uppercase">Host</span>}
-                       </li>
-                    ))}
+                    {players.map((p, i) => {
+                       const isMe = p.socketId === socket.id;
+                       const isHostRow = p.socketId === players[0]?.socketId;
+                       const canKick = isHost && !isMe && !isSpectator;
+                       return (
+                          <li key={i} className="bg-slate-800 px-4 py-3 rounded-lg flex justify-between items-center shadow-inner gap-2">
+                             <span className="font-medium text-slate-200 truncate">{p.name} {isMe && <span className="text-slate-500 text-sm ml-2">(Sen)</span>}</span>
+                             <div className="flex items-center gap-2 shrink-0">
+                                {isHostRow && <span className="text-amber-500 text-xs font-bold tracking-wider uppercase">Host</span>}
+                                {canKick && (
+                                   <button
+                                      type="button"
+                                      onClick={() => {
+                                         if (window.confirm(`${p.name} odadan atilsin mi?`)) {
+                                            socket.emit('hostKick', { roomCode, targetSocketId: p.socketId });
+                                         }
+                                      }}
+                                      title={`${p.name} adli oyuncuyu odadan at`}
+                                      className="p-1.5 rounded-md text-slate-400 hover:text-blood-red hover:bg-red-950/40 active:bg-red-900/40 transition-colors"
+                                   >
+                                      <UserMinus size={16} />
+                                   </button>
+                                )}
+                             </div>
+                          </li>
+                       );
+                    })}
                     {players.length === 0 && <li className="text-slate-500 italic text-center py-4">İzleyici modundasın. Oyuncular listeleniyor...</li>}
                     {isSpectator && (
                        <p className="text-center text-accent/80 font-serif text-sm mt-4">Görünmez bir ruh olarak kasabayı izliyorsun.</p>
