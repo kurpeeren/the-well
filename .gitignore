@@ -7,3 +7,6 @@ dist/
 build/
 *.pyc
 __pycache__/
+
+# Runtime metrics (server.js calistikca yazar, repoda tutulmaz)
+backend/.metrics-history.json
