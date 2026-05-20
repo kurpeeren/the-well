@@ -145,6 +145,17 @@ function App() {
        socket.emit('reconnectRoom', { roomCode: savedRoom, token: savedToken });
     }
 
+    // Soket her bağlantı kurduğunda (ilk açılış + wifi/uyku sonrası otomatik reconnect),
+    // localStorage'da token varsa oda kurtarma denemesi yap.
+    // Boylece oyun esnasinda dusen oyuncu, soket yeniden baglandiginda otomatik geri girer.
+    socket.on('connect', () => {
+      const savedToken = localStorage.getItem('kuyu_token');
+      const savedRoom = localStorage.getItem('kuyu_room');
+      if (savedToken && savedRoom) {
+        socket.emit('reconnectRoom', { roomCode: savedRoom, token: savedToken });
+      }
+    });
+
     // Admin RTT ping — sunucu timestamp gönderir, biz echo ederiz
     socket.on('adminPing', (ts) => socket.emit('adminPong', ts));
 
@@ -286,6 +297,7 @@ function App() {
       socket.off('reconnectFailed');
       socket.off('kicked');
       socket.off('returnedToLobby');
+      socket.off('connect');
     };
   }, []);
 

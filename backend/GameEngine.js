@@ -1,4 +1,4 @@
-const { ROLES, getColorAlignment, getInvestResults } = require('./roles');
+const { ROLES, getColorAlignment, getInvestResults, getProphecy } = require('./roles');
 const voteLogic = require('./voteLogic');
 const { pushEvent } = require('./gameLog');
 
@@ -220,8 +220,9 @@ class GameEngine {
       let framed = {}; 
       let alerts = {}; 
       let roleblocked = {};
-      let visits = {}; 
-  
+      let visits = {};
+      let ignitedIds = []; // ignite anindaki gazli ev listesi (room.doused temizlenmeden once yakalanir)
+
       const getPlayer = (id) => room.players.find(p => p.socketId === id);
       const actions = Object.values(room.nightActions);
   
@@ -273,12 +274,18 @@ class GameEngine {
                   room.doused[a.targetId] = true;
                   this.sendPrivateNews(roomCode, a.actorId, { text: `${getPlayer(a.targetId)?.name || 'Hedefin'} adlı kişinin evini gazyağına buladın.`, align: 'Yeşil' });
               } else if (a.actionType === 'ignite') {
-                  for (let dousedId in room.doused) {
-                     deaths.push(dousedId);
-                     this.sendPrivateNews(roomCode, dousedId, { text: "Evini ateşe verdiler!", align: 'Kırmızı' });
+                  // Guard: hic gazli ev yokken ates yakilamaz, oyuncuyu uyar
+                  if (Object.keys(room.doused).length === 0) {
+                     this.sendPrivateNews(roomCode, a.actorId, { text: "Henuz hicbir evi gazlamadin! Once gazla, sonra yak.", align: 'Kırmızı' });
+                  } else {
+                     ignitedIds = Object.keys(room.doused); // arson death cause icin yakala
+                     for (let dousedId in room.doused) {
+                        deaths.push(dousedId);
+                        this.sendPrivateNews(roomCode, dousedId, { text: "Evini ateşe verdiler!", align: 'Kırmızı' });
+                     }
+                     this.sendPrivateNews(roomCode, a.actorId, { text: "Evleri ateşe verdin, ortalığı küle çevirdin!", align: 'Yeşil' });
+                     room.doused = {};
                   }
-                  this.sendPrivateNews(roomCode, a.actorId, { text: "Evleri ateşe verdin, ortalığı küle çevirdin!", align: 'Yeşil' });
-                  room.doused = {};
               }
           }
       });
@@ -368,10 +375,9 @@ class GameEngine {
                this.sendPrivateNews(roomCode, a.actorId, { text: msg, align: 'Yeşil' });
             }
             else if (a.role === 'Falcı') {
-               let fRole = targetP.role;
-               if (framed[a.targetId] || (targetP.framedDay !== undefined && room.dayCount <= targetP.framedDay + 1)) fRole = 'Münafık';
-               let msg = `${targetP.name} için kehanet: ${getInvestResults(fRole)}!`;
-               this.sendPrivateNews(roomCode, a.actorId, { text: msg, align: 'Yarı' });
+               const isFramed = framed[a.targetId] || (targetP.framedDay !== undefined && room.dayCount <= targetP.framedDay + 1);
+               const prophecy = getProphecy(targetP.role, isFramed);
+               this.sendPrivateNews(roomCode, a.actorId, { text: `${targetP.name} için kehanet: ${prophecy}!`, align: 'Yarı' });
             }
          }
       });
@@ -474,9 +480,6 @@ class GameEngine {
       // RESOLVE DEATHS
       deaths = [...new Set(deaths)]; 
       let killedInfos = [];
-
-      // Arsonist kills'i ayırmak için doused olanları kontrol et
-      const ignitedIds = actions.filter(a => a.role === 'Kundakçı' && a.actionType === 'ignite' && !roleblocked[a.actorId]).length > 0 ? Object.keys(room.doused) : [];
 
       deaths.forEach(dId => {
         const p = getPlayer(dId);

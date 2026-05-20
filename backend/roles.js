@@ -41,8 +41,46 @@ function getColorAlignment(role) {
    return 'Gri';
 }
 
+// Falci kehaneti: 3 takimdan 1'er rol + bazen rastgele 4. rol.
+// Hedefin gercek rolu her zaman icinde yer alir (framed ise eskıya disguise).
+// %75 olasilikla 4 rol, %25 olasilikla 3 rol gosterilir.
+function getProphecy(targetRole, framed = false) {
+  const masum = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'];
+  const eskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
+  const tarafsiz = ['Köy Delisi', 'Seri Katil', 'Kan Davalı', 'Kundakçı', 'Kaçak'];
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+  // Framed iken hedef bir eskıya rolu gibi gosterilir
+  const effective = framed ? pick(eskiya) : targetRole;
+  const team = ROLES[effective]?.team;
+  const align = team === 'Köylüler' ? 'masum' : team === 'Eşkıyalar' ? 'eskiya' : 'tarafsiz';
+
+  const slots = [
+    align === 'masum' ? effective : pick(masum),
+    align === 'eskiya' ? effective : pick(eskiya),
+    align === 'tarafsiz' ? effective : pick(tarafsiz),
+  ];
+
+  // 4. slot bazen var bazen yok
+  if (Math.random() < 0.75) {
+    const all = [...masum, ...eskiya, ...tarafsiz];
+    const candidates = all.filter(r => !slots.includes(r));
+    if (candidates.length > 0) slots.push(pick(candidates));
+  }
+
+  // Pozisyonu rastgelele — hedef rolu bilinmesin diye
+  for (let i = slots.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [slots[i], slots[j]] = [slots[j], slots[i]];
+  }
+
+  if (slots.length === 4) return `${slots[0]}, ${slots[1]}, ${slots[2]} veya ${slots[3]}`;
+  return `${slots[0]}, ${slots[1]} veya ${slots[2]}`;
+}
+
 module.exports = {
   ROLES,
   getInvestResults,
-  getColorAlignment
+  getColorAlignment,
+  getProphecy,
 };

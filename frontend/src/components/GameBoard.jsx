@@ -283,9 +283,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     return chatMessages.filter(c => {
       if (c.type === 'separator') return true;
       const ch = c.type || 'day';
-      return readAccess.has(ch);
+      if (!readAccess.has(ch)) return false;
+      // Hayatta olan Gassal sadece geceleyin oluler boyutunu canli izleyebilir.
+      // Gunduz "kanal kapali" gibi davranir; gece olunca onceki gunun olu mesajlari geriye donuk gorulebilir.
+      if (ch === 'dead' && activeRole === 'Gassal' && me.isAlive && gamePhase !== 'NIGHT') return false;
+      return true;
     });
-  }, [chatMessages, readAccess]);
+  }, [chatMessages, readAccess, activeRole, me.isAlive, gamePhase]);
 
   // ANIMASYON EFEKTLERI STATE'I
   const [animEffect, setAnimEffect] = useState(null); // 'death', 'well'
@@ -386,8 +390,8 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     'Falcı': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/falci.webp',
-      ability: '🔮 Olası 3 rolden oluşan kehanet alır',
-      desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona o kişinin olası 3 rolünden oluşan bir kehanet sunar. Münafık tarafından çerçevelenmiş biri farklı bir kehanet üretir.',
+      ability: '🔮 3 ya da 4 olası rolden oluşan kehanet alır',
+      desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona her takımdan birer rol (1 masum + 1 eşkıya + 1 tarafsız) ve bazen bunlara ek rastgele bir rol içeren kehanet sunar — hedefin gerçek rolü her zaman içindedir. Münafık tarafından çerçevelenmiş biri eşkıya gibi gösterilir.',
     },
     'Gassal': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
@@ -625,9 +629,19 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                  {isKundakci && (
                     <div className="w-full flex flex-col">
                        <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
-                          <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
+                          <div className="flex flex-col min-w-0">
+                             <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
+                             <p className="text-[9px] text-slate-400 truncate">Gazli ev: {dousedList.length}</p>
+                          </div>
                           <div className="flex gap-2 shrink-0">
-                             <Button variant="primary" size="sm" onClick={() => handleAction('ignite', true)} className="gap-1"><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</Button>
+                             <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => handleAction('ignite', true)}
+                                disabled={dousedList.length === 0}
+                                title={dousedList.length === 0 ? 'Once bir ev gazla' : 'Tum gazli evleri ates et'}
+                                className="gap-1"
+                             ><Flame className="w-3.5 h-3.5 sm:w-2.5 sm:h-2.5"/>Yak</Button>
                              {selectedPlayer && <Button variant="primary" size="sm" onClick={() => handleAction('douse')}>Gazla</Button>}
                           </div>
                        </div>
@@ -1228,16 +1242,36 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
        {/* KİŞİSEL ANİMASYONLAR (Ölüm ve Kuyu) */}
        {animEffect === 'death' && (
-          <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center bg-red-950/80 animate-[flash_0.2s_ease-out_3]">
-             <div className="bg-black border-[10px] border-red-700 rounded-full w-64 h-64 flex flex-col items-center justify-center shadow-[0_0_100px_rgba(255,0,0,1)] animate-[pulse_0.5s_infinite]">
-                 <Flame size={80} className="text-red-500 animate-pulse" />
-                 <h1 className="text-3xl font-black text-red-500 font-serif tracking-widest mt-4 animate-bounce text-center">{animText}</h1>
+          <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center bg-black/95 animate-[deathFadeIn_0.6s_ease-out]">
+             {/* Kan damlasi efekti — ust kenardan asagi yayilan */}
+             <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-b from-blood-red/80 to-transparent animate-[bloodDrip_3s_ease-out_forwards]" />
+             {/* Kalp atisi cizgisi — dramatik vurgu */}
+             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(127,29,29,0.35)_0%,transparent_55%)] animate-[heartbeat_1.2s_ease-in-out_infinite]" />
+             <div className="relative flex flex-col items-center gap-6 px-6">
+                 <Skull size={120} strokeWidth={1.2} className="text-blood-red drop-shadow-[0_0_30px_rgba(220,38,38,0.8)] animate-[skullSway_2s_ease-in-out_infinite]" />
+                 <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-bold tracking-[0.6em] uppercase text-red-300/70 mb-2">— Karanlığa Karıştın —</span>
+                    <h1 className="text-4xl sm:text-5xl font-black text-red-500 font-serif tracking-[0.25em] text-center drop-shadow-[0_0_18px_rgba(220,38,38,0.7)]">{animText}</h1>
+                    <div className="w-32 h-px bg-gradient-to-r from-transparent via-blood-red to-transparent mt-4" />
+                 </div>
              </div>
              <style>{`
-                @keyframes flash {
-                   0% { opacity: 0; }
-                   50% { opacity: 1; filter: saturate(3); }
-                   100% { opacity: 0; }
+                @keyframes deathFadeIn {
+                   0% { opacity: 0; backdrop-filter: blur(0); }
+                   100% { opacity: 1; backdrop-filter: blur(4px); }
+                }
+                @keyframes bloodDrip {
+                   0% { height: 0; opacity: 0; }
+                   20% { height: 8px; opacity: 1; }
+                   100% { height: 100vh; opacity: 0.05; }
+                }
+                @keyframes heartbeat {
+                   0%, 100% { opacity: 0.4; transform: scale(1); }
+                   30%, 60% { opacity: 0.9; transform: scale(1.08); }
+                }
+                @keyframes skullSway {
+                   0%, 100% { transform: translateY(0) rotate(-2deg); }
+                   50% { transform: translateY(-4px) rotate(2deg); }
                 }
              `}</style>
           </div>
