@@ -530,7 +530,7 @@ io.on('connection', (socket) => {
           // 8 eglenceli rol — sabit ikili (EB+SK) + 1 tarafsiz + 5 koylu
           'Eşkıya Başı': true,
           'Seri Katil':  true,
-          'Köy Delisi':  true,
+          'Garip':  true,
           'Şifacı':      true,
           'Bekçi':       true,
           'Muhtar':      true,

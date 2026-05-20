@@ -105,7 +105,7 @@ Her faz geçişinde ve ölüm olayından sonra aşağıdaki kontroller yapılır
 2. **Eşkıyalar:** Köylü sayısı Eşkıya sayısına eşit veya altına düştüğünde (ve rakip katil kalmadığında) kazanır.
 3. **Seri Katil:** Sona kalan tek kişi veya son 2 kişiden biri olduğunda kazanır.
 4. **Kundakçı:** Herkesi yaktığında kazanır.
-5. **Köy Delisi (Jester):** Gündüz oylamasıyla asıldığında bireysel olarak kazanır.
+5. **Garip (Jester):** Gündüz oylamasıyla asıldığında bireysel olarak kazanır.
 6. **Kan Davalı (Executioner):** Hedefi gündüz asıldığında bireysel olarak kazanır.
 7. **Kaçak (Survivor):** Oyun bittiğinde hayatta kalmışsa kazanır.
 8. **Beraberlik:** 15 gün boyunca kimse ölmezse oyun beraberlikle biter.

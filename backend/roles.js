@@ -15,7 +15,7 @@ const ROLES = {
   'Tefeci': { align: 'Eşkıya', team: 'Eşkıyalar' }, 
   'Meyhaneci': { align: 'Eşkıya', team: 'Eşkıyalar' }, 
   // Tarafsızlar
-  'Köy Delisi': { align: 'Tarafsız', team: 'Bireysel' }, 
+  'Garip': { align: 'Tarafsız', team: 'Bireysel' }, 
   'Seri Katil': { align: 'Tarafsız', team: 'Bireysel', nightImmune: true }, 
   'Kan Davalı': { align: 'Tarafsız', team: 'Bireysel', nightImmune: true }, 
   'Kundakçı': { align: 'Kötü', team: 'Bireysel', nightImmune: true }, 
@@ -25,7 +25,7 @@ const ROLES = {
 function getInvestResults(role) {
    if (['Bekçi', 'Kan Davalı', 'Seri Katil'].includes(role)) return 'Bekçi, Kan Davalı veya Seri Katil';
    if (['Şifacı', 'Seri Katil', 'Falcı'].includes(role)) return 'Şifacı, Seri Katil veya Falcı';
-   if (['Gözcü', 'Münafık', 'Köy Delisi'].includes(role)) return 'Gözcü, Münafık veya Köy Delisi';
+   if (['Gözcü', 'Münafık', 'Garip'].includes(role)) return 'Gözcü, Münafık veya Garip';
    if (['Eşkıya Başı', 'Muhtar', 'Kaçak'].includes(role)) return 'Eşkıya Başı, Muhtar veya Kaçak';
    if (['Gassal', 'Tefeci', 'Kundakçı'].includes(role)) return 'Gassal, Tefeci veya Kundakçı';
    if (['Avcı', 'Eşkıya', 'Meyhaneci', 'Eskort'].includes(role)) return 'Avcı, Eşkıya, Meyhaneci veya Eskort';
@@ -47,7 +47,7 @@ function getColorAlignment(role) {
 function getProphecy(targetRole, framed = false) {
   const masum = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'];
   const eskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
-  const tarafsiz = ['Köy Delisi', 'Seri Katil', 'Kan Davalı', 'Kundakçı', 'Kaçak'];
+  const tarafsiz = ['Garip', 'Seri Katil', 'Kan Davalı', 'Kundakçı', 'Kaçak'];
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   // Framed iken hedef bir eskıya rolu gibi gosterilir

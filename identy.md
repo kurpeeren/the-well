@@ -34,7 +34,7 @@ Organize azınlık. Amaçları köylü sayısını kendi sayılarına düşürer
 
 ### ⬜ Tarafsızlar (Bireyseller)
 Kendi özel kazanma şartları olan, oyunun dengesini bozan karakterler.
-- **Kritik Roller:** Kundakçı (Herkesi yakma), Seri Katil (Herkesi öldürme), Köy Delisi (Kendini astırma).
+- **Kritik Roller:** Kundakçı (Herkesi yakma), Seri Katil (Herkesi öldürme), Garip (Kendini astırma).
 
 ---
 

@@ -1080,7 +1080,7 @@ const ROLE_TEAM = {
     'Şifacı': 'Masumlar', 'Bekçi': 'Masumlar', 'Avcı': 'Masumlar', 'Muhtar': 'Masumlar',
     'Gözcü': 'Masumlar', 'Falcı': 'Masumlar', 'Gassal': 'Masumlar', 'Eskort': 'Masumlar',
     'Eşkıya Başı': 'Eşkıyalar', 'Münafık': 'Eşkıyalar', 'Eşkıya': 'Eşkıyalar', 'Tefeci': 'Eşkıyalar', 'Meyhaneci': 'Eşkıyalar',
-    'Köy Delisi': 'Tarafsızlar', 'Seri Katil': 'Tarafsızlar', 'Kan Davalı': 'Tarafsızlar', 'Kundakçı': 'Tarafsızlar', 'Kaçak': 'Tarafsızlar',
+    'Garip': 'Tarafsızlar', 'Seri Katil': 'Tarafsızlar', 'Kan Davalı': 'Tarafsızlar', 'Kundakçı': 'Tarafsızlar', 'Kaçak': 'Tarafsızlar',
 };
 
 function teamOf(label) {

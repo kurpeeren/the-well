@@ -341,7 +341,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   const getTeamColor = (role) => {
     const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
-    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
+    const neutrals = ['Garip', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
 
     if (evils.includes(role)) return '!text-blood-red drop-shadow-[0_0_8px_rgba(127,29,29,0.8)]'; // Kırmızı
     if (neutrals.includes(role)) return '!text-gray-400 drop-shadow-[0_0_8px_rgba(156,163,175,0.8)]'; // Gri
@@ -350,7 +350,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   const getTeamName = (role) => {
     const evils = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
-    const neutrals = ['Köy Delisi', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
+    const neutrals = ['Garip', 'Kan Davalı', 'Kaçak', 'Seri Katil', 'Kundakçı'];
     if (evils.includes(role)) return 'Kırmızı Takım';
     if (neutrals.includes(role)) return 'Gri Takım';
     return 'Yeşil Takım';
@@ -439,7 +439,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
       image: '/roles/kan_davali.webp',
       ability: '⚔️ Tek bir kişiyi kuyuya attırmak zorundadır',
-      desc: 'Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Oyun başı rastgele bir "kan hasımı" atanır; bu kişiyi gündüz oylamayla kuyuya attırmak zorundadır. Hasım başka bir şekilde ölürse Köy Delisi\'ne dönüşür.',
+      desc: 'Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Oyun başı rastgele bir "kan hasımı" atanır; bu kişiyi gündüz oylamayla kuyuya attırmak zorundadır. Hasım başka bir şekilde ölürse aklını yitirip Garip\'e dönüşür.',
     },
     'Kundakçı': {
       color: 'text-orange-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
@@ -453,11 +453,11 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       ability: '🛡️ Sınırlı sayıda kapısını kilitler (4 hak)',
       desc: 'Sadece hayatta kalmayı hedefler. Kim kazanırsa kazansın, oyunun sonuna kadar sağ kalırsa kazanır. Saldırılardan korunmak için kapısını kilitleyebilir ama bu hak sınırlıdır.',
     },
-    'Köy Delisi': {
+    'Garip': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
-      image: '/roles/koy_delisi.webp',
+      image: '/roles/garip.webp',
       ability: '🪦 Kendisini kuyuya attırmak ister',
-      desc: 'Aklını yitirmiş, kuyunun karanlığına çekilmiş biri. Tek amacı gündüz kendini oylamayla kuyuya attırmaktır. Başarılırsa kazanır ve oy verenlerden birini kuyuya çeker. Gece eylemsizdir.',
+      desc: 'Köyün kıyısında, kimsesiz ve hüzünlü. "Bir garip ölmüş diyeler" — tek amacı gündüz kendini oylamayla kuyuya attırmaktır. Başarılırsa kazanır ve oy verenlerden birini de yanında kuyunun dibine çeker. Gece eylemsizdir.',
     },
     'Seri Katil': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',

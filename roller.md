@@ -75,7 +75,7 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 ### ⚖️ Kan Davalı *(Town of Salem: Executioner)*
 - **Hikayesi:** Gözünü intikam hırsı bürümüştür. Belirli bir köylüye kan davası gütmektedir ve gözü o kişiden başkasını görmez. Gece saldırılarına bağışıktır.
 - **Kazanma Şartı:** Oyun başladığında sistem ona rastgele bir masum köylüyü "Kan Hasmlı" (Hedef) olarak atar. Tek amacı o kişiyi yalanlarla suçlayıp **gündüz oylamasıyla kuyuya attırmaktır.** Başarırsa anında kazanır.
-- **Dinamik (Zayıflık):** Eğer hedefi gece Eşkıyalar veya Katil tarafından öldürülürse, amacı elinden alındığı için aklını yitirir ve anında **Köy Delisi'ne (Jester)** dönüşür.
+- **Dinamik (Zayıflık):** Eğer hedefi gece Eşkıyalar veya Katil tarafından öldürülürse, amacı elinden alındığı için aklını yitirir ve anında **Garip'e (Jester)** dönüşür.
 
 ### 🔥 Kundakçı *(Town of Salem: Arsonist)*
 - **Hikayesi:** Köyden de köylüden de nefret eden, her yeri küle çevirmek isteyen tehlikeli bir manyak. Gece saldırılarına bağışıktır.
@@ -89,8 +89,8 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp, katledilmeyip hayatta kalmak.
 - **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.
 
-### 🤡 Köy Delisi *(Town of Salem: Jester)*
-- **Hikayesi:** Aklını yitirmiş ve kuyunun dibindeki karanlığa takıntılı hale gelmiştir. Tek isteği o karanlığa kavuşmaktır.
+### 🤡 Garip *(Town of Salem: Jester)*
+- **Hikayesi:** Köyün kıyısında yaşayan kimsesiz biri; aklı yarı kayıp, yarı şiir. "Bir garip ölmüş diyeler" — tek isteği kuyunun dibindeki karanlığa kavuşmaktır.
 - **Kazanma Şartı:** Gece hiçbir şey yapmaz. Amacı, gündüzleri yalan söyleyip köylüleri kışkırtarak **kendini oylama sonucunda Kuyuya attırmaktır.**
 - **Özel Yetenek:** Eğer kuyuya atılmayı başarır ve oyunu kazanırsa, o gece ona sırf "Kuyuya İt" oyu verenlerden birini rastgele kuyuya çeker (öldürür).
 

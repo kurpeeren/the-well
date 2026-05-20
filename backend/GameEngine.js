@@ -61,7 +61,7 @@ class GameEngine {
           if (player.role === 'Kan Davalı') {
              const masumlar = room.players.filter(p => ROLES[p.role]?.team === 'Köylüler' && p.socketId !== player.socketId);
              if (masumlar.length > 0) player.execTarget = masumlar[Math.floor(Math.random() * masumlar.length)].socketId;
-             else player.role = 'Köy Delisi';
+             else player.role = 'Garip';
           }
         });
         return;
@@ -74,7 +74,7 @@ class GameEngine {
     // Eğer tamamen bütün roller kapatılmışsa fallback olarak tüm rolleri aç
     if (poolEvil.length === 0 && poolNeutral.length === 0 && poolTown.length === 0) {
         poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
-        poolNeutral = ['Köy Delisi', 'Kan Davalı', 'Kaçak'];
+        poolNeutral = ['Garip', 'Kan Davalı', 'Kaçak'];
         poolTown = ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
         enabledRoles['Eşkıya Başı'] = true;
         enabledRoles['Seri Katil'] = true;
@@ -164,7 +164,7 @@ class GameEngine {
          if (masumlar.length > 0) {
             player.execTarget = masumlar[Math.floor(Math.random() * masumlar.length)].socketId;
          } else {
-            player.role = 'Köy Delisi';
+            player.role = 'Garip';
          }
       }
     });
@@ -473,7 +473,7 @@ class GameEngine {
       if (room.deadJesterVotes && room.deadJesterVotes.length > 0) {
           const randomVictim = room.deadJesterVotes[Math.floor(Math.random() * room.deadJesterVotes.length)];
           deaths.push(randomVictim);
-          this.sendPrivateNews(roomCode, randomVictim, { text: "Dün asılan Köy Delisi'nin laneti üzerine çöktü! Suçluluk duygusundan kahrından öldün.", align: 'Kırmızı' });
+          this.sendPrivateNews(roomCode, randomVictim, { text: "Dün asılan Garip'in laneti üzerine çöktü! Suçluluk duygusundan kahrından öldün.", align: 'Kırmızı' });
           room.deadJesterVotes = [];
       }
   
@@ -507,7 +507,7 @@ class GameEngine {
       // Check Executioner target conversion
       room.players.forEach(p => {
           if (p.role === 'Kan Davalı' && p.execTarget && deaths.includes(p.execTarget) && p.isAlive) {
-             p.role = 'Köy Delisi';
+             p.role = 'Garip';
              this.sendPrivateNews(roomCode, p.socketId, { text: `Kan davalın ${getPlayer(p.execTarget)?.name || 'hedefin'} gece vakti öldürüldü. Amacını kaybederek delirdin... Artık amacın kendini heba ettirmek!`, align: 'Kırmızı' });
           }
       });
@@ -585,7 +585,7 @@ class GameEngine {
          this.io.to(roomCode).emit('voteResult', { lynchedPlayerName: accused.name, lynchedPlayerAlignment: getColorAlignment(accused.role), personalNote: accused.personalNote, voteTally: guiltyW });
          pushEvent(room, { type: 'lynch', text: `${accused.name} kuyuya atıldı (oy ${guiltyW})`, day: room.dayCount, phase: 'JUDGMENT', ts: Date.now(), meta: { name: accused.name, role: accused.role, hanged: true, tally: guiltyW } });
 
-         if (accused.role === 'Köy Delisi') {
+         if (accused.role === 'Garip') {
             const guilty = Object.keys(judgmentVotes).filter(id => judgmentVotes[id].verdict === 'GUILTY');
             room.deadJesterVotes = guilty;
             accused.won = true;

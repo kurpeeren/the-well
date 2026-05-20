@@ -30,7 +30,7 @@ Eşkıyaların sayısı azdır ancak çok kritik bir avantajları vardır: Gece 
 Oyunun kaderini değiştiren saatli bombalardır. Tek başlarınadırlar, ne Masumlara ne Eşkıyalara acırlar.
 
 * **1x Tarafsız Katil:** Cinnetkar veya Kundakçı. (Masumlar ile Eşkıyalar birbiriyle savaşırken, bu psikopatlar sessiz sedasız evleri işaretler veya bıçaklar. Kundakçı tek gecede 3-4 kişiyi birden yakarak 9 kişilik Masum üstünlüğünü anında kendi lehine çevirebilir).
-* **1x Tarafsız Kötü / Fesatlık:** Kan Davalı veya Köy Delisi. (Bu roller de tamamen kendi hedeflerinin derdindedir. Köy sakinleri gündüz Eşkıya ararken, bu troller bilerek kendilerini yaktırmaya veya Eşkıyalarla işbirliği yapıp hedeflerini astırmaya odaklanırlar).
+* **1x Tarafsız Kötü / Fesatlık:** Kan Davalı veya Garip. (Bu roller de tamamen kendi hedeflerinin derdindedir. Köy sakinleri gündüz Eşkıya ararken, bu troller bilerek kendilerini yaktırmaya veya Eşkıyalarla işbirliği yapıp hedeflerini astırmaya odaklanırlar).
 
 ---
 
