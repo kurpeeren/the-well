@@ -700,6 +700,7 @@ io.on('connection', (socket) => {
      if (room.trial && room.trial.accusedId === oldId) room.trial.accusedId = newId;
      if (room.judgmentVotes && room.judgmentVotes[oldId]) { room.judgmentVotes[newId] = room.judgmentVotes[oldId]; delete room.judgmentVotes[oldId]; }
      if (Array.isArray(room.acquittedToday)) { const _ai = room.acquittedToday.indexOf(oldId); if (_ai !== -1) room.acquittedToday[_ai] = newId; }
+     if (Array.isArray(room.skipDayVotes)) { const _si = room.skipDayVotes.indexOf(oldId); if (_si !== -1) room.skipDayVotes[_si] = newId; }
 
      player.connected = true;
      socket.join(roomCode);

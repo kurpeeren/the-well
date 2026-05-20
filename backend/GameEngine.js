@@ -411,7 +411,8 @@ class GameEngine {
                    this.sendPrivateNews(roomCode, mTargetId, { text: "Bu gece biri sana saldırdı... Ama tam son anda birinin müdahalesiyle kurtarıldın!", align: 'Yeşil' });
                    this.sendPrivateNews(roomCode, killerId, { text: `${targetP?.name || 'Hedef'} adlı kişiye saldırdın ama biri araya girdi, o kişi kurtarıldı!`, align: 'Kırmızı' });
                    if (gfPlayer && killerId !== gfPlayer.socketId) this.sendPrivateNews(roomCode, gfPlayer.socketId, { text: `Adamın ${targetP?.name || 'hedefe'} saldırdı ama biri araya girdi, o kişi kurtarıldı!`, align: 'Kırmızı' });
-                 } else if(vested[mTargetId]) {
+                 } else if(vested[mTargetId] || (targetP && targetP.role === 'Muhtar' && targetP.uses > 0)) {
+                   if (targetP && targetP.role === 'Muhtar' && targetP.uses > 0) targetP.uses = 0; // Muhtar yelegini tuket
                    this.sendPrivateNews(roomCode, mTargetId, { text: "Vahşice bir saldırıya uğradın ama direncini kıramadılar, ucuz atlattın!", align: 'Yeşil' });
                    this.sendPrivateNews(roomCode, killerId, { text: "Saldırdığın kişinin savunması çok güçlüydü, silahın işlemedi!", align: 'Kırmızı' });
                    if (gfPlayer && killerId !== gfPlayer.socketId) this.sendPrivateNews(roomCode, gfPlayer.socketId, { text: `Tetikçinin saldırdığı ${targetP?.name || 'kişi'} çok dirençli çıktı, silah işlemedi!`, align: 'Kırmızı' });
@@ -514,7 +515,9 @@ class GameEngine {
       }
       room.nightActions = {}; 
       
-      if (killedInfos.length === 0) {
+      // Yangin denemesi olduysa (hedefler yelekle kurtulsa bile) gece "huzurlu" sayilmaz.
+      const arsonAttempted = ignitedIds.length > 0;
+      if (killedInfos.length === 0 && !arsonAttempted) {
           room.peacefulDays = (room.peacefulDays || 0) + 1;
       } else {
           room.peacefulDays = 0;
