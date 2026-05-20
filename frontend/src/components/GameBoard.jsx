@@ -588,7 +588,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            {gamePhase === 'NIGHT' && me.isAlive && !isSpectator && !hasActioned && (
               <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col justify-center">
                  {hasNightTargetAction && (
-                    <div className="w-full h-full flex flex-col min-h-0">
+                    <div className="w-full flex flex-col">
                        <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
                           <div className="flex items-center gap-2 min-w-0">
                              <p className="text-blood-red text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Hedef Seç</p>
@@ -602,7 +602,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                              <Button variant="primary" size="sm" onClick={() => handleAction('target')} className="animate-pulse shrink-0">Onayla</Button>
                           )}
                        </div>
-                       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                       <div className="max-h-[160px] sm:max-h-[260px] overflow-y-auto custom-scrollbar overscroll-contain">
                           <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} />
                        </div>
                     </div>
@@ -620,7 +620,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                     </div>
                  )}
                  {isKundakci && (
-                    <div className="w-full h-full flex flex-col min-h-0">
+                    <div className="w-full flex flex-col">
                        <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
                           <p className="text-orange-500 text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kundaklama</p>
                           <div className="flex gap-2 shrink-0">
@@ -628,7 +628,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                              {selectedPlayer && <Button variant="primary" size="sm" onClick={() => handleAction('douse')}>Gazla</Button>}
                           </div>
                        </div>
-                       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                       <div className="max-h-[160px] sm:max-h-[260px] overflow-y-auto custom-scrollbar overscroll-contain">
                           <PlayerList players={nightTargets} selected={selectedPlayer} onSelect={setSelectedPlayer} isNight={true} isDevMode={isDevMode} dousedList={dousedList} />
                        </div>
                     </div>
@@ -650,7 +650,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
            {/* GÜNDÜZ CANLI SUÇLAMA OYU */}
            {gamePhase === 'DAY' && me.isAlive && !isSpectator && !hasActioned && (
-              <div className="p-3 animate-in slide-in-from-top duration-300 h-full flex flex-col">
+              <div className="p-3 animate-in slide-in-from-top duration-300 flex flex-col">
                  <div className="flex justify-between items-center mb-2 px-2 gap-2 shrink-0">
                     <p className="text-accent text-[11px] sm:text-[10px] font-black tracking-widest uppercase shrink-0">Kuyuya Oyla</p>
                     <div className="flex gap-2 shrink-0">
@@ -658,7 +658,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                        <Button variant="accent" size="sm" disabled={!selectedPlayer} onClick={() => handleVote()}>Oyla</Button>
                     </div>
                  </div>
-                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                 <div className="max-h-[160px] sm:max-h-[260px] overflow-y-auto custom-scrollbar overscroll-contain">
                     <PlayerList players={players.filter(p => p.socketId !== activeSocketId && p.isAlive)} selected={selectedPlayer} onSelect={setSelectedPlayer} isDevMode={isDevMode} />
                  </div>
               </div>
@@ -1386,7 +1386,7 @@ function PlayerList({ players, selected, onSelect, isNight, isDevMode, dousedLis
   if (players.length === 0) return <div className="h-16 flex items-center justify-center italic text-slate-600 text-[10px] uppercase tracking-widest">Yaşayan Kimse Kalmadı...</div>;
   
   return (
-    <div className="flex flex-wrap justify-center gap-2 py-2 px-1 custom-scrollbar overflow-y-auto">
+    <div className="flex flex-wrap justify-center gap-2 py-2 px-1">
       {players.map(p => {
         const isDoused = dousedList.includes(p.socketId);
         return (
