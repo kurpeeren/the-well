@@ -495,6 +495,13 @@ class GameEngine {
               }
           } else if (gfPlayer && !roleblocked[gfPlayer.socketId]) {
               killerId = gfPlayer.socketId;
+              // Eskıya hayatta ama engellenmisse onu bilgilendir: EB bizzat ustlendi
+              if (mafPlayer && roleblocked[mafPlayer.socketId]) {
+                  this.sendPrivateNews(roomCode, mafPlayer.socketId, {
+                      text: 'Engellendiğin için tetiği çekemedin — Eşkıya Başı hedefi bizzat üstüne aldı.',
+                      align: 'Kırmızı'
+                  });
+              }
           }
 
           if (killerId) {
@@ -517,10 +524,19 @@ class GameEngine {
                    if (gfPlayer && killerId !== gfPlayer.socketId) this.sendPrivateNews(roomCode, gfPlayer.socketId, { text: `Adamının saldırdığı ${targetP?.name || 'kişi'} gece saldırılarına karşı çok güçlü, ölmedi!`, align: 'Kırmızı' });
                  } else {
                    deaths.push(mTargetId);
-                   this.sendPrivateNews(roomCode, killerId, { text: `${targetP?.name || 'Hedef'} ortadan kaldırıldı, saldırın başarılı oldu.`, align: 'Yeşil' });
-                   if (gfPlayer && killerId !== gfPlayer.socketId) this.sendPrivateNews(roomCode, gfPlayer.socketId, { text: `Adamın ${targetP?.name || 'hedefi'} ortadan kaldırdı, saldırı başarılı oldu.`, align: 'Yeşil' });
                    const killerP = getPlayer(killerId);
-                   if (killerP && killerP.role === 'Eşkıya Başı') killerP.hasBloodOnHands = true;
+                   const isGFKill = killerP && killerP.role === 'Eşkıya Başı';
+                   if (isGFKill) {
+                     // EB bizzat oldurdu — Bekci sorgusunda artik 'Eskıya' gorunecek
+                     this.sendPrivateNews(roomCode, killerId, {
+                       text: `${targetP?.name || 'Hedef'} ortadan kaldırıldı — tetiği bizzat çektin. Ellerin kana bulandı; Bekçi seni sorgularsa artık "Eşkıya" olarak okuyacak.`,
+                       align: 'Kırmızı'
+                     });
+                     killerP.hasBloodOnHands = true;
+                   } else {
+                     this.sendPrivateNews(roomCode, killerId, { text: `${targetP?.name || 'Hedef'} ortadan kaldırıldı, saldırın başarılı oldu.`, align: 'Yeşil' });
+                     if (gfPlayer && killerId !== gfPlayer.socketId) this.sendPrivateNews(roomCode, gfPlayer.socketId, { text: `Adamın ${targetP?.name || 'hedefi'} ortadan kaldırdı, saldırı başarılı oldu.`, align: 'Yeşil' });
+                   }
                  }
               }
           }
