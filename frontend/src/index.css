@@ -109,22 +109,20 @@
   }
 }
 
-html {
-  height: 100%;
+html, body {
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
 }
 
-/* iOS PWA'da 100svh home indicator alanini disladigi icin alt 34px siyah bos kalabiliyor.
-   Body'yi position:fixed inset:0 ile viewport'a tam yapistirip svh kalkulasyonundan bagimsiz hale getiriyoruz. */
+/* Tum yonlerde safe-area padding — bottom dahil. Body bg #050505 (= React root)
+   oldugu icin alt padding alani siyah gorunse de React root ile esit, fark edilmez. */
 body {
-  position: fixed;
-  inset: 0;
   margin: 0;
   padding: 0;
-  /* iOS PWA safe-area — notch / Dynamic Island / landscape kenarlari icin.
-     ALT taraf bilerek dahil edilmedi: home indicator alani body bg'siyle renk kontrasti yaratiyordu.
-     Bottom safe-area'yi alt-konumlu elementler (LOBBY CTA, chat input) kendi padding'leriyle yonetir. */
   padding-top: env(safe-area-inset-top);
   padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   box-sizing: border-box;
   /* React root ile ayni renk — body bg'si herhangi bir layout gap'inde gorunse bile fark edilmez */

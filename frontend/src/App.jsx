@@ -158,6 +158,15 @@ function App() {
 
   useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
 
+  // Body bg'sini aktif ekran tonuyla esle — body padding alanlari (safe-area)
+  // ekran ile ayni renge boyanir, iOS PWA'da siyah kontrast olusturmaz.
+  useEffect(() => {
+    let color = '#050505'; // default — INTRO/JOIN React root rengi
+    if (gameState === 'LOBBY') color = '#0f172a';
+    else if (gameState === 'GAME') color = (gamePhase === 'NIGHT') ? '#000000' : '#0f172a';
+    document.body.style.backgroundColor = color;
+  }, [gameState, gamePhase]);
+
   // Oyuncu ismi degisince localStorage'a yaz — bir sonraki acilista pre-fill icin
   useEffect(() => {
     const trimmed = playerName.trim();
