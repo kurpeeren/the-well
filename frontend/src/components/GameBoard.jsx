@@ -413,7 +413,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     'Deli': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/deli.webp',
-      ability: '🌀 Kendini info-rol sanır, her bilgisi yanılsama',
+      ability: '🌀 Kendini bilgi rolü sanır, her bilgisi yanılsama',
       desc: 'Başına teneke bir huni geçirmiş, ağzından su damlayan zavallı köylü. Kendisinin Falcı, Bekçi ya da Gözcü olduğuna inanır; sistem ona o rolün panelini gösterir ve her gece aksiyon yaptırır. Gördüğü her sonuç ise rastgele uydurmadır — kendi gözünde gerçek, köy için yanılsama. Bekçi onu sorgularsa "Masum" görür (gerçekten masum). Falcı kehanetinde "Deli" olası rollerden biri olarak çıkabilir. Masum tarafıyla kazanır; oyun sonu reveal\'a kadar kimse — kendisi dahil — Deli olduğunu bilmez.',
     },
     'Eşkıya Başı': {

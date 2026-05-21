@@ -58,12 +58,12 @@ const MODE_PRESETS = [
     roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Eskort'],
   },
   {
-    id: 'bilgi', name: 'Bilgi Ağırlıklı', sub: '12 kişi · ×2 info-rol', icon: '🔮',
+    id: 'bilgi', name: 'Bilgi Ağırlıklı', sub: '12 kişi · ×2 bilgi rolü', icon: '🔮',
     kirmizi: 3, gri: 2, yesil: 7,
     roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Garip', 'Şifacı', ['Bekçi', 2], 'Avcı', 'Muhtar', ['Falcı', 2], 'Gözcü', 'Eskort'],
   },
   {
-    id: 'twist', name: 'Kaotik Twist', sub: '14 kişi · Deli + tarafsızlar', icon: '🌀',
+    id: 'twist', name: 'Kaotik Sürpriz', sub: '14 kişi · Deli + tarafsızlar', icon: '🌀',
     kirmizi: 4, gri: 2, yesil: 8,
     roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Meyhaneci', 'Seri Katil', 'Kan Davalı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Deli'],
   },
