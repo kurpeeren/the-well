@@ -82,6 +82,22 @@ const MODE_PRESETS = [
   },
 ];
 
+// Hizli sure presetleri — 5 faz timer'ini ayni anda set eder.
+const TIME_PRESETS = [
+  {
+    id: 'cabuk', name: 'Çabuk', sub: '~15-25 dk', icon: '⚡',
+    nightTimer: 25, morningTimer: 5, dayTimer: 50, votingTimer: 15, defenseTimer: 20,
+  },
+  {
+    id: 'standart', name: 'Standart', sub: '~25-40 dk', icon: '⏱️',
+    nightTimer: 35, morningTimer: 8, dayTimer: 75, votingTimer: 25, defenseTimer: 30,
+  },
+  {
+    id: 'uzun', name: 'Uzun', sub: '~40-60 dk', icon: '🐢',
+    nightTimer: 50, morningTimer: 12, dayTimer: 120, votingTimer: 40, defenseTimer: 45,
+  },
+];
+
 function App() {
   const videoRef = useRef(null);
   const kuyuClickRef = useRef({ count: 0, timer: null });
@@ -768,6 +784,46 @@ function App() {
 
                     <div>
                        <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider border-b border-slate-800 pb-2">Süreler (Saniye)</p>
+                       {/* HIZLI SURE PRESETLERI */}
+                       <div className="grid grid-cols-3 gap-2 mb-4">
+                          {TIME_PRESETS.map(preset => {
+                             const isActive = settings.nightTimer === preset.nightTimer
+                                && settings.morningTimer === preset.morningTimer
+                                && settings.dayTimer === preset.dayTimer
+                                && settings.votingTimer === preset.votingTimer
+                                && settings.defenseTimer === preset.defenseTimer;
+                             return (
+                                <button
+                                   key={preset.id}
+                                   type="button"
+                                   disabled={!isHost}
+                                   onClick={() => {
+                                      if (!isHost) return;
+                                      const newSettings = {
+                                         ...settings,
+                                         nightTimer: preset.nightTimer,
+                                         morningTimer: preset.morningTimer,
+                                         dayTimer: preset.dayTimer,
+                                         votingTimer: preset.votingTimer,
+                                         defenseTimer: preset.defenseTimer,
+                                      };
+                                      setSettings(newSettings);
+                                      socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                      showToast(`${preset.name} süre tempo yüklendi`);
+                                   }}
+                                   className={`group flex flex-col items-center gap-0.5 rounded-xl px-2 py-2 border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                                      isActive
+                                         ? 'bg-accent/20 border-accent text-accent'
+                                         : 'bg-slate-800/60 hover:bg-slate-800 active:bg-slate-700 border-slate-700/70 hover:border-accent/60 text-slate-200'
+                                   }`}
+                                >
+                                   <span className="text-xl leading-none">{preset.icon}</span>
+                                   <span className="text-xs font-bold mt-1">{preset.name}</span>
+                                   <span className={`text-[9px] uppercase tracking-wider ${isActive ? 'text-accent/80' : 'text-slate-500'}`}>{preset.sub}</span>
+                                </button>
+                             );
+                          })}
+                       </div>
                        <div className="grid grid-cols-2 gap-3">
                           {['nightTimer', 'morningTimer', 'dayTimer', 'votingTimer', 'defenseTimer'].map(k => {
                              const labelMap = { nightTimer: 'Gece', morningTimer: 'Sabah', dayTimer: 'Gün', votingTimer: 'Hüküm', defenseTimer: 'Savunma' };
