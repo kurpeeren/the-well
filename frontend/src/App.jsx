@@ -462,9 +462,18 @@ function App() {
 
       {['INTRO', 'JOIN'].includes(gameState) && (
         <div
-          className="fixed bottom-0 left-0 right-0 flex justify-center pointer-events-none z-[101] select-none"
+          className="fixed bottom-0 left-0 right-0 flex flex-col items-center gap-0.5 pointer-events-none z-[101] select-none"
           style={{ paddingBottom: 'max(2px, env(safe-area-inset-bottom))' }}
         >
+          <p className="text-[10px] text-slate-500 tracking-wide">
+            <a
+              href="https://instagram.com/aekeren"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto text-slate-400 hover:text-accent active:text-amber-500 transition-colors font-semibold"
+            >@aekeren</a>
+            <span className="text-slate-600"> tarafından yapılmıştır</span>
+          </p>
           <span className="text-[9px] text-slate-700 font-mono tracking-[0.2em] opacity-60">
             {__APP_COMMIT__} · {__APP_BUILD_DATE__}
           </span>
