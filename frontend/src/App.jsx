@@ -44,6 +44,36 @@ const ROLES_LIST = [
   { name: 'Garip', group: 'Tarafsızlar' }, { name: 'Seri Katil', group: 'Tarafsızlar' }, { name: 'Kan Davalı', group: 'Tarafsızlar' }, { name: 'Kundakçı', group: 'Tarafsızlar' }, { name: 'Kaçak', group: 'Tarafsızlar' }
 ];
 
+// Hizli mod presetleri — strateji sayfasiyla birebir uyumlu.
+// Her preset rol agirliklari (1, ya da [name, weight]) + ekip oranlari (k/g/y) iceriyor.
+const MODE_PRESETS = [
+  {
+    id: 'tanisma', name: 'Tanışma Maçı', sub: '8 kişi · Yeni başlayanlar', icon: '🎯',
+    kirmizi: 2, gri: 1, yesil: 5,
+    roles: ['Eşkıya Başı', 'Tefeci', 'Garip', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı'],
+  },
+  {
+    id: 'klasik', name: 'Klasik Denge', sub: '10 kişi · Turnuva', icon: '⚖️',
+    kirmizi: 3, gri: 1, yesil: 6,
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Eskort'],
+  },
+  {
+    id: 'bilgi', name: 'Bilgi Ağırlıklı', sub: '12 kişi · ×2 info-rol', icon: '🔮',
+    kirmizi: 3, gri: 2, yesil: 7,
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Garip', 'Şifacı', ['Bekçi', 2], 'Avcı', 'Muhtar', ['Falcı', 2], 'Gözcü', 'Eskort'],
+  },
+  {
+    id: 'twist', name: 'Kaotik Twist', sub: '14 kişi · Deli + tarafsızlar', icon: '🌀',
+    kirmizi: 4, gri: 2, yesil: 8,
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Meyhaneci', 'Seri Katil', 'Kan Davalı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Deli'],
+  },
+  {
+    id: 'tamkadro', name: 'Tam Kadro', sub: '16 kişi · Festival', icon: '🎪',
+    kirmizi: 4, gri: 2, yesil: 10,
+    roles: ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Meyhaneci', 'Seri Katil', 'Kundakçı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Eskort', 'Tefeci', 'Deli'],
+  },
+];
+
 function App() {
   const videoRef = useRef(null);
   const kuyuClickRef = useRef({ count: 0, timer: null });
@@ -675,6 +705,56 @@ function App() {
                     {!isHost && (
                        <p className="text-xs text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
                     )}
+
+                    {/* HIZLI MOD PRESETLERI */}
+                    <div>
+                       <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Hızlı Mod</p>
+                          <a href="/strateji/" className="text-[10px] text-accent/80 hover:text-accent transition-colors uppercase tracking-widest">Detaylar →</a>
+                       </div>
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {MODE_PRESETS.map(preset => (
+                             <button
+                                key={preset.id}
+                                type="button"
+                                disabled={!isHost}
+                                onClick={() => {
+                                   if (!isHost) return;
+                                   const newRoles = {};
+                                   ROLES_LIST.forEach(r => { newRoles[r.name] = 0; });
+                                   preset.roles.forEach(entry => {
+                                      if (Array.isArray(entry)) newRoles[entry[0]] = entry[1];
+                                      else newRoles[entry] = 1;
+                                   });
+                                   const newSettings = {
+                                      ...settings,
+                                      kirmizi: preset.kirmizi,
+                                      gri: preset.gri,
+                                      yesil: preset.yesil,
+                                      roles: newRoles,
+                                   };
+                                   setSettings(newSettings);
+                                   setIsRatioManuallySet(true);
+                                   socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                   showToast(`${preset.name} modu yüklendi`);
+                                }}
+                                className="group flex items-center gap-3 bg-slate-800/60 hover:bg-slate-800 active:bg-slate-700 border border-slate-700/70 hover:border-accent/60 rounded-xl px-3 py-2.5 text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-800/60 disabled:hover:border-slate-700/70"
+                             >
+                                <span className="text-2xl shrink-0">{preset.icon}</span>
+                                <div className="min-w-0 flex-1">
+                                   <p className="text-sm font-bold text-slate-200 truncate group-hover:text-accent transition-colors">{preset.name}</p>
+                                   <p className="text-[10px] text-slate-500 truncate uppercase tracking-wider">{preset.sub}</p>
+                                </div>
+                                <span className="text-[9px] text-slate-600 font-bold tabular-nums shrink-0 group-hover:text-accent/70 transition-colors">
+                                   {preset.kirmizi}/{preset.gri}/{preset.yesil}
+                                </span>
+                             </button>
+                          ))}
+                       </div>
+                       <p className="text-[10px] text-slate-500 italic mt-2 text-center px-2">
+                          Mod seçtiğinde rol ağırlıkları ve ekip sayıları otomatik dolar. Sonradan elle ince ayar yapabilirsin.
+                       </p>
+                    </div>
 
                     <div>
                        <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider border-b border-slate-800 pb-2">Süreler (Saniye)</p>
