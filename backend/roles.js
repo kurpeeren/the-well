@@ -6,8 +6,11 @@ const ROLES = {
   'Muhtar': { align: 'Masum', team: 'Köylüler' }, 
   'Gözcü': { align: 'Masum', team: 'Köylüler' }, 
   'Falcı': { align: 'Masum', team: 'Köylüler' }, 
-  'Gassal': { align: 'Masum', team: 'Köylüler' }, 
-  'Eskort': { align: 'Masum', team: 'Köylüler' }, 
+  'Gassal': { align: 'Masum', team: 'Köylüler' },
+  'Eskort': { align: 'Masum', team: 'Köylüler' },
+  // Deli: bir info-rol kostumuyle (Falci/Bekci/Gozcu) gosterilir, sonuclar tamamen rastgele.
+  // Kendi rolunu kostum sanar, baskalari da onu kostum gibi gorur. Reveal sadece oyun sonu.
+  'Deli': { align: 'Masum', team: 'Köylüler' },
   // Eşkıyalar
   'Eşkıya Başı': { align: 'Eşkıya', team: 'Eşkıyalar', nightImmune: true },
   'Münafık': { align: 'Eşkıya', team: 'Eşkıyalar' }, 
@@ -45,7 +48,7 @@ function getColorAlignment(role) {
 // Hedefin gercek rolu her zaman icinde yer alir (framed ise eskıya disguise).
 // %75 olasilikla 4 rol, %25 olasilikla 3 rol gosterilir.
 function getProphecy(targetRole, framed = false) {
-  const masum = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'];
+  const masum = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort', 'Deli'];
   const eskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
   const tarafsiz = ['Garip', 'Seri Katil', 'Kan Davalı', 'Kundakçı', 'Kaçak'];
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];

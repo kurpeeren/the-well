@@ -55,6 +55,7 @@ class GameEngine {
           player.role = finalPool[i];
           player.uses = 0;
           player.execTarget = null;
+          player.deliDisguise = null;
         });
 
         room.players.forEach((player) => {
@@ -62,6 +63,12 @@ class GameEngine {
              const masumlar = room.players.filter(p => ROLES[p.role]?.team === 'Köylüler' && p.socketId !== player.socketId);
              if (masumlar.length > 0) player.execTarget = masumlar[Math.floor(Math.random() * masumlar.length)].socketId;
              else player.role = 'Garip';
+          }
+          if (player.role === 'Deli') {
+             const infoPool = ['Falcı', 'Bekçi', 'Gözcü'].filter(r => enabledRoles[r]);
+             player.deliDisguise = infoPool.length > 0
+                ? infoPool[Math.floor(Math.random() * infoPool.length)]
+                : 'Falcı';
           }
         });
         return;
@@ -156,8 +163,9 @@ class GameEngine {
     room.players.forEach((player, i) => {
       player.role = activeRoles[i];
       player.uses = 0;
+      player.deliDisguise = null;
     });
-  
+
     room.players.forEach((player) => {
       if (player.role === 'Kan Davalı') {
          const masumlar = room.players.filter(p => ROLES[p.role]?.team === 'Köylüler' && p.socketId !== player.socketId);
@@ -166,6 +174,13 @@ class GameEngine {
          } else {
             player.role = 'Garip';
          }
+      }
+      // Deli: aktif info-roller arasindan kostum sec. Hicbiri aktif degilse Falci varsayilan.
+      if (player.role === 'Deli') {
+         const infoPool = ['Falcı', 'Bekçi', 'Gözcü'].filter(r => enabledRoles[r]);
+         player.deliDisguise = infoPool.length > 0
+            ? infoPool[Math.floor(Math.random() * infoPool.length)]
+            : 'Falcı';
       }
     });
   }
@@ -350,6 +365,42 @@ class GameEngine {
                   this.sendPrivateNews(roomCode, a.actorId, { text: a.actorId === a.targetId ? "Bütün gece kapını kilitledin ve kendini korudun." : `${sifTargetP?.name || 'Hedef'} adlı kişiyi korudun${wasAttacked ? ' — iyi ki oradaydın, saldırı oldu ama kurtardın!' : ', gece boyunca güvende kaldı.'}`, align: 'Yeşil' });
               }
           }
+      });
+
+      // Priority 7.5: Deli (sahte sonuc, gercek kacma efekti yok ama ziyaret gercek — Avci pusu/Gozcu izleme isler)
+      actions.filter(a => a.role === 'Deli' && a.targetId).forEach(a => {
+         if (roleblocked[a.actorId] || alerts[a.targetId]) return;
+         const p = getPlayer(a.actorId);
+         const targetP = getPlayer(a.targetId);
+         if (!p || !targetP) return;
+         const disguise = p.deliDisguise || 'Falcı';
+
+         if (disguise === 'Falcı') {
+            const allRoles = Object.keys(ROLES);
+            const fakeAnchor = allRoles[Math.floor(Math.random() * allRoles.length)];
+            const prophecy = getProphecy(fakeAnchor, false);
+            this.sendPrivateNews(roomCode, a.actorId, { text: `${targetP.name} için kehanet: ${prophecy}!`, align: 'Yarı' });
+         } else if (disguise === 'Bekçi') {
+            const fakeAlign = Math.random() < 0.5 ? 'Masum' : 'Eşkıya';
+            this.sendPrivateNews(roomCode, a.actorId, {
+               text: `${targetP.name} incelendi: ${fakeAlign === 'Masum' ? 'Temiz görünüyor.' : 'Eşkıya!'}`,
+               align: fakeAlign === 'Masum' ? 'Gri' : 'Kırmızı'
+            });
+         } else if (disguise === 'Gözcü') {
+            const candidates = room.players.filter(x => x.isAlive && x.socketId !== a.actorId && x.socketId !== a.targetId);
+            const numFake = Math.floor(Math.random() * 4); // 0,1,2,3 sahte ziyaretci
+            const pool = [...candidates];
+            const fakeVisitors = [];
+            for (let i = 0; i < numFake && pool.length > 0; i++) {
+               const idx = Math.floor(Math.random() * pool.length);
+               fakeVisitors.push(pool[idx]);
+               pool.splice(idx, 1);
+            }
+            const msg = fakeVisitors.length > 0
+               ? `${targetP.name} evini ziyaret edenler: ${fakeVisitors.map(v => v.name).join(', ')}`
+               : `${targetP.name} evini dün gece kimse ziyaret etmedi.`;
+            this.sendPrivateNews(roomCode, a.actorId, { text: msg, align: 'Yeşil' });
+         }
       });
 
       // Priority 8: Bekçi, Gözcü, Falcı

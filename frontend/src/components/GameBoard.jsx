@@ -15,8 +15,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   }, [players, activeSocketId, isSpectator, myRole]);
 
   const activeRole = React.useMemo(() => {
-    return isSpectator ? 'İzleyici Ruh' : ((isDevMode && impersonateId) ? me.role : myRole);
-  }, [isSpectator, isDevMode, impersonateId, me.role, myRole]);
+    if (isSpectator) return 'İzleyici Ruh';
+    const realRole = (isDevMode && impersonateId) ? me.role : myRole;
+    // Deli kostumu disguise edilir — oyuncu kendini gercek info-rol sanir,
+    // butun UI (badge/panel/aksiyon) o role gore acilir, server tarafindan sahte sonuc doner.
+    if (realRole === 'Deli' && me.deliDisguise) return me.deliDisguise;
+    return realRole;
+  }, [isSpectator, isDevMode, impersonateId, me.role, me.deliDisguise, myRole]);
 
   useEffect(() => {
      if (isDevMode && !impersonateId && players.length > 0) {
@@ -404,6 +409,12 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       image: '/roles/eskort.webp',
       ability: '💃 Hedefini oyalar, yeteneğini engeller',
       desc: 'Her gece bir kişiyi ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz. Eşkıyaları bile etkisiz kılabilir; eşkıyalar da onu ziyaret ederse ölebilir.',
+    },
+    'Deli': {
+      color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
+      image: '/roles/deli.webp',
+      ability: '🌀 Kendini bir info-rol sanır — her bilgisi yanılsama',
+      desc: 'Köyün hafıza yitirmiş bir köylüsü. Falcı, Bekçi ya da Gözcü olduğuna kendisini inandırmış; her gece "yeteneğini" kullanır ama gördüğü her şey rastgele uydurma. Kendi rolünden bihaber, masum tarafıyla kazanır. Hiç kimse — kendisi dahil — Deli olduğunu bilmez, sadece oyun sonu açığa çıkar.',
     },
     'Eşkıya Başı': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',

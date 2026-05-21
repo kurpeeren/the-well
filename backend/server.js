@@ -502,7 +502,7 @@ io.on('connection', (socket) => {
     rooms[roomCode] = {
       id: roomCode,
       players: [{ socketId: socket.id, token, name: playerName, role: null, isAlive: true, uses: 0, 
-                  isMayorRevealed: false, execTarget: null, connected: true }],
+                  isMayorRevealed: false, execTarget: null, deliDisguise: null, connected: true }],
       host: socket.id,
       status: 'LOBBY', 
       timeRemaining: 0,
@@ -547,6 +547,7 @@ io.on('connection', (socket) => {
           'Kan Davalı':  false,
           'Kundakçı':    false,
           'Kaçak':       false,
+          'Deli':        false,
         },
       }
     };
@@ -565,9 +566,9 @@ io.on('connection', (socket) => {
     const roomCode = generateRoomCode();
     const hostToken = generateToken();
     let pool = [
-      'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Tefeci', 'Meyhaneci', 
-      'Kan Davalı', 'Kundakçı', 'Kaçak', 'Şifacı', 'Avcı', 'Bekçi', 
-      'Münafık', 'Eşkıya', 'Eşkıya Başı', 'Seri Katil'
+      'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Tefeci', 'Meyhaneci',
+      'Kan Davalı', 'Kundakçı', 'Kaçak', 'Şifacı', 'Avcı', 'Bekçi',
+      'Münafık', 'Eşkıya', 'Eşkıya Başı', 'Seri Katil', 'Deli'
     ];
     
     // Fisher-Yates shuffle
@@ -580,18 +581,18 @@ io.on('connection', (socket) => {
     console.log('[Dev] Karıştırılmış roller:', pool.join(', '));
     pool.forEach((role, idx) => {
        fakePlayers.push({
-          socketId: idx === 0 ? socket.id : `dev_${idx}`, 
+          socketId: idx === 0 ? socket.id : `dev_${idx}`,
           token: idx === 0 ? hostToken : generateToken(),
-          name: idx === 0 ? 'Dev Host' : `Bot ${idx}`, role: role, 
-          isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null, connected: true
+          name: idx === 0 ? 'Dev Host' : `Bot ${idx}`, role: role,
+          isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null, deliDisguise: null, connected: true
        });
     });
 
     const exec = fakePlayers.find(p => p.role === 'Kan Davalı');
     if (exec) {
        // Dev Host (socket.id) ve Kan Davalı'nın kendisini hariç tut
-       const masumlar = fakePlayers.filter(p => 
-           ROLES[p.role]?.team === 'Köylüler' && 
+       const masumlar = fakePlayers.filter(p =>
+           ROLES[p.role]?.team === 'Köylüler' &&
            p.socketId !== exec.socketId &&
            p.socketId !== socket.id  // Dev Host hiçbir zaman hedef olmasın
        );
@@ -599,6 +600,12 @@ io.on('connection', (socket) => {
            const randomMasum = masumlar[Math.floor(Math.random() * masumlar.length)];
            exec.execTarget = randomMasum.socketId;
        }
+    }
+
+    const deliPlayer = fakePlayers.find(p => p.role === 'Deli');
+    if (deliPlayer) {
+       const infoOpts = ['Falcı', 'Bekçi', 'Gözcü'];
+       deliPlayer.deliDisguise = infoOpts[Math.floor(Math.random() * infoOpts.length)];
     }
 
     rooms[roomCode] = {
@@ -644,7 +651,7 @@ io.on('connection', (socket) => {
     if (rooms[roomCode].players.length >= 16) return socket.emit('error', 'Oda dolu.');
 
     const token = generateToken();
-    rooms[roomCode].players.push({ socketId: socket.id, token, name: playerName, role: null, isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null, connected: true });
+    rooms[roomCode].players.push({ socketId: socket.id, token, name: playerName, role: null, isAlive: true, uses: 0, isMayorRevealed: false, execTarget: null, deliDisguise: null, connected: true });
     socket.join(roomCode);
     socket.emit('roomJoined', { roomCode, isHost: false, token, settings: rooms[roomCode].settings, isSpectator: false });
     io.to(roomCode).emit('updateLobby', rooms[roomCode].players);
@@ -828,6 +835,7 @@ io.on('connection', (socket) => {
            p.uses = 0;
            p.isMayorRevealed = false;
            p.execTarget = null;
+           p.deliDisguise = null;
            p.won = false;
        });
        io.to(roomCode).emit('returnedToLobby');

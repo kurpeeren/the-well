@@ -89,6 +89,12 @@ Bu doküman, Kuyu oyunu içerisindeki tüm rolleri, takımları ve yeteneklerini
 - **Kazanma Şartı:** Oyunun sonuna kadar (Kimin kazandığı fark etmeksizin) kuyuya atılmayıp, katledilmeyip hayatta kalmak.
 - **Gece Yeteneği:** Oyun boyunca sadece **4 kez** "Saklan" diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.
 
+### 🌀 Deli *(Insane Cop varyantı)*
+- **Hikayesi:** Köyün hafıza yitirmiş bir köylüsü. Falcı, Bekçi ya da Gözcü olduğuna kendini inandırmış.
+- **Gece Yeteneği:** Oyun başı sistem ona gizlice bir info-rol (Falcı/Bekçi/Gözcü) kostümü atar. Kendisi de bu rolün UI'ını görür ve aksiyon yapar. Sunucu aksiyonu kabul eder ama sonuç tamamen rastgele üretilir — gerçek bilgi vermez.
+- **Kazanma Şartı:** Masum tarafıyla (Köylüler) kazanır.
+- **Özel:** Kendi rolünden bihaber; oyun sonu reveal'a kadar kimse Deli olduğunu bilmez. Bekçi onu kontrol ederse masum görünür (gerçekten masum). Falcı kehanetinde "Deli" olası rollerden biri olarak görülebilir (kesinlik değil, şüphe).
+
 ### 🤡 Garip *(Town of Salem: Jester)*
 - **Hikayesi:** Köyün kıyısında yaşayan kimsesiz biri; aklı yarı kayıp, yarı şiir. "Bir garip ölmüş diyeler" — tek isteği kuyunun dibindeki karanlığa kavuşmaktır.
 - **Kazanma Şartı:** Gece hiçbir şey yapmaz. Amacı, gündüzleri yalan söyleyip köylüleri kışkırtarak **kendini oylama sonucunda Kuyuya attırmaktır.**
