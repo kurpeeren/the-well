@@ -22,6 +22,34 @@ class GameEngine {
 
   assignRoles(room) {
     const count = room.players.length;
+
+    // Ozel mod: Deli Koyu — 1 Seri Katil + 1 rastgele gercek masum + geri kalan Deli.
+    // Tum oyuncular bilgi rolu sandiklari kostum giyer; gercek bilgi yalnizca tek masumda.
+    if (room.settings?.gameMode === 'deli_koyu' && count >= 4) {
+        const masumPool = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'];
+        const realMasum = masumPool[Math.floor(Math.random() * masumPool.length)];
+        const activeRoles = ['Seri Katil', realMasum];
+        while (activeRoles.length < count) activeRoles.push('Deli');
+        for (let i = activeRoles.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [activeRoles[i], activeRoles[j]] = [activeRoles[j], activeRoles[i]];
+        }
+        room.players.forEach((player, i) => {
+            player.role = activeRoles[i];
+            player.uses = 0;
+            player.execTarget = null;
+            player.deliDisguise = null;
+        });
+        room.players.forEach(player => {
+            if (player.role === 'Deli') {
+                const infoPool = ['Falcı', 'Bekçi', 'Gözcü'];
+                player.deliDisguise = infoPool[Math.floor(Math.random() * infoPool.length)];
+            }
+        });
+        console.log(`[Deli Koyu] 1 SK + 1 ${realMasum} + ${count - 2} Deli atandi`);
+        return;
+    }
+
     let enabledRoles = room.settings?.roles || {};
     Object.keys(ROLES).forEach(r => {
         if (enabledRoles[r] === undefined) {

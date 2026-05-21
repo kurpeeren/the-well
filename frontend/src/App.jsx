@@ -72,6 +72,14 @@ const MODE_PRESETS = [
     kirmizi: 4, gri: 2, yesil: 10,
     roles: ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Meyhaneci', 'Seri Katil', 'Kundakçı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Eskort', 'Tefeci', 'Deli'],
   },
+  {
+    // Ozel mod: 1 Seri Katil + 1 rastgele gercek masum + geri kalan Deli.
+    // Backend gameMode bayragiyla ozel atama yapar; rol agirliklari onemsiz.
+    id: 'delikoyu', name: 'Deli Köyü', sub: '1 katil + 1 gerçek masum + tümü Deli', icon: '🎭',
+    gameMode: 'deli_koyu',
+    kirmizi: 1, gri: 0, yesil: 7,
+    roles: ['Seri Katil', 'Deli', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'],
+  },
 ];
 
 function App() {
@@ -732,6 +740,8 @@ function App() {
                                       gri: preset.gri,
                                       yesil: preset.yesil,
                                       roles: newRoles,
+                                      // Ozel mod bayragi (varsa) — backend assignRoles farkli mantik calistirir
+                                      gameMode: preset.gameMode || 'normal',
                                    };
                                    setSettings(newSettings);
                                    setIsRatioManuallySet(true);
