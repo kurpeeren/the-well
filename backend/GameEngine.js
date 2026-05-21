@@ -704,8 +704,8 @@ class GameEngine {
  
     let winningTeam = null;
 
-    // A. Beraberlik (15 gün kuralı)
-    if (room.peacefulDays >= 15) {
+    // A. Beraberlik (20 gün kuralı)
+    if (room.peacefulDays >= 20) {
        winningTeam = 'Beraberlik';
     }
     // B. Kundakçı Tek Başına
