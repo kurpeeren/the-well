@@ -401,87 +401,90 @@
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/sifaci.webp",
-                story: "Köyün otacısıdır, kimin kapısına dert gelse devasını bulur.",
+                story: "Köyün otacısı; hangi kapıya dert düşse otları ve duasıyla orada bitiverir. Sessiz, anaç, gözleri her gece bir başka eve yönelir.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Her gece bir oyuncuyu seçer. Eğer düşmanlar o oyuncuya saldırırsa, Şifacı onu hayatta tutar.",
-                constraint: "Kendini oyun boyunca sadece 2 kez iyileştirebilir. Mührünü vurmuş açık Muhtar'ı bir daha koruyamaz."
+                abilityDesc: "Her gece bir oyuncunun kapısına gider ve o kişiye gelen ölümcül saldırıyı engeller. Hedefi o gece Eşkıya ya da Seri Katil tarafından vurulsa bile sabaha hayatta çıkar.",
+                constraint: "Kendisini en fazla 2 kez koruyabilir. Mührünü vurmuş açık Muhtar'ı bir daha koruyamaz — köy gözünde o artık yeleğini giymiştir."
             },
             {
                 name: "Bekçi",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/bekci.webp",
-                story: "Geceleri elinde feneriyle sokakları arşınlar, kimin tekinsiz olduğunu anlamaya çalışır.",
+                story: "Elinde feneri, kemerinde düdüğüyle gece sokaklarını arşınlayan köy bekçisi. Bir gölgeyi yanlış yerde görmeye görsün, sabah hesap sorar.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Her gece bir oyuncuyu kontrol eder. Sistem ona o kişinin 'Eşkıya' veya 'Masum' olduğunu söyler. Eşkıya Başı normalde 'Masum' görünür; ancak bizzat birini öldürdüğü gece 'Eşkıya' olarak okunur. Münafık'ın çerçevelediği masum biri de 'Eşkıya' görünür."
+                abilityDesc: "Her gece bir oyuncuyu sorgular. Sistem ona o kişinin 'Masum' veya 'Eşkıya' olduğunu söyler — ama rolünü açıkça vermez.",
+                constraint: "Eşkıya Başı normalde 'Masum' görünür; yalnız bizzat birini öldürdüğü gece 'Eşkıya' olarak okunur. Münafık'ın çerçevelediği masum biri yanlışlıkla 'Eşkıya' çıkar."
             },
             {
                 name: "Avcı",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/avci.webp",
-                story: "Eski bir dağ adamıdır, tetikte uyur. Gözü karadır, kapısına geleni affetmez.",
+                story: "Eski dağ adamı; gözü kara, tüfeği daima dolu. Konuşmayı sevmez, kapı arkasında uyumayı tercih eder.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Gece 'Pusuya Yatma' kararı alabilir. Eğer pusuya yatarsa, o gece ölmez ve onu ziyarete gelen herkesi vurur.",
-                constraint: "Oyun boyunca sadece 3 kez pusuya yatabilir."
+                abilityDesc: "'Pusuya Yat' diyerek o gece kapı arkasına geçer. Pusuda olduğu gece kendisi ölmez ve evine gelen herkesi — masum, eşkıya, katil fark etmez — vurur.",
+                constraint: "Pusuya yatma hakkı oyun boyunca 3 ile sınırlıdır. Pusu kurmadığı gecelerde diğer köylüler gibi savunmasızdır."
             },
             {
                 name: "Muhtar",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/muhtar.webp",
-                story: "Köyün mühürdarı, sözü geçen adamı. Önceleri saklansa da bıçak kemiğe dayanınca ağırlığını koyar.",
+                story: "Köyün mühürdarı, sözü geçen adamı. Dedesinden kalma altın yüzüğü parmağında. Önceleri saklanır, bıçak kemiğe dayanınca ağırlığını koyar.",
                 abilityTitle: "☀️ Gündüz Yeteneği",
-                abilityDesc: "Gündüz tartışma sırasında 'Mührü Vur' butonuna basarak Muhtar olduğunu tüm köye ilan edebilir. Bu andan itibaren oyu 3 oy sayılır ve tek seferlik gizli bir yelek kazanır — sonraki ilk gece saldırısından (Eşkıya ya da Seri Katil) sağ kurtulur.",
-                constraint: "Mührünü vurmadan yelek koruması YOKTUR. Açıklandıktan sonra Şifacı onu gece koruyamaz. Susturulmuşsa mührü vuramaz."
+                abilityDesc: "Tartışma sırasında 'Mührü Vur' diyerek Muhtar olduğunu tüm köye ilan eder. O andan itibaren oyu 1 yerine 3 sayılır ve tek seferlik gizli bir yelek kazanır — sonraki ilk gece saldırısından (Eşkıya ya da Seri Katil) sağ çıkar.",
+                constraint: "Yelek koruması yalnız mühür vurulduktan sonra aktiftir, oyuna başlarken yoktur. Açıldıktan sonra Şifacı onu artık koruyamaz. Susturulmuşsa o gün mührünü vuramaz."
             },
             {
                 name: "Gözcü",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/gozcu.webp",
-                story: "Geceleri uyku tutmaz, perde arkasından sokakları, komşuların kapısını dikizler.",
+                story: "Gece uyku tutmaz. Perde arkasından, dam üstünden komşuların kapısını dikizler; meraklı, sessiz, görünmez.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Bir kişinin evini gözetler. O gece o eve kimlerin girip çıktığını (ziyaret ettiğini) isim isim görür ama içeride ne yaptıklarını bilemez."
+                abilityDesc: "Bir oyuncunun evini gözetler. Sabah o kapıyı kimlerin ziyaret ettiğini isim isim öğrenir.",
+                constraint: "Sadece giriş çıkış görür — ziyaretçinin rolünü ya da içeride neler döndüğünü bilemez. Hedefin kendisi ev sahibi olarak görülmez."
             },
             {
                 name: "Falcı",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/falci.webp",
-                story: "Kahve telvesinden, kurşun dökümünden insanların içini okur.",
+                story: "Kahve telvesinden, kurşun dökümünden insanların içini okur. Geleceği bilmez ama olasılıkları sezer.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Birini hedefler. Sistem ona her takımdan birer rol (1 masum + 1 eşkıya + 1 tarafsız) ve bazen ek rastgele bir 4. rol içeren kehanet sunar. Hedefin gerçek rolü her zaman içindedir. (Örn: 'Bekçi, Eşkıya, Garip veya Kundakçı')",
-                constraint: "Aynı kişiye birden fazla gece kehanet yaptırırsan aynı kehaneti alırsın — kesişimden gerçek rolü bulamazsın. Münafık tarafından çerçevelenmiş biri rastgele bir eşkıya rolü olarak gösterilir."
+                abilityDesc: "Bir oyuncuyu hedefler. Kehanette her takımdan birer rol (1 Masum + 1 Eşkıya + 1 Tarafsız) ve bazen ek rastgele bir 4. rol daha çıkar — hedefin gerçek rolü her zaman içindedir, ama hangisi olduğu söylenmez. (Örn: 'Bekçi, Eşkıya, Garip veya Kundakçı')",
+                constraint: "Aynı kişiye birden fazla gece bakarsan aynı kehaneti alırsın — kesişimden gerçek rolü çıkaramazsın. Münafık'ın çerçevelediği biri rastgele bir eşkıya rolü olarak görünür."
             },
             {
                 name: "Gassal",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/gassal.webp",
-                story: "Ölü yıkayıcısıdır, öte alemle bağı vardır. Kuyuya atılanların veya gece katledilenlerin son fısıltılarını duyar.",
-                abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Geceleri ölülerin kendi aralarında yazıştığı 'Ölüler Boyutu' sohbetini canlı olarak görebilir. Ölülerden ipucu toplar."
+                story: "Köyün ölü yıkayıcısı. Cesetlerin yanında geçen yıllar onu öbür dünyaya açmıştır — ölüler ona sırlarını fısıldar.",
+                abilityTitle: "🌙 Gece Yeteneği (Pasif)",
+                abilityDesc: "Geceleri ölü oyuncuların kendi aralarında konuştuğu 'Ölüler Boyutu' sohbetini canlı izleyebilir. Gündüz kanal kapalıdır; gece olunca o gün yazılan ölü mesajlarını da geçmişe dönük görür.",
+                constraint: "Aktif bir gece eylemi yoktur — sadece dinler. Konuşamaz, müdahale edemez."
             },
             {
                 name: "Eskort",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/eskort.webp",
-                story: "Köyün en göz alıcı, neşeli şahsiyetidir. Sohbeti o kadar hoştur ki, onunla muhabbete dalan kişi asıl işini gücünü yapmayı unutur.",
+                story: "Köyün en göz alıcı simasi. Sohbeti o kadar hoştur ki onunla muhabbete dalan, sabaha kadar ne ettiğini ne yapacağını unutur.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Her gece birini hedefler ve sabaha kadar onu oyalar (Roleblock). Seçilen kişi aklı o gece onda kalacağı için planladığı yeteneğini kullanamaz.",
-                constraint: "Ziyaret ettiği kişi Seri Katil çıkarsa kendisi de hayatını kaybeder."
+                abilityDesc: "Her gece bir oyuncuyu ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz — Eşkıyaları, Seri Katil'i, hatta Şifacı'yı bile etkisiz kılabilir.",
+                constraint: "Ziyaret ettiği kişi Seri Katil çıkarsa kendi kapısı son kapı olur — bıçak geri dönmez."
             },
             {
                 name: "Deli",
                 team: "masum",
                 teamName: "Masumlar",
                 image: "/roles/deli.webp",
-                story: "Başına teneke bir huni geçirmiş, sokakları arşınlayan zavallı bir köylü. Kendisinin Falcı, Bekçi ya da Gözcü olduğuna inanmış; her gece 'yeteneğini' kullanır ama gördüğü her şey ağzından akan salyalar gibi gerçek değildir.",
+                story: "Başına teneke bir huni geçirmiş, ağzından su damlayan zavallı bir köylü. Kendisinin Falcı, Bekçi ya da Gözcü olduğuna inanmış; köyün gözüymüş gibi davranır.",
                 abilityTitle: "🌀 Gece Yeteneği (Yanılsama)",
-                abilityDesc: "Oyun başı sistem ona gizlice bir info-rol (Falcı/Bekçi/Gözcü) kostümü atar. Kendisi de bu rolü sanır; oyun ekranında o rolün paneli açılır, aksiyon yapar. Sunucu aksiyonu kabul eder ama sonuç tamamen rastgeledir — gerçek bilgi vermez. Köye yanılsamalı ipuçları taşır.",
-                constraint: "Kendi rolünden bihaber; oyun sonu reveal'a kadar kimse Deli olduğunu bilmez. Bekçi sorgularsa Masum görünür. Falcı kehanetinde 'Deli' olası rollerden biri olarak çıkabilir — şüphe verir ama kesinlik değil. Masum tarafıyla kazanır."
+                abilityDesc: "Sistem ona gizlice bir info-rol kostümü atar (Falcı / Bekçi / Gözcü). Kendi gözünde o roldür — UI ona o panelin yeteneğini gösterir, her gece aksiyon yapar. Gelen sonuçlar ise tamamen rastgele uydurmadır: kendi gözünde gerçek, köy için yanılsama.",
+                constraint: "Hiç kimse — kendisi dahil — oyun sonu reveal'a kadar Deli olduğunu bilmez. Bekçi sorgularsa 'Masum' görür (gerçekten masum). Falcı kehanetinde 'Deli' olası rollerden biri olarak çıkabilir — şüphe verir, kesinlik değil. Masum tarafıyla kazanır."
             },
 
             // EŞKIYALAR
@@ -490,48 +493,50 @@
                 team: "eskiya",
                 teamName: "Eşkıyalar",
                 image: "/roles/eskiya_basi.webp",
-                story: "Çetenin acımasız lideridir, köyün içinde sıradan biri gibi saklanmayı çok iyi bilir.",
+                story: "Çetenin acımasız ağası. Köyde sıradan biri gibi saklanmayı öğrenmiş; gece kararları onun ağzından çıkar.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Çetenin kimi öldüreceğine son kararı o verir. Gece saldırılarına karşı bağışıklığı vardır (Seri Katil onu öldüremez).",
-                constraint: "Bekçi onu kontrol ettiğinde normalde 'Masum' görünür. Kendi cinayet işlerse 'Eşkıya' görünür."
+                abilityDesc: "Çetenin gece kimi öldüreceğini o belirler. Hedefi seçer, tetiği genelde Eşkıya çeker. Eşkıya hayatta değil ya da hareket edemiyorsa cinayeti bizzat işler.",
+                constraint: "Gece saldırılarına bağışıktır (Seri Katil onu öldüremez). Bekçi onu sorgularsa normalde 'Masum' görür — yalnız kendi eliyle öldürdüğü gece 'Eşkıya' çıkar."
             },
             {
                 name: "Münafık",
                 team: "eskiya",
                 teamName: "Eşkıyalar",
                 image: "/roles/munafik.webp",
-                story: "Fitne fesat peşindedir, masumların kapısına suç aletleri bırakarak hedefleri saptırır.",
+                story: "Fitne fesat peşinde, çete adına yalan iz bırakan iki yüzlü. Masumların kapısına suç aleti bırakır, şüpheyi yön değiştirir.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Gece birini hedefler. Çerçeveleme o gece ve ertesi gün boyunca sürer — bu sürede Bekçi o kişiyi sorgularsa 'Eşkıya' görür, Falcı'nın kehanetinde de o kişi rastgele bir eşkıya rolü olarak yer alır.",
-                constraint: "Çerçeveli oyuncu bu sürede ölürse cesedi 'Eşkıya' olarak okunur. Kendi takımından birini çerçeveleyemez."
+                abilityDesc: "Gece bir kişiyi çerçeveler. O gece ve ertesi gün boyunca Bekçi o kişiyi sorgularsa 'Eşkıya' görür, Falcı'nın kehanetinde de o kişi rastgele bir eşkıya rolü olarak yer alır.",
+                constraint: "Çerçeveli oyuncu bu süre içinde ölürse cesedi de 'Eşkıya' olarak okunur — köy haksız yere şüphelenir. Kendi takımından birini (eşkıyaları) çerçeveleyemez."
             },
             {
                 name: "Eşkıya",
                 team: "eskiya",
                 teamName: "Eşkıyalar",
                 image: "/roles/eskiya.webp",
-                story: "Ağa'nın (Eşkıya Başı'nın) sağ koludur, kirli işleri o yapar.",
+                story: "Ağa'nın sağ kolu, kirli işlerin adamı. Bıçak çekmek onun, hedef belirlemek başın işidir.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Eşkıya Başı'nın seçtiği hedefi öldürmeye gider. Eğer Eşkıya Başı birini seçmezse veya ölürse, inisiyatif alıp kendi seçtiği kişiyi vurur."
+                abilityDesc: "Eşkıya Başı'nın seçtiği hedefi gece öldürmeye gider. Eşkıya Başı hedef seçmemişse veya ölmüşse, inisiyatif alıp kendi seçtiği kişiyi vurur.",
+                constraint: "Eskort veya Meyhaneci tarafından engellenirse o gece tetik çekemez. Geceleri çete sohbetinde konuşabilir."
             },
             {
                 name: "Tefeci",
                 team: "eskiya",
                 teamName: "Eşkıyalar",
                 image: "/roles/tefeci.webp",
-                story: "Köyde herkese borç vermiş, herkesin açığını bilen karanlık bir adamdır. Gözdağı vererek insanları susturur.",
+                story: "Köyde herkese borç vermiş, herkesin açığını bilen karanlık adam. Gözdağıyla ağız mühürlemekte ustadır.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Bir kişiyi hedefler. Ertesi gün o kişi chat'e hiçbir şey yazamaz. Hedef sadece kuyuya adam atmak için oy kullanabilir."
+                abilityDesc: "Gece bir kişiyi hedefler; ertesi gün o kişi tartışma kanalına tek harf yazamaz. Sadece sessizce oy verebilir.",
+                constraint: "Susturulan Muhtar o gün mührünü vuramaz. Tefeci kendi takımından birini susturamaz."
             },
             {
                 name: "Meyhaneci",
                 team: "eskiya",
                 teamName: "Eşkıyalar",
                 image: "/roles/meyhaneci.webp",
-                story: "Eğlencesiyle, içkisiyle veya cazibesiyle insanların aklını başından alır, görevlerini unutturur.",
+                story: "Köyün meyhanesinin sahibi. İçkisiyle, cazibesiyle insanların gece görevlerini unutturur — kiralık zihin uyutucu.",
                 abilityTitle: "🌙 Gece Yeteneği",
-                abilityDesc: "Hedeflediği kişinin aklını çeler (Roleblock). Seçtiği kişi o gece yeteneğini kullanamaz (Örn: Şifacı koruyamaz, Katil vuramaz).",
-                constraint: "Ziyaret ettiği kişi Seri Katil çıkarsa kendisi de hayatını kaybeder."
+                abilityDesc: "Her gece bir oyuncuyu ziyaret eder ve onu engeller; o kişi o gece hiçbir yeteneğini kullanamaz. Eskort'un kötü ikizi gibi çalışır — Şifacı koruyamaz, Bekçi sorgulayamaz, Avcı pusuya yatamaz.",
+                constraint: "Ziyaret ettiği kişi Seri Katil çıkarsa kendi de hayatını kaybeder."
             },
 
             // TARAFSIZLAR
@@ -540,29 +545,30 @@
                 team: "tarafsiz",
                 teamName: "Tarafsız",
                 image: "/roles/kan_davali.webp",
-                story: "Gözünü intikam hırsı bürümüştür. Belirli bir köylüye kan davası gütmektedir ve gözü o kişiden başkasını görmez.",
+                story: "Bir zamanlar bir cinayet yemiş, sebebi başkalarınca unutulmuş — ama o unutmamış. Bir kişiyi yıkmayı kafasına koymuş intikamcı.",
                 abilityTitle: "⚖️ Kazanma Şartı",
-                abilityDesc: "Sistem ona rastgele bir köylüyü hedef olarak atar. Amacı o kişiyi yalanlarla suçlayıp gündüz oylamasıyla kuyuya attırmaktır. Hedef kuyuya atılırsa Kan Davalı kazanır.",
-                constraint: "Eğer hedefi gündüz lynch yerine gece başka bir oyuncu tarafından öldürülürse aklını yitirir ve Garip'e dönüşür — yeni amacı kendini astırmaktır."
+                abilityDesc: "Oyun başı sistem ona rastgele bir köylüyü 'kan hasmı' olarak atar. Hedefi gündüz oylamasıyla kuyuya attırırsa anında kazanır. Gece saldırılarına bağışıktır.",
+                constraint: "Hedefi gündüz lynch yerine gece başka bir oyuncu tarafından öldürülürse amacı kaybolur — aklını yitirir, Garip'e dönüşür ve yeni amacı kendini astırmak olur."
             },
             {
                 name: "Kundakçı",
                 team: "tarafsiz",
                 teamName: "Tarafsız",
                 image: "/roles/kundakci.webp",
-                story: "Köyden de köylüden de nefret eden, her yeri küle çevirmek isteyen tehlikeli bir manyak.",
+                story: "Köyden ve köylüden nefret eden, gözü ateşle yanan tehlikeli adam. Her geceyi gazyağı ve kibrit ile kurar.",
                 abilityTitle: "🔥 Gece Yeteneği",
-                abilityDesc: "İki seçeneği vardır: 1) Birinin evine sessizce Gazyağı Döker. 2) Eline meşaleyi alıp önceden gazyağı döktüğü herkesin evini aynı anda Ateşe Verir."
+                abilityDesc: "İki seçeneği vardır: 1) bir gece bir kişinin evine sessizce 'gazyağı döker', 2) başka bir gece eline meşaleyi alıp önceden gazladığı tüm evleri aynı anda ateşe verir.",
+                constraint: "Hiç gazlanmış ev yokken yakma reddedilir — önce gazla, sonra yak. Gece saldırılarına bağışıktır."
             },
             {
                 name: "Kaçak",
                 team: "tarafsiz",
                 teamName: "Tarafsız",
                 image: "/roles/kacak.webp",
-                story: "Köye dışarıdan gelmiş, kimseye bulaşmadan sadece günü kurtarmaya çalışan zavallı biri.",
+                story: "Köye dışarıdan kaçıp gelmiş, kimseye bulaşmadan günü kurtarmaya çalışan zavallı bir yabancı.",
                 abilityTitle: "🛡️ Gece Yeteneği",
-                abilityDesc: "Oyun boyunca 'Saklan' diyerek kapısını içeriden kilitleyebilir. Saklandığı gece ona saldıran olursa hayatta kalır.",
-                constraint: "Oyun boyunca sadece 4 kez saklanabilir."
+                abilityDesc: "'Saklan' diyerek o gece kapısını içeriden kilitler. O gece saldırı gelirse kapı dayanır, sağ kalır. Kim kazanırsa kazansın, oyun sonunda hayatta kalırsa o da kazanır (beraberlik dışında).",
+                constraint: "Saklanma hakkı oyun boyu 4 ile sınırlıdır. Kapısını kilitlemediği gecelerde diğer köylüler gibi savunmasızdır."
             },
             {
                 name: "Garip",
@@ -571,18 +577,18 @@
                 image: "/roles/garip.webp",
                 story: "Köyün kıyısında yaşayan kimsesiz biri; aklı yarı kayıp, yarı şiir. 'Bir garip ölmüş diyeler' — tek isteği kuyunun dibindeki karanlığa kavuşmaktır.",
                 abilityTitle: "🤡 Kazanma Şartı",
-                abilityDesc: "Amacı yalan söyleyip köylüleri kışkırtarak kendini oylama sonucunda kuyuya attırmaktır.",
-                constraint: "Kuyuya atılırsa, ona 'Kuyuya İt' oyu verenlerden birini gece kuyunun dibine çeker (öldürür)."
+                abilityDesc: "Gece aktif yeteneği yoktur. Gündüz yalan söyleyerek, kışkırtarak kendini köy oylamasında kuyuya attırmaya çalışır. Başarırsa anında kazanır.",
+                constraint: "Kuyuya atılınca, ona 'Kuyuya İt' oyu verenlerden birini intikam olarak gece kuyunun dibine çeker (öldürür)."
             },
             {
                 name: "Seri Katil",
                 team: "tarafsiz",
                 teamName: "Tarafsız",
                 image: "/roles/seri_katil.webp",
-                story: "Gözünü kan bürümüş, yalnız hareket eden bir canidir. Gece saldırılarına karşı bağışıklığı vardır.",
+                story: "Yalnız hareket eden, gözü dönmüş bir cani. Hiçbir tarafa sadık değildir; sadece kanın kokusunu sever.",
                 abilityTitle: "🔪 Gece Yeteneği",
-                abilityDesc: "Her gece birini seçer ve acımasızca öldürür. Eşkıyalarla da düşmandır.",
-                constraint: "Herkesi katledip köyde hayatta kalan son kişi olmalıdır."
+                abilityDesc: "Her gece bir oyuncuyu seçer ve acımasızca öldürür. Eşkıyalar onun düşmanıdır, o da onların. Köyde son kalanlardan biri olursa kazanır.",
+                constraint: "Gece saldırılarına bağışıktır (gece ölmez). Eskort veya Meyhaneci onu ziyaret ederse onları da öldürür."
             }
         ];
 
