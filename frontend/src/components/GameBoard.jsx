@@ -366,7 +366,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/sifaci.webp',
       ability: '🌿 Her gece bir kişiyi iyileştirir',
-      desc: 'Köyün bilge otacısı. Her gece bir oyuncunun kapısına giderek onu gece saldırılarından korur. Eğer o gece hedefi saldırıya uğrarsa, hayatta kalır. Kendini oyun boyunca yalnızca 2 kez iyileştirebilir.',
+      desc: 'Köyün bilge otacısı. Her gece bir oyuncunun kapısına giderek onu gece saldırılarından korur. Eğer o gece hedefi saldırıya uğrarsa, hayatta kalır. Kendini oyun boyunca yalnızca 2 kez iyileştirebilir. Mührünü vurmuş açık Muhtar\'ı koruyamaz.',
     },
     'Bekçi': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
@@ -384,7 +384,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/muhtar.webp',
       ability: '🔏 Mühür vurarak oyunu ağırlığını ortaya koyar',
-      desc: 'Köyün mühürdarı. Oyuna gizli bir zırh (tek seferlik yelek) ile başlar, geceleri ilk saldırıdan sağ kurtulur. Gündüz "Mührü Vur" diyerek kimliğini ilan edebilir. Bu andan itibaren oylamalarda oyu 3 sayılır; ancak Şifacı kendisini bir daha koruyamaz. Susturulmuşsa mührü vuramaz.',
+      desc: 'Köyün mühürdarı. Gündüz "Mührü Vur" diyerek kimliğini ilan edebilir. Mührü vurduktan sonra oylamalarda oyu 3 sayılır ve tek seferlik gizli bir yelek kazanır — sonraki ilk gece saldırısından (Eşkıya ya da Seri Katil) sağ kurtulur. Açılmış Muhtar\'ı Şifacı bir daha koruyamaz. Susturulmuşsa mührü vuramaz.',
     },
     'Gözcü': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
@@ -396,7 +396,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/falci.webp',
       ability: '🔮 3 ya da 4 olası rolden oluşan kehanet alır',
-      desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona her takımdan birer rol (1 masum + 1 eşkıya + 1 tarafsız) ve bazen bunlara ek rastgele bir rol içeren kehanet sunar — hedefin gerçek rolü her zaman içindedir. Münafık tarafından çerçevelenmiş biri eşkıya gibi gösterilir.',
+      desc: 'Kahve telvesinden geleceği okur. Her gece bir kişiyi hedefler; sistem ona her takımdan birer rol (1 masum + 1 eşkıya + 1 tarafsız) ve bazen ek rastgele bir 4. rol içeren kehanet sunar — hedefin gerçek rolü her zaman içindedir. Aynı kişiye birden fazla gece kehanet yaptırırsan aynı kehaneti alırsın (kesişimden gerçek rol çıkarılamaz). Münafık tarafından çerçevelenmiş biri rastgele bir eşkıya rolü olarak gösterilir.',
     },
     'Gassal': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
@@ -408,7 +408,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/eskort.webp',
       ability: '💃 Hedefini oyalar, yeteneğini engeller',
-      desc: 'Her gece bir kişiyi ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz. Eşkıyaları bile etkisiz kılabilir; eşkıyalar da onu ziyaret ederse ölebilir.',
+      desc: 'Her gece bir kişiyi ziyaret eder ve onu sabaha kadar oyalar. O kişi o gece hiçbir yeteneğini kullanamaz — Eşkıyaları bile etkisiz kılabilir. Ancak ziyaret ettiği kişi Seri Katil çıkarsa kendisi de hayatını kaybeder.',
     },
     'Deli': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
@@ -426,7 +426,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/munafik.webp',
       ability: '🎭 Bir kişiyi yanlış gösterir',
-      desc: 'Gece bir kişiyi hedefler. O gece Bekçi veya Falcı o kişiyi araştırırsa, sistem o kişiyi sanki eşkıyaymış gibi gösterir. Masum biri haksız yere şüphe altına girebilir.',
+      desc: 'Gece bir kişiyi hedefler. Çerçeveleme o gece ve ertesi gün boyunca sürer — bu sürede Bekçi o kişiyi sorgularsa "Eşkıya" görür, Falcı\'nın kehanetinde de o kişi rastgele bir eşkıya rolü olarak yer alır. Bu sürede çerçeveli oyuncu ölürse cesedi de "Eşkıya" olarak okunur.',
     },
     'Eşkıya': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
@@ -444,13 +444,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/meyhaneci.webp',
       ability: '💋 Hedefini bir gece işe yaramaz hale getirir',
-      desc: 'Eşkıyaların kiralık engelleyicisi. Gece bir kişiyi ziyaret eder; o kişi o gece yeteneğini kullanamaz. Masum roller bile devre dışı kalabilir. Eskort gibi çalışır ama kötü amaçlıdır.',
+      desc: 'Eşkıyaların kiralık engelleyicisi. Gece bir kişiyi ziyaret eder; o kişi o gece yeteneğini kullanamaz. Masum roller bile devre dışı kalabilir. Ancak ziyaret ettiği kişi Seri Katil çıkarsa kendisi de hayatını kaybeder.',
     },
     'Kan Davalı': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
       image: '/roles/kan_davali.webp',
       ability: '⚔️ Tek bir kişiyi kuyuya attırmak zorundadır',
-      desc: 'Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Oyun başı rastgele bir "kan hasımı" atanır; bu kişiyi gündüz oylamayla kuyuya attırmak zorundadır. Hasım başka bir şekilde ölürse aklını yitirip Garip\'e dönüşür.',
+      desc: 'Gözünü intikam hırsı bürümüştür. Gece saldırılarına bağışıktır. Oyun başı rastgele bir "kan hasımı" atanır; hasmı gündüz oylamasıyla kuyuya attırırsa kazanır. Ancak hasmı gece başka bir oyuncu tarafından öldürülürse amacını kaybeder, aklını yitirip Garip\'e dönüşür.',
     },
     'Kundakçı': {
       color: 'text-orange-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
