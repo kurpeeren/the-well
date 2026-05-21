@@ -115,14 +115,14 @@ html, body {
   height: 100dvh;
 }
 
-/* Tum yonlerde safe-area padding — bottom dahil. Body bg #050505 (= React root)
-   oldugu icin alt padding alani siyah gorunse de React root ile esit, fark edilmez. */
+/* Top, Left, Right safe-area body'de hesaplanir. BOTTOM safe-area body'de DAHIL EDILMEDI:
+   bottom-anchored elementler (LOBBY CTA, chat input) kendi env() padding'leriyle yonetir.
+   Boylece icerik (butonlar vb) home indicator'a yakin yer alabilir. */
 body {
   margin: 0;
   padding: 0;
   padding-top: env(safe-area-inset-top);
   padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   box-sizing: border-box;
   /* React root ile ayni renk — body bg'si herhangi bir layout gap'inde gorunse bile fark edilmez */
