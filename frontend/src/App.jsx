@@ -563,6 +563,14 @@ function App() {
                     Köyü Gez
                   </a>
                   <span className="text-slate-700">·</span>
+                  <a
+                    href="/strateji/"
+                    className="group flex items-center gap-2 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors select-none"
+                  >
+                    <span className="text-base group-hover:scale-110 transition-transform">🎯</span>
+                    Strateji
+                  </a>
+                  <span className="text-slate-700">·</span>
                   <button
                     onClick={() => setShowFeedbackModal(true)}
                     className="group flex items-center gap-1.5 text-slate-500 hover:text-accent active:text-amber-500 text-[11px] sm:text-xs uppercase tracking-[0.3em] py-2 px-4 transition-colors select-none"
