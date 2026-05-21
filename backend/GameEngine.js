@@ -493,15 +493,22 @@ class GameEngine {
               if (gfAction && gfAction.targetId && (!mafAction || mafAction.targetId !== gfAction.targetId)) {
                   this.sendPrivateNews(roomCode, killerId, { text: `Eşkıya Başı'nın emriyle kendi fikrin reddedildi ve ${getPlayer(gfAction.targetId)?.name || 'hedefe'} saldırmaya gönderildin!`, align: 'Kırmızı' });
               }
-          } else if (gfPlayer && !roleblocked[gfPlayer.socketId]) {
+          } else if (gfPlayer && !roleblocked[gfPlayer.socketId] && gfAction) {
+              // EB sadece kendi hedef sectiyse devreye girer.
+              // Eskıya kendi inisiyatifle gidip engellenirse EB pasiftir; kan bulasmaz.
               killerId = gfPlayer.socketId;
-              // Eskıya hayatta ama engellenmisse onu bilgilendir: EB bizzat ustlendi
               if (mafPlayer && roleblocked[mafPlayer.socketId]) {
                   this.sendPrivateNews(roomCode, mafPlayer.socketId, {
                       text: 'Engellendiğin için tetiği çekemedin — Eşkıya Başı hedefi bizzat üstüne aldı.',
                       align: 'Kırmızı'
                   });
               }
+          } else if (mafPlayer && roleblocked[mafPlayer.socketId] && mafAction && !gfAction) {
+              // Eskıya kendi inisiyatifle gitmis, engellenmis, EB emir vermemis → cinayet duser
+              this.sendPrivateNews(roomCode, mafPlayer.socketId, {
+                  text: 'Engellendiğin için bu gece tetiği çekemedin — Eşkıya Başı\'ndan emir gelmediği için hedef sağ kaldı.',
+                  align: 'Kırmızı'
+              });
           }
 
           if (killerId) {
