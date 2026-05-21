@@ -414,7 +414,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
       image: '/roles/deli.webp',
       ability: '🌀 Kendini bir info-rol sanır — her bilgisi yanılsama',
-      desc: 'Köyün hafıza yitirmiş bir köylüsü. Falcı, Bekçi ya da Gözcü olduğuna kendisini inandırmış; her gece "yeteneğini" kullanır ama gördüğü her şey rastgele uydurma. Kendi rolünden bihaber, masum tarafıyla kazanır. Hiç kimse — kendisi dahil — Deli olduğunu bilmez, sadece oyun sonu açığa çıkar.',
+      desc: 'Başına teneke bir huni geçirmiş, sokakları arşınlayan zavallı bir köylü. Kendisinin Falcı, Bekçi ya da Gözcü olduğuna inanır; her gece bir kapıyı gözetlediğini sanır, sonuç çıkarır. Oysa gördüğü her şey ağzından akan salyalar gibi gerçek değildir — kafası karışık, bilgileri uydurma. Masum tarafıyla kazanır ama köye yanılsamalı ipuçları taşır. Hiç kimse — kendisi dahil — Deli olduğunu bilmez, sadece oyun sonu açığa çıkar.',
     },
     'Eşkıya Başı': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
