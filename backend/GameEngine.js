@@ -375,8 +375,19 @@ class GameEngine {
                this.sendPrivateNews(roomCode, a.actorId, { text: msg, align: 'Yeşil' });
             }
             else if (a.role === 'Falcı') {
-               const isFramed = framed[a.targetId] || (targetP.framedDay !== undefined && room.dayCount <= targetP.framedDay + 1);
-               const prophecy = getProphecy(targetP.role, isFramed);
+               // Kehanet hedef icin bir kez uretilip cache'lenir — ayni hedefe N gece gidip
+               // kesisim kumesinden gercek rolu bulma sömürüsünu engeller.
+               // Hedefin rolu degisirse (orn. Kan Davali → Garip) cache invalide olur.
+               if (!room.prophecyByTarget) room.prophecyByTarget = {};
+               const cached = room.prophecyByTarget[a.targetId];
+               let prophecy;
+               if (cached && cached.role === targetP.role) {
+                  prophecy = cached.prophecy;
+               } else {
+                  const isFramed = framed[a.targetId] || (targetP.framedDay !== undefined && room.dayCount <= targetP.framedDay + 1);
+                  prophecy = getProphecy(targetP.role, isFramed);
+                  room.prophecyByTarget[a.targetId] = { role: targetP.role, prophecy };
+               }
                this.sendPrivateNews(roomCode, a.actorId, { text: `${targetP.name} için kehanet: ${prophecy}!`, align: 'Yarı' });
             }
          }

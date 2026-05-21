@@ -701,6 +701,7 @@ io.on('connection', (socket) => {
      if (room.judgmentVotes && room.judgmentVotes[oldId]) { room.judgmentVotes[newId] = room.judgmentVotes[oldId]; delete room.judgmentVotes[oldId]; }
      if (Array.isArray(room.acquittedToday)) { const _ai = room.acquittedToday.indexOf(oldId); if (_ai !== -1) room.acquittedToday[_ai] = newId; }
      if (Array.isArray(room.skipDayVotes)) { const _si = room.skipDayVotes.indexOf(oldId); if (_si !== -1) room.skipDayVotes[_si] = newId; }
+     if (room.prophecyByTarget && room.prophecyByTarget[oldId]) { room.prophecyByTarget[newId] = room.prophecyByTarget[oldId]; delete room.prophecyByTarget[oldId]; }
 
      player.connected = true;
      socket.join(roomCode);
@@ -818,6 +819,7 @@ io.on('connection', (socket) => {
        room.trial = null;
        room.judgmentVotes = {};
        room.acquittedToday = [];
+       room.prophecyByTarget = {};
        room.chatLog = [];
        room.eventLog = [];
        room.players.forEach(p => {
