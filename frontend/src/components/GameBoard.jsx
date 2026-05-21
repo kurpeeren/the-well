@@ -871,7 +871,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               if (canMafiaShortcut && !isMafiaShortcut && !roleHidden) t.placeholder = 'Zanlıları tartış...  ·  /c ile çete';
 
               return (
-                 <div className={`shrink-0 border-t ${t.wrap}`}>
+                 <div
+                    className={`shrink-0 border-t ${t.wrap}`}
+                    style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+                 >
                     {chatChannel && t.label && (
                        <div className={`px-3 py-1 text-center text-[9px] font-black uppercase tracking-[0.3em] ${t.text} border-b ${t.wrap.split(' ')[1]}`}>
                           — {t.label} —
@@ -904,7 +907,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
         {/* END (fixed overlay — no layout wrapper needed) */}
         {gamePhase === 'END' && (
-          <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col p-8 overflow-y-auto animate-in fade-in duration-1000 custom-scrollbar">
+          <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col overflow-y-auto animate-in fade-in duration-1000 custom-scrollbar modal-safe-pad">
              <h2 className="text-5xl font-serif text-center mb-4 tracking-widest text-amber-500 uppercase drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">Oyun Sona Erdi</h2>
              <p className="text-xl text-slate-300 text-center mb-10 tracking-widest uppercase">{eventNews}</p>
              
@@ -1008,7 +1011,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* NOTLAR MODAL — Sekmeli */}
       {showNotes && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
           <div className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="shrink-0 flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl">
               <div className="flex items-center gap-3">
@@ -1052,7 +1055,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* ROL BİLGİSİ MODAL */}
       {showRoleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowRoleModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowRoleModal(false)}>
           <div className="w-full h-full sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-none sm:max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             
             {/* Kapak: Resim Alanı */}
@@ -1109,7 +1112,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* MEZARLIK / KUYU MODALI (Mobile-only via Skull icon) */}
       {showGraveyard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowGraveyard(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowGraveyard(false)}>
           <div className="w-full h-full sm:h-[80vh] sm:max-w-md bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl shrink-0">
               <div className="flex items-center gap-3">
@@ -1192,7 +1195,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* SİLENCED MODAL */}
       {showSilencedModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 sm:p-4 animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowSilencedModal(false)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowSilencedModal(false)}>
           <div className="w-full h-full sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-red-900/50 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center justify-center p-8 text-center" onClick={(e) => e.stopPropagation()}>
              <VolumeX size={64} className="text-red-500 mb-4 animate-pulse" />
              <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-2">ŞŞŞT!</h3>
@@ -1206,7 +1209,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
        {/* AYRILMA ONAYI MODAL */}
        {showLeaveConfirm && (
-          <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setShowLeaveConfirm(false)}>
+          <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm modal-safe-pad animate-in fade-in duration-200" onClick={() => setShowLeaveConfirm(false)}>
              <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
                 <div className="p-6 flex flex-col items-center text-center">
                    <LogOut size={48} className="text-red-500 mb-3" />
@@ -1350,7 +1353,7 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
    };
 
    return (
-      <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-0 sm:p-4 animate-in zoom-in duration-500 pointer-events-auto" onClick={onClose}>
+      <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 modal-safe-pad animate-in zoom-in duration-500 pointer-events-auto" onClick={onClose}>
          <div
             className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-[#f4e4bc] text-slate-900 sm:rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative flex flex-col overflow-hidden"
             style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}

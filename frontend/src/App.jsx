@@ -414,7 +414,7 @@ function App() {
 
       {/* ATILDIN MODAL — host tarafindan odadan atilinca acilir */}
       {kickedNotice && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 backdrop-blur-md modal-safe-pad animate-in fade-in duration-300">
           <div className="w-full max-w-sm bg-slate-900 border border-red-900/60 rounded-2xl shadow-[0_0_60px_rgba(220,38,38,0.4)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
             <div className="p-7 flex flex-col items-center text-center">
               <div className="relative mb-4">
@@ -963,8 +963,11 @@ function App() {
               )}
            </div>
 
-           {/* Sticky CTA */}
-           <div className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40">
+           {/* Sticky CTA — home indicator'a kadar bg uzanmali, content env+padding ile yukari */}
+           <div
+              className="shrink-0 p-3 sm:p-4 border-t border-slate-800 bg-slate-900/40"
+              style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+           >
               {isHost ? (
                  <Button variant="primary" size="lg" className="w-full" onClick={() => socket.emit('startGame', roomCode)}>
                     Oyunu Başlat ({players.length}/16)
@@ -979,7 +982,7 @@ function App() {
 
            {/* ODADAN ATMA ONAYI MODAL */}
            {kickTarget && (
-              <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-in fade-in duration-200" onClick={() => setKickTarget(null)}>
+              <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 backdrop-blur-sm modal-safe-pad animate-in fade-in duration-200" onClick={() => setKickTarget(null)}>
                  <div className="w-full max-w-sm bg-slate-900 border border-red-900/50 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
                     <div className="p-6 flex flex-col items-center text-center">
                        <UserMinus size={48} className="text-red-500 mb-3" />
