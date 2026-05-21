@@ -126,7 +126,10 @@ function App() {
   }); // INTRO, JOIN, LOBBY, GAME, ADMIN
   const [introPhase, setIntroPhase] = useState('WAITING'); // WAITING, PLAYING, ENDED
   const [introClicks, setIntroClicks] = useState(0);
-  const [playerName, setPlayerName] = useState('');
+  const [playerName, setPlayerName] = useState(() => {
+    // PWA / tarayici farketmez — son girdigi ismi localStorage'da hatirla
+    try { return localStorage.getItem('kuyu_playerName') || ''; } catch { return ''; }
+  });
   const [roomCode, setRoomCode] = useState('');
   const [isHost, setIsHost] = useState(false);
   const [isDevMode, setIsDevMode] = useState(false);
@@ -154,6 +157,14 @@ function App() {
   const [kickedNotice, setKickedNotice] = useState(null); // sebebi tutan string, modal trigger
 
   useEffect(() => { dayCountRef.current = dayCount; }, [dayCount]);
+
+  // Oyuncu ismi degisince localStorage'a yaz — bir sonraki acilista pre-fill icin
+  useEffect(() => {
+    const trimmed = playerName.trim();
+    if (trimmed) {
+      try { localStorage.setItem('kuyu_playerName', trimmed); } catch {}
+    }
+  }, [playerName]);
 
   // Atma onay modali acik kalmis ama oyuncu kendiliginden ayrilmis ya da faz degismis → modal'i kapat
   useEffect(() => {
