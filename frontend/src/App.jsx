@@ -740,27 +740,59 @@ function App() {
                     {!isHost && (
                        <p className="text-xs text-slate-400 bg-slate-800/60 px-3 py-2 rounded text-center uppercase tracking-widest">Sadece kurucu değiştirebilir</p>
                     )}
-                    {['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
-                       <div key={group}>
-                          <h3 className={`text-sm font-bold mb-3 uppercase tracking-widest ${group === 'Masumlar' ? 'text-emerald-300' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
-                          <div className="grid grid-cols-2 gap-2">
-                             {ROLES_LIST.filter(r => r.group === group).map(r => (
-                                <label key={r.name} className="flex items-center gap-3 text-slate-300 cursor-pointer hover:bg-slate-800 px-2.5 py-2 rounded-lg transition-colors">
-                                   <input type="checkbox" checked={settings.roles ? settings.roles[r.name] !== false : true} disabled={!isHost}
-                                      onChange={(e) => {
-                                         const newRoles = { ...(settings.roles || {}) };
-                                         newRoles[r.name] = e.target.checked;
-                                         const newSettings = { ...settings, roles: newRoles };
-                                         setSettings(newSettings);
-                                         socket.emit('updateSettings', { roomCode, settings: newSettings });
-                                      }}
-                                   />
-                                   <span className="text-sm font-medium truncate">{r.name}</span>
-                                </label>
-                             ))}
+                    <p className="text-[10px] text-slate-500 italic text-center px-2">
+                       0 = kapalı · 1 = normal · 2-5 = daha sık çıkar
+                    </p>
+                    {(() => {
+                       // Ağırlık normalize: legacy boolean (true/false) → 1/0
+                       const weightOf = (v) => {
+                          if (v === undefined) return 1;
+                          if (typeof v === 'boolean') return v ? 1 : 0;
+                          const n = Math.floor(Number(v) || 0);
+                          return Math.max(0, Math.min(5, n));
+                       };
+                       const setWeight = (roleName, newWeight) => {
+                          const clamped = Math.max(0, Math.min(5, newWeight));
+                          const newRoles = { ...(settings.roles || {}) };
+                          newRoles[roleName] = clamped;
+                          const newSettings = { ...settings, roles: newRoles };
+                          setSettings(newSettings);
+                          socket.emit('updateSettings', { roomCode, settings: newSettings });
+                       };
+                       return ['Masumlar', 'Eşkıyalar', 'Tarafsızlar'].map(group => (
+                          <div key={group}>
+                             <h3 className={`text-sm font-bold mb-3 uppercase tracking-widest ${group === 'Masumlar' ? 'text-emerald-300' : group === 'Eşkıyalar' ? 'text-blood-red' : 'text-slate-400'}`}>{group}</h3>
+                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {ROLES_LIST.filter(r => r.group === group).map(r => {
+                                   const w = weightOf(settings.roles?.[r.name]);
+                                   const active = w > 0;
+                                   return (
+                                      <div key={r.name} className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border transition-colors ${active ? 'bg-slate-800/40 border-slate-700/60' : 'bg-slate-900/30 border-slate-800/40'}`}>
+                                         <span className={`text-sm font-medium truncate ${active ? 'text-slate-200' : 'text-slate-600'}`}>{r.name}</span>
+                                         <div className="flex items-center gap-1.5 shrink-0">
+                                            <button
+                                               type="button"
+                                               onClick={() => setWeight(r.name, w - 1)}
+                                               disabled={!isHost || w <= 0}
+                                               aria-label={`${r.name} azalt`}
+                                               className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold text-lg leading-none flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                            >−</button>
+                                            <span className={`w-5 text-center tabular-nums text-sm font-black ${active ? 'text-accent' : 'text-slate-600'}`}>{w}</span>
+                                            <button
+                                               type="button"
+                                               onClick={() => setWeight(r.name, w + 1)}
+                                               disabled={!isHost || w >= 5}
+                                               aria-label={`${r.name} artir`}
+                                               className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold text-lg leading-none flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                            >+</button>
+                                         </div>
+                                      </div>
+                                   );
+                                })}
+                             </div>
                           </div>
-                       </div>
-                    ))}
+                       ));
+                    })()}
                  </div>
               )}
            </div>

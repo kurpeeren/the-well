@@ -25,13 +25,27 @@ class GameEngine {
     let enabledRoles = room.settings?.roles || {};
     Object.keys(ROLES).forEach(r => {
         if (enabledRoles[r] === undefined) {
-            enabledRoles[r] = true;
+            enabledRoles[r] = 1;
         }
     });
+
+    // Ağırlık normalize: legacy boolean (true/false) → 1/0, sayisal → 0-5 arasi clamp.
+    // Agirlik 0 = kapali; 2+ = havuza birden fazla kopya ekler, secilme sansi catlanir.
+    const weightOf = (v) => {
+        if (v === undefined) return 1;
+        if (typeof v === 'boolean') return v ? 1 : 0;
+        const n = Math.floor(Number(v) || 0);
+        return Math.max(0, Math.min(5, n));
+    };
     console.log('[Dev] Enabled Roles for this game:', enabledRoles);
 
     if (room.isDevMode) {
-        let pool = Object.keys(enabledRoles).filter(r => enabledRoles[r]);
+        // Dev mode: agirlik destekli havuz — weight 2 ise rol havuza 2 kez girer
+        let pool = [];
+        Object.keys(enabledRoles).forEach(r => {
+            const w = weightOf(enabledRoles[r]);
+            for (let i = 0; i < w; i++) pool.push(r);
+        });
         if (pool.length === 0) pool = Object.keys(ROLES);
 
         let finalPool = [];
@@ -65,7 +79,7 @@ class GameEngine {
              else player.role = 'Garip';
           }
           if (player.role === 'Deli') {
-             const infoPool = ['Falcı', 'Bekçi', 'Gözcü'].filter(r => enabledRoles[r]);
+             const infoPool = ['Falcı', 'Bekçi', 'Gözcü'].filter(r => weightOf(enabledRoles[r]) > 0);
              player.deliDisguise = infoPool.length > 0
                 ? infoPool[Math.floor(Math.random() * infoPool.length)]
                 : 'Falcı';
@@ -73,10 +87,24 @@ class GameEngine {
         });
         return;
     }
-  
-    let poolEvil = Object.keys(enabledRoles).filter(r => enabledRoles[r] && (ROLES[r]?.team === 'Eşkıyalar' || r === 'Kundakçı'));
-    let poolNeutral = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Bireysel' && r !== 'Kundakçı' && r !== 'Seri Katil');
-    let poolTown = Object.keys(enabledRoles).filter(r => enabledRoles[r] && ROLES[r]?.team === 'Köylüler');
+
+    // Normal mod: her ekibin havuzunu agirlik kopyalariyla doldur.
+    // weight 2 → rol havuzda 2 kez → secilme olasiligi 2 kat.
+    let poolEvil = [];
+    let poolNeutral = [];
+    let poolTown = [];
+    Object.keys(enabledRoles).forEach(r => {
+        const w = weightOf(enabledRoles[r]);
+        if (w === 0) return;
+        const team = ROLES[r]?.team;
+        if (team === 'Eşkıyalar' || r === 'Kundakçı') {
+            for (let i = 0; i < w; i++) poolEvil.push(r);
+        } else if (team === 'Bireysel' && r !== 'Kundakçı' && r !== 'Seri Katil') {
+            for (let i = 0; i < w; i++) poolNeutral.push(r);
+        } else if (team === 'Köylüler') {
+            for (let i = 0; i < w; i++) poolTown.push(r);
+        }
+    });
 
     // Eğer tamamen bütün roller kapatılmışsa fallback olarak tüm rolleri aç
     if (poolEvil.length === 0 && poolNeutral.length === 0 && poolTown.length === 0) {
@@ -113,8 +141,8 @@ class GameEngine {
   
     // 1. Kırmızı Takım (Kötüler)
     for (let i = 0; i < kirmizi && activeRoles.length < count; i++) {
-       if (i === 0 && enabledRoles['Eşkıya Başı']) activeRoles.push('Eşkıya Başı');
-       else if (i === 1 && enabledRoles['Seri Katil']) activeRoles.push('Seri Katil');
+       if (i === 0 && weightOf(enabledRoles['Eşkıya Başı']) > 0) activeRoles.push('Eşkıya Başı');
+       else if (i === 1 && weightOf(enabledRoles['Seri Katil']) > 0) activeRoles.push('Seri Katil');
        else {
            let r = getNextRole(poolEvil, currentEvil);
            if (r) activeRoles.push(r);
@@ -135,8 +163,8 @@ class GameEngine {
   
     // Eğer toplam sayı oyuncu sayısına ulaşmadıysa eksikleri eldeki havuzlardan rastgele doldur
     let allAvailable = [...poolTown, ...poolEvil, ...poolNeutral];
-    if (enabledRoles['Eşkıya Başı']) allAvailable.push('Eşkıya Başı');
-    if (enabledRoles['Seri Katil']) allAvailable.push('Seri Katil');
+    if (weightOf(enabledRoles['Eşkıya Başı']) > 0) allAvailable.push('Eşkıya Başı');
+    if (weightOf(enabledRoles['Seri Katil']) > 0) allAvailable.push('Seri Katil');
     let currentAll = [];
     
     while (activeRoles.length < count) {
@@ -177,7 +205,7 @@ class GameEngine {
       }
       // Deli: aktif info-roller arasindan kostum sec. Hicbiri aktif degilse Falci varsayilan.
       if (player.role === 'Deli') {
-         const infoPool = ['Falcı', 'Bekçi', 'Gözcü'].filter(r => enabledRoles[r]);
+         const infoPool = ['Falcı', 'Bekçi', 'Gözcü'].filter(r => weightOf(enabledRoles[r]) > 0);
          player.deliDisguise = infoPool.length > 0
             ? infoPool[Math.floor(Math.random() * infoPool.length)]
             : 'Falcı';
