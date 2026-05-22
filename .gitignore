@@ -10,3 +10,6 @@ __pycache__/
 
 # Runtime metrics (server.js calistikca yazar, repoda tutulmaz)
 backend/.metrics-history.json
+
+# Claude Code local settings
+.claude/settings.local.json

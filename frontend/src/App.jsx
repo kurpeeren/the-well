@@ -39,7 +39,7 @@ socket.emit = (event, ...args) => {
 };
 
 const ROLES_LIST = [
-  { name: 'Şifacı', group: 'Masumlar' }, { name: 'Bekçi', group: 'Masumlar' }, { name: 'Avcı', group: 'Masumlar' }, { name: 'Muhtar', group: 'Masumlar' }, { name: 'Gözcü', group: 'Masumlar' }, { name: 'Falcı', group: 'Masumlar' }, { name: 'Gassal', group: 'Masumlar' }, { name: 'Eskort', group: 'Masumlar' }, { name: 'Deli', group: 'Masumlar' },
+  { name: 'Şifacı', group: 'Masumlar' }, { name: 'Bekçi', group: 'Masumlar' }, { name: 'Avcı', group: 'Masumlar' }, { name: 'Muhtar', group: 'Masumlar' }, { name: 'Gözcü', group: 'Masumlar' }, { name: 'Falcı', group: 'Masumlar' }, { name: 'Gassal', group: 'Masumlar' }, { name: 'Dansöz', group: 'Masumlar' }, { name: 'Deli', group: 'Masumlar' },
   { name: 'Eşkıya Başı', group: 'Eşkıyalar' }, { name: 'Münafık', group: 'Eşkıyalar' }, { name: 'Eşkıya', group: 'Eşkıyalar' }, { name: 'Tefeci', group: 'Eşkıyalar' }, { name: 'Meyhaneci', group: 'Eşkıyalar' },
   { name: 'Garip', group: 'Tarafsızlar' }, { name: 'Seri Katil', group: 'Tarafsızlar' }, { name: 'Kan Davalı', group: 'Tarafsızlar' }, { name: 'Kundakçı', group: 'Tarafsızlar' }, { name: 'Kaçak', group: 'Tarafsızlar' }
 ];
@@ -55,12 +55,12 @@ const MODE_PRESETS = [
   {
     id: 'klasik', name: 'Klasik Denge', sub: '10 kişi · Turnuva', icon: '⚖️',
     kirmizi: 3, gri: 1, yesil: 6,
-    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Eskort'],
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Dansöz'],
   },
   {
     id: 'bilgi', name: 'Bilgi Ağırlıklı', sub: '12 kişi · ×2 bilgi rolü', icon: '🔮',
     kirmizi: 3, gri: 2, yesil: 7,
-    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Garip', 'Şifacı', ['Bekçi', 2], 'Avcı', 'Muhtar', ['Falcı', 2], 'Gözcü', 'Eskort'],
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Garip', 'Şifacı', ['Bekçi', 2], 'Avcı', 'Muhtar', ['Falcı', 2], 'Gözcü', 'Dansöz'],
   },
   {
     id: 'twist', name: 'Kaotik Sürpriz', sub: '14 kişi · Deli + tarafsızlar', icon: '🌀',
@@ -70,7 +70,7 @@ const MODE_PRESETS = [
   {
     id: 'tamkadro', name: 'Tam Kadro', sub: '16 kişi · Festival', icon: '🎪',
     kirmizi: 4, gri: 2, yesil: 10,
-    roles: ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Meyhaneci', 'Seri Katil', 'Kundakçı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Eskort', 'Tefeci', 'Deli'],
+    roles: ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Meyhaneci', 'Seri Katil', 'Kundakçı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Dansöz', 'Tefeci', 'Deli'],
   },
   {
     // Ozel mod: 1 Seri Katil + 1 rastgele gercek masum + geri kalan Deli.
@@ -78,7 +78,7 @@ const MODE_PRESETS = [
     id: 'delikoyu', name: 'Deli Köyü', sub: '1 katil + 1 gerçek masum + tümü Deli', icon: '🎭',
     gameMode: 'deli_koyu',
     kirmizi: 1, gri: 0, yesil: 7,
-    roles: ['Seri Katil', 'Deli', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'],
+    roles: ['Seri Katil', 'Deli', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Dansöz'],
   },
 ];
 
@@ -883,7 +883,7 @@ function App() {
                     <div>
                        <div className="flex flex-wrap justify-between items-end gap-2 border-b border-slate-800 pb-2 mb-3">
                           <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Rol Dağılımı</p>
-                          <span className="text-[10px] text-slate-500 italic">Eşkıya Başı + Seri Katil sabit</span>
+                          <span className="text-[10px] text-slate-500 italic">Eşkıya Başı aktifse her oyunda 1 kez</span>
                        </div>
                        <div className="grid grid-cols-3 gap-2">
                           {['kirmizi', 'gri', 'yesil'].map(k => {
@@ -911,6 +911,37 @@ function App() {
                                    />
                                 </div>
                              )
+                          })}
+                       </div>
+                    </div>
+
+                    <div>
+                       <div className="flex flex-wrap justify-between items-end gap-2 border-b border-slate-800 pb-2 mb-3">
+                          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Ölü Gösterimi</p>
+                          <span className="text-[10px] text-slate-500 italic">Mezar taşında ne yazsın</span>
+                       </div>
+                       <div className="grid grid-cols-3 gap-2">
+                          {[
+                             { v: 'team', label: 'Takım', sub: 'Masum/Eşkıya/Tarafsız' },
+                             { v: 'role', label: 'Rol', sub: 'Tam rol adı' },
+                             { v: 'none', label: 'Gizli', sub: '???' },
+                          ].map(opt => {
+                             const active = (settings.revealDeadAs || 'team') === opt.v;
+                             return (
+                                <button
+                                   key={opt.v}
+                                   type="button"
+                                   disabled={!isHost}
+                                   onClick={() => {
+                                      const newSettings = { ...settings, revealDeadAs: opt.v };
+                                      setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
+                                   }}
+                                   className={`flex flex-col items-center justify-center p-2.5 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${active ? 'bg-yellow-900/20 border-yellow-600 text-yellow-300' : 'bg-black border-slate-700 text-slate-300 hover:border-slate-500'}`}
+                                >
+                                   <span className="text-sm font-bold uppercase tracking-wider">{opt.label}</span>
+                                   <span className="text-[9px] text-slate-500 mt-0.5">{opt.sub}</span>
+                                </button>
+                             );
                           })}
                        </div>
                     </div>
@@ -1045,6 +1076,7 @@ function App() {
            onOpenFeedback={() => setShowFeedbackModal(true)}
            isHost={isHost}
            onLeave={handleLeave}
+           settings={settings}
          />
       )}
         </div>

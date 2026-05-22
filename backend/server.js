@@ -526,6 +526,9 @@ io.on('connection', (socket) => {
       settings: {
         nightTimer: 35, morningTimer: 8, dayTimer: 75, votingTimer: 25, defenseTimer: 30,
         kirmizi: 2, gri: 1, yesil: 5,
+        // Mezar tasinda olen oyuncunun rolunun nasil gosterilecegi:
+        // 'team' (varsayilan, Masum/Eskiya/Tarafsiz) | 'role' (tam rol) | 'none' (gizli ???)
+        revealDeadAs: 'team',
         roles: {
           // Sayisal agirlik: 0 = kapali, 1 = normal, 2-5 = orantili olarak daha sik cikar.
           // Default 8 eglenceli rol — sabit ikili (EB+SK) + 1 tarafsiz + 5 koylu, hepsi 1.
@@ -540,7 +543,7 @@ io.on('connection', (socket) => {
           // Default kapali (0) — host lobide acabilir
           'Gözcü':       0,
           'Gassal':      0,
-          'Eskort':      0,
+          'Dansöz':      0,
           'Münafık':     0,
           'Eşkıya':      0,
           'Tefeci':      0,

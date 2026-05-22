@@ -1078,7 +1078,7 @@ function ConfirmDialog({ title, message, danger, confirmLabel, onConfirm, onCanc
 
 const ROLE_TEAM = {
     'Şifacı': 'Masumlar', 'Bekçi': 'Masumlar', 'Avcı': 'Masumlar', 'Muhtar': 'Masumlar',
-    'Gözcü': 'Masumlar', 'Falcı': 'Masumlar', 'Gassal': 'Masumlar', 'Eskort': 'Masumlar', 'Deli': 'Masumlar',
+    'Gözcü': 'Masumlar', 'Falcı': 'Masumlar', 'Gassal': 'Masumlar', 'Dansöz': 'Masumlar', 'Deli': 'Masumlar',
     'Eşkıya Başı': 'Eşkıyalar', 'Münafık': 'Eşkıyalar', 'Eşkıya': 'Eşkıyalar', 'Tefeci': 'Eşkıyalar', 'Meyhaneci': 'Eşkıyalar',
     'Garip': 'Tarafsızlar', 'Seri Katil': 'Tarafsızlar', 'Kan Davalı': 'Tarafsızlar', 'Kundakçı': 'Tarafsızlar', 'Kaçak': 'Tarafsızlar',
 };

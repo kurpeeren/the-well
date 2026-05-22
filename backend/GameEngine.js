@@ -26,7 +26,7 @@ class GameEngine {
     // Ozel mod: Deli Koyu — 1 Seri Katil + 1 rastgele gercek masum + geri kalan Deli.
     // Tum oyuncular bilgi rolu sandiklari kostum giyer; gercek bilgi yalnizca tek masumda.
     if (room.settings?.gameMode === 'deli_koyu' && count >= 4) {
-        const masumPool = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'];
+        const masumPool = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Dansöz'];
         const realMasum = masumPool[Math.floor(Math.random() * masumPool.length)];
         const activeRoles = ['Seri Katil', realMasum];
         while (activeRoles.length < count) activeRoles.push('Deli');
@@ -122,6 +122,8 @@ class GameEngine {
     // ve weight=1 olmasi durumunda tekrar cikmaz.
     const roleCap = {};
     Object.keys(enabledRoles).forEach(r => { roleCap[r] = weightOf(enabledRoles[r]); });
+    // Eskiya Basi: aktifse tam olarak 1 — tavanini 1'e zorla, zorunlu slot olarak ayrilir.
+    if ((roleCap['Eşkıya Başı'] || 0) > 0) roleCap['Eşkıya Başı'] = 1;
     const roleCount = {};
     const remaining = (r) => (roleCap[r] || 0) - (roleCount[r] || 0);
 
@@ -130,7 +132,7 @@ class GameEngine {
     let poolTown = [];
     Object.keys(enabledRoles).forEach(r => {
         if ((roleCap[r] || 0) <= 0) return;
-        if (r === 'Eşkıya Başı' || r === 'Seri Katil') return; // zorunlu slot, takim havuzunda yok
+        if (r === 'Eşkıya Başı') return; // zorunlu slot, takim havuzunda yok
         const team = ROLES[r]?.team;
         if (team === 'Eşkıyalar' || r === 'Kundakçı') poolEvil.push(r);
         else if (team === 'Bireysel') poolNeutral.push(r);
@@ -139,14 +141,12 @@ class GameEngine {
 
     // Tum roller kapatilmissa fallback
     if (poolEvil.length === 0 && poolNeutral.length === 0 && poolTown.length === 0
-        && (roleCap['Eşkıya Başı'] || 0) === 0 && (roleCap['Seri Katil'] || 0) === 0) {
+        && (roleCap['Eşkıya Başı'] || 0) === 0) {
         ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'].forEach(r => { roleCap[r] = 1; poolEvil.push(r); });
-        ['Garip', 'Kan Davalı', 'Kaçak'].forEach(r => { roleCap[r] = 1; poolNeutral.push(r); });
-        ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'].forEach(r => { roleCap[r] = 1; poolTown.push(r); });
+        ['Garip', 'Kan Davalı', 'Kaçak', 'Seri Katil'].forEach(r => { roleCap[r] = 1; poolNeutral.push(r); });
+        ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Dansöz'].forEach(r => { roleCap[r] = 1; poolTown.push(r); });
         roleCap['Eşkıya Başı'] = 1;
-        roleCap['Seri Katil'] = 1;
         enabledRoles['Eşkıya Başı'] = 1;
-        enabledRoles['Seri Katil'] = 1;
     }
 
     let { kirmizi, gri, yesil } = room.settings;
@@ -183,10 +183,9 @@ class GameEngine {
         return true;
     };
 
-    // 1. Kirmizi (Kotuler)
+    // 1. Kirmizi (Kotuler) — Eskiya Basi aktifse tam 1 kez zorunlu, geri kalan poolEvil'den
     for (let i = 0; i < kirmizi && activeRoles.length < count; i++) {
        if (i === 0 && (roleCap['Eşkıya Başı'] || 0) > 0 && tryAddForced('Eşkıya Başı')) continue;
-       if (i === 1 && (roleCap['Seri Katil'] || 0) > 0 && tryAddForced('Seri Katil')) continue;
        const r = drawFromPool(poolEvil);
        if (r) activeRoles.push(r);
        else break; // havuz tukendi — kirmizi kotasini bos birak, takim toplami sert kisit
@@ -211,7 +210,6 @@ class GameEngine {
     if (activeRoles.length < count) {
         const fallbackPool = [...poolEvil, ...poolNeutral, ...poolTown];
         if ((roleCap['Eşkıya Başı'] || 0) > 0) fallbackPool.push('Eşkıya Başı');
-        if ((roleCap['Seri Katil'] || 0) > 0) fallbackPool.push('Seri Katil');
         while (activeRoles.length < count) {
             const r = drawFromPool(fallbackPool);
             if (!r) break;
@@ -342,9 +340,9 @@ class GameEngine {
           }
       });
   
-      // Priority 3: Meyhaneci ve Eskort
+      // Priority 3: Meyhaneci ve Dansöz
       let skPassiveAttacks = [];
-      actions.filter(a => (a.role === 'Meyhaneci' || a.role === 'Eskort') && a.targetId).forEach(a => {
+      actions.filter(a => (a.role === 'Meyhaneci' || a.role === 'Dansöz') && a.targetId).forEach(a => {
           if (!alerts[a.targetId]) {
               roleblocked[a.targetId] = true;
               this.sendPrivateNews(roomCode, a.targetId, { text: "Oldukça 'hareketli' bir gece geçirdin ve aklın başından gitti... Haliyle görevini de yapamadın!", align: 'Kırmızı' });
@@ -617,7 +615,7 @@ class GameEngine {
           }
       });
   
-      // Resolve SK Passive Attacks (Eskort/Meyhaneci roleblocked SK)
+      // Resolve SK Passive Attacks (Dansöz/Meyhaneci roleblocked SK)
       skPassiveAttacks.forEach(attack => {
           if (!healed[attack.targetId] && !vested[attack.targetId]) {
               deaths.push(attack.targetId);

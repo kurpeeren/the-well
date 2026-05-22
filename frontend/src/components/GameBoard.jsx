@@ -4,7 +4,27 @@ import TimerDisplay from './TimerDisplay';
 import { Button, IconButton } from './ui/Button';
 import { StatBadge } from './ui/StatBadge';
 
-function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback, trial = null }) {
+function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, systemNotes, isDevMode, dayCount, dousedList, gameResults, revealedNotes, setRevealedNotes, isSpectator, onLeave, isHost, onOpenFeedback, trial = null, settings = {} }) {
+  // Olu oyuncunun mezar tasinda ne yazsin: 'role' (rol adi), 'team' (Masum/Eskiya/Tarafsiz), 'none' (gizli)
+  const revealDeadAs = settings.revealDeadAs || 'team';
+  const TEAM_OF = {
+    'Şifacı':'Masum','Bekçi':'Masum','Avcı':'Masum','Muhtar':'Masum','Gözcü':'Masum','Falcı':'Masum','Gassal':'Masum','Dansöz':'Masum','Deli':'Masum',
+    'Eşkıya Başı':'Eşkıya','Münafık':'Eşkıya','Eşkıya':'Eşkıya','Tefeci':'Eşkıya','Meyhaneci':'Eşkıya',
+    'Garip':'Tarafsız','Seri Katil':'Tarafsız','Kan Davalı':'Tarafsız','Kundakçı':'Tarafsız','Kaçak':'Tarafsız',
+  };
+  const teamLabel = (role) => TEAM_OF[role] || '';
+  const teamColorClass = (role) => {
+    const t = teamLabel(role);
+    if (t === 'Masum') return 'text-emerald-300';
+    if (t === 'Eşkıya') return 'text-blood-red';
+    if (t === 'Tarafsız') return 'text-slate-400';
+    return 'text-slate-500';
+  };
+  const renderDeadLabel = (role) => {
+    if (revealDeadAs === 'role') return { text: role, cls: teamColorClass(role) };
+    if (revealDeadAs === 'team') return { text: teamLabel(role) || '???', cls: teamColorClass(role) };
+    return { text: '???', cls: 'text-slate-500' };
+  };
   const [impersonateId, setImpersonateId] = useState(null);
 
   const activeSocketId = (isDevMode && impersonateId) ? impersonateId : socket.id;
@@ -232,7 +252,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   // Kullanici rol rozetine basip rolu gizlediginde rol-aciklayan tum gorsel ipuclarini da gizle
   // (chat temalari, baloncuk renkleri, takim vurgusu). Spectator zaten ayri davraniyor.
   const roleHidden = !isRoleVisible && !isSpectator;
-  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Gözcü', 'Falcı', 'Tefeci', 'Meyhaneci', 'Eskort'].includes(activeRole);
+  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Gözcü', 'Falcı', 'Tefeci', 'Meyhaneci', 'Dansöz'].includes(activeRole);
   
   const isAvci = activeRole === 'Avcı';
   const isKundakci = activeRole === 'Kundakçı';
@@ -404,9 +424,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       ability: '💀 Geceleri ölüler boyutunu dinler',
       desc: 'Ölü yıkayıcısı. Cesetlerin yanında geçen yıllar onu öbür dünyaya açmıştır — ölüler ona sırlarını fısıldar. Geceleri ölü oyuncuların kendi aralarında konuştuğu "Ölüler Boyutu" sohbetini canlı izleyebilir. Gündüz kanal kapalıdır; gece olunca o gün yazılan ölü mesajlarını da geçmişe dönük görür. Aktif bir gece yeteneği yoktur, sadece dinler.',
     },
-    'Eskort': {
+    'Dansöz': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
-      image: '/roles/eskort.webp',
+      image: '/roles/dansöz.webp',
       ability: '💃 Hedefini oyalar, gece yeteneğini engeller',
       desc: 'Köyün en gözalıcı simasi; sohbeti o kadar hoştur ki onunla muhabbete dalan sabaha kadar ne ettiğini unutur. Her gece bir kişiyi ziyaret eder ve onu oyalar; o kişi o gece hiçbir yeteneğini kullanamaz — eşkıyaları bile etkisiz kılabilir. Ancak ziyaret ettiği kişi Seri Katil çıkarsa kendi kapısı son kapı olur.',
     },
@@ -432,7 +452,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/eskiya.webp',
       ability: '🔪 Çetenin kararıyla gece tetiği çeker',
-      desc: 'Ağa\'nın sağ kolu, kirli işlerin adamı. Bıçak çekmek onun, hedef belirlemek başın işidir. Eşkıya Başı\'nın seçtiği hedefi gece öldürmeye gider; baş hedef seçmemişse veya ölmüşse, inisiyatif alıp kendi seçtiği kişiyi vurur. Eskort veya Meyhaneci tarafından engellenirse o gece tetik çekemez. Gece çete sohbetinde konuşabilir.',
+      desc: 'Ağa\'nın sağ kolu, kirli işlerin adamı. Bıçak çekmek onun, hedef belirlemek başın işidir. Eşkıya Başı\'nın seçtiği hedefi gece öldürmeye gider; baş hedef seçmemişse veya ölmüşse, inisiyatif alıp kendi seçtiği kişiyi vurur. Dansöz veya Meyhaneci tarafından engellenirse o gece tetik çekemez. Gece çete sohbetinde konuşabilir.',
     },
     'Tefeci': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
@@ -444,7 +464,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/meyhaneci.webp',
       ability: '💋 Hedefinin gece yeteneğini engeller',
-      desc: 'Köyün meyhanesinin sahibi. İçkisiyle, cazibesiyle insanların gece görevlerini unutturur — eşkıyaların kiralık zihin uyutucusu. Her gece bir oyuncuyu ziyaret eder; o kişi o gece hiçbir yeteneğini kullanamaz. Eskort\'un kötü ikizi gibi çalışır. Ziyaret ettiği kişi Seri Katil çıkarsa kendi de hayatını kaybeder.',
+      desc: 'Köyün meyhanesinin sahibi. İçkisiyle, cazibesiyle insanların gece görevlerini unutturur — eşkıyaların kiralık zihin uyutucusu. Her gece bir oyuncuyu ziyaret eder; o kişi o gece hiçbir yeteneğini kullanamaz. Dansöz\'un kötü ikizi gibi çalışır. Ziyaret ettiği kişi Seri Katil çıkarsa kendi de hayatını kaybeder.',
     },
     'Kan Davalı': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
@@ -474,7 +494,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
       image: '/roles/seri_katil.webp',
       ability: '🩸 Her gece bir kişiyi acımasızca öldürür',
-      desc: 'Yalnız hareket eden, gözü dönmüş bir cani. Hiçbir tarafa sadık değildir; sadece kanın kokusunu sever. Her gece bir oyuncuyu seçer ve acımasızca öldürür. Eşkıyalar onun düşmanıdır, o da onların. Gece saldırılarına bağışıktır. Eskort veya Meyhaneci onu ziyaret ederse onları da öldürür. Köyde son kalanlardan biri olursa kazanır.',
+      desc: 'Yalnız hareket eden, gözü dönmüş bir cani. Hiçbir tarafa sadık değildir; sadece kanın kokusunu sever. Her gece bir oyuncuyu seçer ve acımasızca öldürür. Eşkıyalar onun düşmanıdır, o da onların. Gece saldırılarına bağışıktır. Dansöz veya Meyhaneci onu ziyaret ederse onları da öldürür. Köyde son kalanlardan biri olursa kazanır.',
     },
   };
 
@@ -965,14 +985,23 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
              </h3>
              <ul className="flex-1 overflow-y-auto custom-scrollbar space-y-2">
                 {players.filter(p => !p.isAlive).map(p => {
-                   // Normalde ölen kişinin rolü herkese görünür olmalı (Town of Salem mantığı).
-                   // Eğer rolün sadece isDevMode'da görünmesini istiyorsak burayı değiştirebiliriz.
-                   // Ancak standartta herkes ölenin rolünü bilmeli.
                    const roleToDisplay = p.displayRole || p.role;
+                   // Mezar tasi gosterimi: ayarlanan revealDeadAs'a gore rol / takim / gizli
+                   let labelText, labelCls;
+                   if (revealDeadAs === 'role') {
+                      labelText = roleToDisplay;
+                      labelCls = getTeamColor(roleToDisplay).split(' ')[0];
+                   } else if (revealDeadAs === 'team') {
+                      labelText = teamLabel(roleToDisplay) || '???';
+                      labelCls = getTeamColor(roleToDisplay).split(' ')[0];
+                   } else {
+                      labelText = '???';
+                      labelCls = 'text-slate-500';
+                   }
                    return (
                    <li key={p.socketId} className="flex flex-col bg-black/40 p-2 rounded-lg border border-slate-800">
                       <span className="text-slate-300 font-medium text-sm line-through opacity-70">{p.name}</span>
-                      <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider`}>{roleToDisplay}</span>
+                      <span className={`${labelCls} font-bold text-[11px] uppercase tracking-wider`}>{labelText}</span>
                    </li>
                    );
                 })}
@@ -1169,7 +1198,17 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                        <ul className="space-y-2">
                          {groups.get(day).map(p => {
                            const roleToDisplay = p.displayRole || p.role;
-                           const teamLabel = ROLE_INFO[roleToDisplay]?.team || 'Bilinmiyor';
+                           let labelText, labelCls;
+                           if (revealDeadAs === 'role') {
+                              labelText = roleToDisplay;
+                              labelCls = getTeamColor(roleToDisplay).split(' ')[0];
+                           } else if (revealDeadAs === 'team') {
+                              labelText = teamLabel(roleToDisplay) || ROLE_INFO[roleToDisplay]?.team || 'Bilinmiyor';
+                              labelCls = getTeamColor(roleToDisplay).split(' ')[0];
+                           } else {
+                              labelText = '???';
+                              labelCls = 'text-slate-500';
+                           }
                            return (
                              <li key={p.socketId} className="flex items-center justify-between bg-black/40 px-3 py-2.5 rounded-lg border border-slate-800">
                                <div className="flex items-center gap-2 min-w-0">
@@ -1177,7 +1216,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                                  {p.diedPhase === 'NIGHT' && <Moon size={11} className="text-slate-500 shrink-0" />}
                                  {(p.diedPhase === 'VOTING' || p.diedPhase === 'JUDGMENT') && <AlertTriangle size={11} className="text-amber-500/70 shrink-0" />}
                                </div>
-                               <span className={`${getTeamColor(roleToDisplay).split(' ')[0]} font-bold text-[11px] uppercase tracking-wider shrink-0 ml-2`}>{teamLabel}</span>
+                               <span className={`${labelCls} font-bold text-[11px] uppercase tracking-wider shrink-0 ml-2`}>{labelText}</span>
                              </li>
                            );
                          })}
