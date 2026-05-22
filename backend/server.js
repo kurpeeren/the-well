@@ -731,14 +731,21 @@ io.on('connection', (socket) => {
      const playerIndex = room.players.findIndex(p => p.token === token);
      if (playerIndex !== -1) {
         const socketId = room.players[playerIndex].socketId;
+        const wasHost = room.host === socketId;
         if (room.status === 'LOBBY') {
            room.players.splice(playerIndex, 1);
-           if (room.host === socketId && room.players.length > 0) room.host = room.players[0].socketId;
+           if (wasHost && room.players.length > 0) {
+              room.host = room.players[0].socketId;
+              io.to(room.host).emit('hostChanged', true);
+           }
         } else {
            room.players[playerIndex].connected = false;
-           if (room.host === socketId) {
+           if (wasHost) {
                const nextHost = room.players.find(p => p.connected);
-               if (nextHost) room.host = nextHost.socketId;
+               if (nextHost) {
+                  room.host = nextHost.socketId;
+                  io.to(room.host).emit('hostChanged', true);
+               }
            }
         }
         io.to(roomCode).emit('updateLobby', room.players);
@@ -783,6 +790,8 @@ io.on('connection', (socket) => {
       engine.assignRoles(room);
       room.chatLog = [];
       room.eventLog = [];
+      // Vasiyetler her yeni oyunda sifirlanir — onceki oyundan kalmasin
+      room.players.forEach(p => { p.personalNote = ''; });
       room.status = 'GAME_STARTING';
       io.to(roomCode).emit('gameStarted', room.players);
       

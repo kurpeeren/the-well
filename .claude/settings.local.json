@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(git *)",
+      "Skill(superpowers:brainstorming)",
+      "Bash(cd *)",
+      "Bash(node -e \"require\\('./backend/server.js'\\)\")",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(node --check backend/server.js)",
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(npm i *)",
+      "Bash(node -e \"console.log\\(require\\('./package.json'\\).dependencies['@vercel/analytics']\\)\")"
+    ]
+  }
+}

@@ -308,7 +308,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
            if (eventNews.includes(me?.name)) {
               // Biz öldük
               setAnimEffect('death');
-              setAnimText('KANINA GİRDİLER');
+              setAnimText('KATLEDİLDİN');
            }
         } 
         else if (eventNews.includes('kuyuya fırlatıldı')) {

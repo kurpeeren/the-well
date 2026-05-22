@@ -116,95 +116,114 @@ class GameEngine {
         return;
     }
 
-    // Normal mod: her ekibin havuzunu agirlik kopyalariyla doldur.
-    // weight 2 → rol havuzda 2 kez → secilme olasiligi 2 kat.
+    // Normal mod: her rolun weight'i o rolden EN FAZLA kac kopya gelebilecegini soyler (sert tavan).
+    // Takim toplamlari (kirmizi/gri/yesil) de sert kisittir — bu kadarini gecmez.
+    // Eskiya Basi ve Seri Katil iki ayri zorunlu slottur; bu yuzden takim havuzlarinin disinda tutulur
+    // ve weight=1 olmasi durumunda tekrar cikmaz.
+    const roleCap = {};
+    Object.keys(enabledRoles).forEach(r => { roleCap[r] = weightOf(enabledRoles[r]); });
+    const roleCount = {};
+    const remaining = (r) => (roleCap[r] || 0) - (roleCount[r] || 0);
+
     let poolEvil = [];
     let poolNeutral = [];
     let poolTown = [];
     Object.keys(enabledRoles).forEach(r => {
-        const w = weightOf(enabledRoles[r]);
-        if (w === 0) return;
+        if ((roleCap[r] || 0) <= 0) return;
+        if (r === 'Eşkıya Başı' || r === 'Seri Katil') return; // zorunlu slot, takim havuzunda yok
         const team = ROLES[r]?.team;
-        if (team === 'Eşkıyalar' || r === 'Kundakçı') {
-            for (let i = 0; i < w; i++) poolEvil.push(r);
-        } else if (team === 'Bireysel' && r !== 'Kundakçı' && r !== 'Seri Katil') {
-            for (let i = 0; i < w; i++) poolNeutral.push(r);
-        } else if (team === 'Köylüler') {
-            for (let i = 0; i < w; i++) poolTown.push(r);
-        }
+        if (team === 'Eşkıyalar' || r === 'Kundakçı') poolEvil.push(r);
+        else if (team === 'Bireysel') poolNeutral.push(r);
+        else if (team === 'Köylüler') poolTown.push(r);
     });
 
-    // Eğer tamamen bütün roller kapatılmışsa fallback olarak tüm rolleri aç
-    if (poolEvil.length === 0 && poolNeutral.length === 0 && poolTown.length === 0) {
-        poolEvil = ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'];
-        poolNeutral = ['Garip', 'Kan Davalı', 'Kaçak'];
-        poolTown = ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'];
-        enabledRoles['Eşkıya Başı'] = true;
-        enabledRoles['Seri Katil'] = true;
+    // Tum roller kapatilmissa fallback
+    if (poolEvil.length === 0 && poolNeutral.length === 0 && poolTown.length === 0
+        && (roleCap['Eşkıya Başı'] || 0) === 0 && (roleCap['Seri Katil'] || 0) === 0) {
+        ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'].forEach(r => { roleCap[r] = 1; poolEvil.push(r); });
+        ['Garip', 'Kan Davalı', 'Kaçak'].forEach(r => { roleCap[r] = 1; poolNeutral.push(r); });
+        ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'].forEach(r => { roleCap[r] = 1; poolTown.push(r); });
+        roleCap['Eşkıya Başı'] = 1;
+        roleCap['Seri Katil'] = 1;
+        enabledRoles['Eşkıya Başı'] = 1;
+        enabledRoles['Seri Katil'] = 1;
     }
-  
+
     let { kirmizi, gri, yesil } = room.settings;
     kirmizi = kirmizi ?? 4;
     gri = gri ?? 2;
     yesil = yesil ?? 9;
-  
+
     let activeRoles = [];
 
-    // Çekiliş havuzlarını kopyarak oluştur
-    let currentEvil = [];
-    let currentNeutral = [];
-    let currentTown = [];
-    
-    const getNextRole = (originalPool, currentPool) => {
-        if (originalPool.length === 0) return null;
-        if (currentPool.length === 0) {
-            currentPool.push(...originalPool);
-            for (let i = currentPool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [currentPool[i], currentPool[j]] = [currentPool[j], currentPool[i]];
+    // Kalan kapasiteye gore weighted-without-replacement cekilis.
+    // Bir rol tavanini doldurdu mu havuzdan dusuyor — yani weight=1 ise en fazla 1 kez gelir.
+    const drawFromPool = (pool) => {
+        const candidates = pool.filter(r => remaining(r) > 0);
+        if (candidates.length === 0) return null;
+        const weights = candidates.map(r => remaining(r));
+        const total = weights.reduce((a, b) => a + b, 0);
+        let pick = Math.random() * total;
+        for (let i = 0; i < candidates.length; i++) {
+            pick -= weights[i];
+            if (pick <= 0) {
+                roleCount[candidates[i]] = (roleCount[candidates[i]] || 0) + 1;
+                return candidates[i];
             }
         }
-        return currentPool.pop();
+        const r = candidates[candidates.length - 1];
+        roleCount[r] = (roleCount[r] || 0) + 1;
+        return r;
     };
-  
-    // 1. Kırmızı Takım (Kötüler)
+
+    const tryAddForced = (r) => {
+        if (remaining(r) <= 0) return false;
+        roleCount[r] = (roleCount[r] || 0) + 1;
+        activeRoles.push(r);
+        return true;
+    };
+
+    // 1. Kirmizi (Kotuler)
     for (let i = 0; i < kirmizi && activeRoles.length < count; i++) {
-       if (i === 0 && weightOf(enabledRoles['Eşkıya Başı']) > 0) activeRoles.push('Eşkıya Başı');
-       else if (i === 1 && weightOf(enabledRoles['Seri Katil']) > 0) activeRoles.push('Seri Katil');
-       else {
-           let r = getNextRole(poolEvil, currentEvil);
-           if (r) activeRoles.push(r);
-       }
+       if (i === 0 && (roleCap['Eşkıya Başı'] || 0) > 0 && tryAddForced('Eşkıya Başı')) continue;
+       if (i === 1 && (roleCap['Seri Katil'] || 0) > 0 && tryAddForced('Seri Katil')) continue;
+       const r = drawFromPool(poolEvil);
+       if (r) activeRoles.push(r);
+       else break; // havuz tukendi — kirmizi kotasini bos birak, takim toplami sert kisit
     }
-  
-    // 2. Gri Takım (Tarafsızlar)
+
+    // 2. Gri (Tarafsizlar)
     for (let i = 0; i < gri && activeRoles.length < count; i++) {
-       let r = getNextRole(poolNeutral, currentNeutral);
+       const r = drawFromPool(poolNeutral);
        if (r) activeRoles.push(r);
+       else break;
     }
-  
-    // 3. Yeşil Takım (Masumlar)
+
+    // 3. Yesil (Masumlar)
     for (let i = 0; i < yesil && activeRoles.length < count; i++) {
-       let r = getNextRole(poolTown, currentTown);
+       const r = drawFromPool(poolTown);
        if (r) activeRoles.push(r);
+       else break;
     }
-  
-    // Eğer toplam sayı oyuncu sayısına ulaşmadıysa eksikleri eldeki havuzlardan rastgele doldur
-    let allAvailable = [...poolTown, ...poolEvil, ...poolNeutral];
-    if (weightOf(enabledRoles['Eşkıya Başı']) > 0) allAvailable.push('Eşkıya Başı');
-    if (weightOf(enabledRoles['Seri Katil']) > 0) allAvailable.push('Seri Katil');
-    let currentAll = [];
-    
-    while (activeRoles.length < count) {
-        if (allAvailable.length > 0) {
-            let r = getNextRole(allAvailable, currentAll);
-            if (r) activeRoles.push(r);
-        } else {
-            activeRoles.push('Muhtar'); // Tamamen boş kalma durumuna son çare
+
+    // Takim havuzlari tukendi ama oyuncu acigi var ise: tavanlari korumak icin
+    // tum havuzlardan (forced slotlar dahil) kalan kapasiteden cek. Tavan asilamaz.
+    if (activeRoles.length < count) {
+        const fallbackPool = [...poolEvil, ...poolNeutral, ...poolTown];
+        if ((roleCap['Eşkıya Başı'] || 0) > 0) fallbackPool.push('Eşkıya Başı');
+        if ((roleCap['Seri Katil'] || 0) > 0) fallbackPool.push('Seri Katil');
+        while (activeRoles.length < count) {
+            const r = drawFromPool(fallbackPool);
+            if (!r) break;
+            activeRoles.push(r);
         }
     }
-  
-    // Eğer fazlalık varsa kırp
+
+    // Hala eksikse son care olarak Muhtar (sadece tavan/role yoksa)
+    while (activeRoles.length < count) {
+        activeRoles.push('Muhtar');
+    }
+
     if (activeRoles.length > count) {
         activeRoles = activeRoles.slice(0, count);
     }

@@ -258,6 +258,12 @@ function App() {
       setSettings(newSettings);
     });
 
+    // Host odadan ayrildiginda backend sahipligi bir sonraki oyuncuya devreder
+    socket.on('hostChanged', () => {
+      setIsHost(true);
+      showToast('Artık odanın kurucusu sensin');
+    });
+
     socket.on('updateLobby', (playerList) => {
       setPlayers(playerList);
     });
@@ -368,6 +374,7 @@ function App() {
       socket.off('mayorRevealed');
       socket.off('gameOver');
       socket.off('settingsUpdated');
+      socket.off('hostChanged');
       socket.off('reconnectFailed');
       socket.off('kicked');
       socket.off('returnedToLobby');
