@@ -566,7 +566,7 @@ function App() {
       )}
 
       {gameState !== 'INTRO' && (
-        <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden pt-6 sm:pt-0 sm:pb-20">
+        <div className="w-full flex flex-col items-center relative flex-1 min-h-0 overflow-hidden sm:pb-20">
 
           {!isInGame && gameState !== 'JOIN' && (
             <header className={`w-full max-w-4xl text-center relative z-40 mt-2 mb-3 sm:mb-8 shrink-0 px-4 ${gameState === 'LOBBY' ? 'hidden sm:block' : ''}`}>

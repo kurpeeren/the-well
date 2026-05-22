@@ -116,9 +116,6 @@ html, body {
 /* Top, Left, Right safe-area body'de hesaplanir. BOTTOM safe-area body'de DAHIL EDILMEDI:
    bottom-anchored elementler (LOBBY CTA, chat input) kendi env() padding'leriyle yonetir.
    Boylece icerik (butonlar vb) home indicator'a yakin yer alabilir.
-   NOT: ekran icerigi nefes payi (notch'tan ekstra uzaklik) App wrapper div'inde
-   pt-6 ile veriliyor — position:fixed body'nin padding'i iOS PWA'da guvenilmez,
-   normal bir div'de garantili calisir.
    position:fixed + inset:0 — iOS PWA'da sayfa scroll'u / rubber-band bounce tamamen kilitli. */
 body {
   position: fixed;
