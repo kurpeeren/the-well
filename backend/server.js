@@ -996,7 +996,8 @@ io.on('connection', (socket) => {
           const alivePlayersCount = room.players.filter(p => p.isAlive && p.connected).length;
           io.to(roomCode).emit('skipDayUpdate', { count: room.skipDayVotes.length, total: alivePlayersCount });
           
-          if (room.skipDayVotes.length >= alivePlayersCount) {
+          // Yarıdan fazlası pas dediyse günü hemen bitir — herkesi beklemiyoruz
+          if (room.skipDayVotes.length > alivePlayersCount / 2) {
              if (room.timerInterval) clearInterval(room.timerInterval);
              engine.processPhaseEnd(roomCode, 'DAY');
           }
