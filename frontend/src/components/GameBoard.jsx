@@ -1112,9 +1112,12 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* MEZARLIK / KUYU MODALI (Mobile-only via Skull icon) */}
       {showGraveyard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowGraveyard(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm sm:modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowGraveyard(false)}>
           <div className="w-full h-full sm:h-[80vh] sm:max-w-md bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl shrink-0">
+            <div
+              className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl shrink-0"
+              style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
+            >
               <div className="flex items-center gap-3">
                 <Skull className="text-slate-400" size={22} />
                 <h3 className="text-lg font-bold font-serif tracking-widest text-slate-200">Kuyunun Dibi</h3>
@@ -1122,7 +1125,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               <IconButton aria-label="Kapat" onClick={() => setShowGraveyard(false)}><X size={16} /></IconButton>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
+            <div
+              className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4"
+              style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+            >
               <div>
                 <h4 className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-2 border-b border-slate-800 pb-2">Ölüler</h4>
                 {(() => {
