@@ -116,7 +116,7 @@ html, body {
 /* Top, Left, Right safe-area body'de hesaplanir. BOTTOM safe-area body'de DAHIL EDILMEDI:
    bottom-anchored elementler (LOBBY CTA, chat input) kendi env() padding'leriyle yonetir.
    Boylece icerik (butonlar vb) home indicator'a yakin yer alabilir.
-   Top'a +0.5rem nefes payi: icerik (LOBBY/GAME basliklari, butonlar) notch /
+   Top'a +1.25rem nefes payi: icerik (LOBBY/GAME basliklari, butonlar) notch /
    Dynamic Island'a yapismasin. Modallar fixed olduklari icin bundan etkilenmez,
    kendi calc(1rem + env()) paylarini kullanir.
    position:fixed + inset:0 — iOS PWA'da sayfa scroll'u / rubber-band bounce tamamen kilitli. */
@@ -125,7 +125,7 @@ body {
   inset: 0;
   margin: 0;
   padding: 0;
-  padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+  padding-top: calc(env(safe-area-inset-top) + 1.25rem);
   padding-right: env(safe-area-inset-right);
   padding-left: env(safe-area-inset-left);
   box-sizing: border-box;
