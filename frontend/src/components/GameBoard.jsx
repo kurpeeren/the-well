@@ -877,7 +877,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                           — {t.label} —
                        </div>
                     )}
-                    <div className="px-2 pt-2" style={{ paddingBottom: 'max(0.5rem, calc(env(safe-area-inset-bottom) - 1rem))' }}>
+                    <div className="px-2 pt-2" style={{ paddingBottom: 'max(0.5rem, calc(env(safe-area-inset-bottom) - 2rem))' }}>
                        {isSpectator && gamePhase === 'DAY' ? (
                           <div className="p-2 text-center"><p className="text-purple-400/80 text-[10px] font-serif uppercase">— İzleyici Modu —</p></div>
                        ) : canSendChat ? (
