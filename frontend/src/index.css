@@ -143,10 +143,12 @@ body {
   overscroll-behavior: none;
 }
 
-/* #root body'nin content area'sini doldurur — body'nin padding'i icerige tasinmaz */
+/* #root body'nin content area'sini doldurur — body'nin padding'i icerige tasinmaz.
+   overflow:hidden — herhangi bir descendant tasmasinda bile sayfa buyumez/kaymaz. */
 #root {
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Modal guvenli-alan padding'i — Tailwind @utility olarak tanimli, boylece
@@ -260,4 +262,13 @@ input[type="number"] {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* App hissiyati — tum ic scroll alanlari kendi sinirinda kalir; scroll page'e
+   ya da komsu panele "chain" olmaz, rubber-band dis kabugu oynatmaz.
+   Sayfa zaten body position:fixed ile kilitli — bu, ic panellerin de
+   birbirine scroll sizdirmasini engeller (tam app davranisi). */
+.custom-scrollbar,
+.no-scrollbar {
+  overscroll-behavior: contain;
 }

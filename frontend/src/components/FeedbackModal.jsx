@@ -60,10 +60,10 @@ function FeedbackModal({ onClose, showToast, gameState }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md bg-dark-bg border border-accent/40 rounded-2xl shadow-[0_0_60px_rgba(217,119,6,0.3)] overflow-hidden animate-in zoom-in-95 duration-200 relative"
+        className="w-full max-w-md max-h-full flex flex-col bg-dark-bg border border-accent/40 rounded-2xl shadow-[0_0_60px_rgba(217,119,6,0.3)] overflow-hidden animate-in zoom-in-95 duration-200 relative"
       >
         {/* Üst başlık */}
-        <div className="px-5 py-3.5 border-b border-slate-800 bg-accent/10 flex items-center justify-between">
+        <div className="shrink-0 px-5 py-3.5 border-b border-slate-800 bg-accent/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MessageSquare size={14} className="text-accent" />
             <h3 className="text-[11px] font-black uppercase tracking-[0.3em] font-serif text-accent">Geri Bildirim</h3>
@@ -74,7 +74,7 @@ function FeedbackModal({ onClose, showToast, gameState }) {
         </div>
 
         {sent ? (
-          <div className="p-8 flex flex-col items-center text-center gap-3">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-8 flex flex-col items-center justify-center text-center gap-3">
             <div className="w-14 h-14 rounded-full bg-emerald-900/40 border border-emerald-700/60 flex items-center justify-center">
               <Check size={28} className="text-emerald-400" />
             </div>
@@ -84,7 +84,7 @@ function FeedbackModal({ onClose, showToast, gameState }) {
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-5 flex flex-col gap-4">
             {/* Açıklama */}
             <p className="text-slate-300 text-sm leading-relaxed">
               Bu mesajlarınız benim için önemli — hepsini okuyorum <Heart size={12} className="inline text-blood-red fill-blood-red" />

@@ -58,10 +58,10 @@ function ShareInviteModal({ roomCode, onClose, showToast }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm bg-dark-bg border border-accent/40 rounded-2xl shadow-[0_0_60px_rgba(217,119,6,0.3)] overflow-hidden animate-in zoom-in-95 duration-200 relative"
+        className="w-full max-w-sm max-h-full flex flex-col bg-dark-bg border border-accent/40 rounded-2xl shadow-[0_0_60px_rgba(217,119,6,0.3)] overflow-hidden animate-in zoom-in-95 duration-200 relative"
       >
         {/* Üst başlık */}
-        <div className="px-5 py-3.5 border-b border-slate-800 bg-accent/10 flex items-center justify-between">
+        <div className="shrink-0 px-5 py-3.5 border-b border-slate-800 bg-accent/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
             <h3 className="text-[11px] font-black uppercase tracking-[0.3em] font-serif text-accent">Köy Daveti</h3>
@@ -72,7 +72,7 @@ function ShareInviteModal({ roomCode, onClose, showToast }) {
         </div>
 
         {/* İçerik */}
-        <div className="p-5 flex flex-col items-center gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-5 flex flex-col items-center gap-4">
           {/* Oda kodu büyük */}
           <div className="text-center">
             <p className="text-[9px] text-slate-500 uppercase tracking-[0.3em] mb-1">Köy Mührü</p>
