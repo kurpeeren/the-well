@@ -964,8 +964,8 @@ function App() {
                              <span className={`text-sm font-bold uppercase tracking-wider ${settings.nightChallenge ? 'text-yellow-300' : 'text-slate-300'}`}>{settings.nightChallenge ? 'Açık' : 'Kapalı'}</span>
                              <span className="text-[10px] text-slate-500 mt-0.5">Gece %20 ihtimal · yazmayan %50 ihtimal rolünü yapamaz</span>
                           </div>
-                          <span className={`w-10 h-6 rounded-full relative transition-colors shrink-0 ${settings.nightChallenge ? 'bg-yellow-600' : 'bg-slate-700'}`}>
-                             <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${settings.nightChallenge ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                          <span className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${settings.nightChallenge ? 'bg-yellow-600' : 'bg-slate-700'}`}>
+                             <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${settings.nightChallenge ? 'translate-x-5' : 'translate-x-0'}`} />
                           </span>
                        </button>
                     </div>
