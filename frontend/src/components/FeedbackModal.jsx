@@ -56,7 +56,7 @@ function FeedbackModal({ onClose, showToast, gameState }) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[200] bg-black/85 backdrop-blur-sm flex items-center justify-center modal-safe-pad animate-in fade-in duration-200"
     >
       <div
         onClick={(e) => e.stopPropagation()}

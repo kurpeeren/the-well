@@ -1061,7 +1061,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* ROL BİLGİSİ MODAL */}
       {showRoleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowRoleModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm sm:modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowRoleModal(false)}>
           <div className="w-full h-full sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-none sm:max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             
             {/* Kapak: Resim Alanı */}
@@ -1086,11 +1086,19 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                   </span>
                 )}
               </div>
-              <IconButton aria-label="Kapat" onClick={() => setShowRoleModal(false)} className="absolute top-3 right-3 bg-black/50"><X size={16} /></IconButton>
+              <IconButton
+                aria-label="Kapat"
+                onClick={() => setShowRoleModal(false)}
+                className="absolute right-3 bg-black/50"
+                style={{ top: 'calc(0.75rem + env(safe-area-inset-top))' }}
+              ><X size={16} /></IconButton>
             </div>
 
             {/* İçerik */}
-            <div className="p-5 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+            <div
+              className="flex-1 min-h-0 p-5 flex flex-col gap-4 overflow-y-auto custom-scrollbar"
+              style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom))' }}
+            >
 
               {/* Yetenek Özeti */}
               {ROLE_INFO[activeRole]?.ability && (
@@ -1207,7 +1215,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* SİLENCED MODAL */}
       {showSilencedModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowSilencedModal(false)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm sm:modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowSilencedModal(false)}>
           <div className="w-full h-full sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-red-900/50 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center justify-center p-8 text-center" onClick={(e) => e.stopPropagation()}>
              <VolumeX size={64} className="text-red-500 mb-4 animate-pulse" />
              <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-2">ŞŞŞT!</h3>
@@ -1254,7 +1262,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
                    <h3 className="text-yellow-500 font-bold uppercase tracking-widest text-sm">Oyuncu Seç</h3>
                    <IconButton aria-label="Kapat" onClick={() => setShowImpersonateMenu(false)}><X size={16} /></IconButton>
                 </div>
-                <ul className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                <ul
+                   className="flex-1 overflow-y-auto custom-scrollbar p-2"
+                   style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom))' }}
+                >
                    {players.map(p => (
                       <li key={p.socketId}>
                          <button
@@ -1365,7 +1376,7 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
    };
 
    return (
-      <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 modal-safe-pad animate-in zoom-in duration-500 pointer-events-auto" onClick={onClose}>
+      <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 sm:modal-safe-pad animate-in zoom-in duration-500 pointer-events-auto" onClick={onClose}>
          <div
             className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-[#f4e4bc] text-slate-900 sm:rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative flex flex-col overflow-hidden"
             style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}
@@ -1374,7 +1385,10 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
             <div className="absolute top-0 left-0 w-full h-4 bg-gradient-to-b from-black/20 to-transparent pointer-events-none z-10"></div>
             <div className="absolute bottom-0 left-0 w-full h-4 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-10"></div>
 
-            <div className="shrink-0 px-6 pt-6 pb-4 border-b-2 border-[#5c4033]/30 flex items-center justify-between">
+            <div
+               className="shrink-0 px-6 pt-6 pb-4 border-b-2 border-[#5c4033]/30 flex items-center justify-between"
+               style={{ paddingTop: 'calc(1.5rem + env(safe-area-inset-top))' }}
+            >
                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#5c4033]">ÖLÜNÜN VASİYETİ</h2>
                {isMulti && (
                   <span className="text-[#5c4033]/70 font-bold text-sm font-serif tracking-widest">{activeIdx + 1}/{total}</span>
@@ -1409,7 +1423,10 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
                </div>
             )}
 
-            <div className="shrink-0 p-4 sm:p-6 text-center border-t border-[#5c4033]/20">
+            <div
+               className="shrink-0 p-4 sm:p-6 text-center border-t border-[#5c4033]/20"
+               style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+            >
                <button onClick={onClose} className="bg-[#8b5a2b] hover:bg-[#704214] text-[#f4e4bc] px-8 py-3 rounded shadow-lg font-bold uppercase tracking-widest transition-colors">
                   Huzur İçinde Yatsın
                </button>

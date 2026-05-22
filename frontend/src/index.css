@@ -149,22 +149,19 @@ body {
   width: 100%;
 }
 
-/* Modal safe-area padding — fixed inset-0 modal'larin notch/home-indicator alanlarini hesaplar.
-   Mobil PWA: env() degerleri kadar bos birakir (icerik notch/home-indicator altina girmez).
-   Desktop (sm+): max(1rem, env()) ile en az 1rem breathing room saglanir. */
-.modal-safe-pad {
-  padding-top: env(safe-area-inset-top);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-}
-@media (min-width: 640px) {
-  .modal-safe-pad {
-    padding-top: max(1rem, env(safe-area-inset-top));
-    padding-right: max(1rem, env(safe-area-inset-right));
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
-    padding-left: max(1rem, env(safe-area-inset-left));
-  }
+/* Modal guvenli-alan padding'i — Tailwind @utility olarak tanimli, boylece
+   sm:modal-safe-pad gibi variant'lar gercekten calisir (duz .class olsaydi
+   sm: prefix'i no-op olurdu).
+   - Tam-ekran modallar (mobilde w-full h-full): sm:modal-safe-pad kullanir —
+     mobilde hic pad almaz (ic kart safe-area dahil tum ekrani kaplar),
+     desktop'ta breathing room alir. Safe-area mobilde header/footer icine girer.
+   - Ortali-kart modallar: duz modal-safe-pad — max(1rem, env()) ile her zaman
+     >=1rem kenar bosluk + notch/home-indicator paylari. */
+@utility modal-safe-pad {
+  padding-top: max(1rem, env(safe-area-inset-top));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
 }
 
 html {
