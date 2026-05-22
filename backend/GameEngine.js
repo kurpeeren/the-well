@@ -335,14 +335,15 @@ class GameEngine {
       // Yazanlarin muhuru zaten room.nightChallenges'tan silindi.
       const pendingChallenges = room.nightChallenges || {};
       Object.keys(pendingChallenges).forEach(actorId => {
-          if (Math.random() < 0.50) {
+          const failed = Math.random() < 0.50;
+          if (failed) {
               if (room.nightActions[actorId]) {
                   delete room.nightActions[actorId];
               }
-              const p = getPlayer(actorId);
-              if (p) {
-                  this.sendPrivateNews(roomCode, actorId, { text: 'Köy nöbetinde uyukladın — bu gece rolünü uygulayamadın.', align: 'Kırmızı' });
-              }
+              this.sendPrivateNews(roomCode, actorId, { text: 'Köy nöbetinde uyukladın — bu gece rolünü uygulayamadın.', align: 'Kırmızı' });
+          } else {
+              // Muhuru yazmadi ama sansli — yetenegi yine de isledi
+              this.sendPrivateNews(roomCode, actorId, { text: 'Köy nöbetini kaçırdın ama şanslıydın — bu gece rolün yine de işledi.', align: 'Yeşil' });
           }
       });
       room.nightChallenges = {};
