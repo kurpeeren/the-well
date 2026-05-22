@@ -426,7 +426,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     },
     'Dansöz': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
-      image: '/roles/dansöz.webp',
+      image: '/roles/dansoz.webp',
       ability: '💃 Hedefini oyalar, gece yeteneğini engeller',
       desc: 'Köyün en gözalıcı simasi; sohbeti o kadar hoştur ki onunla muhabbete dalan sabaha kadar ne ettiğini unutur. Her gece bir kişiyi ziyaret eder ve onu oyalar; o kişi o gece hiçbir yeteneğini kullanamaz — eşkıyaları bile etkisiz kılabilir. Ancak ziyaret ettiği kişi Seri Katil çıkarsa kendi kapısı son kapı olur.',
     },
