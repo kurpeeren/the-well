@@ -110,7 +110,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     return () => {
       document.body.style.overflow = '';
     };
-  }, [showNotes, showRoleModal, showSilencedModal, revealedNotes, gamePhase]);
+  }, [showNotes, showRoleModal, showSilencedModal, showGraveyard, revealedNotes, gamePhase]);
 
   const handleAction = (actionType = 'target', isSelfAlert = false) => {
     // actionType: target, pusu, douse, ignite, protect, bos
@@ -1011,9 +1011,12 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* NOTLAR MODAL — Sekmeli */}
       {showNotes && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm sm:modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
           <div className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="shrink-0 flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl">
+            <div
+              className="shrink-0 flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl"
+              style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
+            >
               <div className="flex items-center gap-3">
                  <BookOpen className="text-accent" size={22} />
                  <h3 className="text-lg sm:text-xl font-bold font-serif tracking-widest text-slate-200">Köy Defteri</h3>
@@ -1042,7 +1045,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
             </div>
 
             {/* Sekme içeriği */}
-            <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+            <div
+              className="flex-1 min-h-0 overflow-hidden flex flex-col"
+              style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            >
                {notesTab === 'events' && <EventsList systemNotes={systemNotes} />}
 
                {notesTab === 'will' && (
