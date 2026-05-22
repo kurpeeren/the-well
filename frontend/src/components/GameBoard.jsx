@@ -70,7 +70,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   // Koy Nobeti: server'dan gelen muhur ve durumu
   const [nightChallenge, setNightChallenge] = useState(null); // { code } | null
   const [challengeInput, setChallengeInput] = useState('');
-  const [challengeStatus, setChallengeStatus] = useState(null); // 'wrong' | null
+  const [challengeStatus, setChallengeStatus] = useState(null); // 'wrong' | 'ok' | null
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -93,10 +93,20 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
     });
     socket.on('nightChallengeResult', ({ ok }) => {
        if (ok) {
-          setNightChallenge(null);
-          setChallengeStatus(null);
+          // Once yesile boya, ~700ms sonra kapat
+          setChallengeStatus('ok');
+          setTimeout(() => {
+             setNightChallenge(null);
+             setChallengeStatus(null);
+             setChallengeInput('');
+          }, 700);
        } else {
+          // Kirmizi flash, ~600ms sonra normale don ve girisi temizle
           setChallengeStatus('wrong');
+          setTimeout(() => {
+             setChallengeStatus(null);
+             setChallengeInput('');
+          }, 600);
        }
     });
     return () => {
@@ -531,34 +541,47 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
       {/* KOY NOBETI - gece muhur gorevi (cikti bizden gizli — sadece sahibi gorur)
           fixed konum, layout'a etki etmez (yoksa altindaki animasyonlar disari kayiyordu) */}
-      {gamePhase === 'NIGHT' && nightChallenge && (
-        <div
-          className="fixed left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-1rem)] max-w-md bg-yellow-950/90 border border-yellow-700/70 rounded-xl px-3 py-2.5 flex items-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.6)] backdrop-blur-sm animate-in slide-in-from-top-4 duration-300"
-          style={{ top: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
-        >
-          <span className="text-yellow-300 font-mono font-black text-base tracking-[0.25em] tabular-nums bg-black/60 px-2.5 py-1 rounded border border-yellow-800/60 select-all shrink-0">{nightChallenge.code}</span>
-          <input
-            type="text"
-            value={challengeInput}
-            onChange={(e) => { setChallengeInput(e.target.value.toUpperCase().slice(0, 6)); setChallengeStatus(null); }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null });
-              }
-            }}
-            placeholder="Mührü yaz"
-            autoFocus
-            className={`flex-1 min-w-0 bg-black border rounded-lg p-2 text-white outline-none text-sm font-mono tracking-widest tabular-nums uppercase ${challengeStatus === 'wrong' ? 'border-red-600 animate-pulse' : 'border-slate-700 focus:border-yellow-500'}`}
-          />
-          <button
-            type="button"
-            onClick={() => socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null })}
-            className="bg-yellow-700 hover:bg-yellow-600 active:bg-yellow-800 text-black font-bold px-3 py-2 text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shrink-0"
+      {gamePhase === 'NIGHT' && nightChallenge && (() => {
+        const statusBorder = challengeStatus === 'ok' ? 'border-emerald-500'
+                           : challengeStatus === 'wrong' ? 'border-red-600 animate-pulse'
+                           : 'border-yellow-700/70';
+        const inputBorder = challengeStatus === 'ok' ? 'border-emerald-500 bg-emerald-950/40'
+                          : challengeStatus === 'wrong' ? 'border-red-600 bg-red-950/40 animate-pulse'
+                          : 'border-slate-700 focus:border-yellow-500 bg-black';
+        const btnBg = challengeStatus === 'ok' ? 'bg-emerald-600 text-white'
+                    : challengeStatus === 'wrong' ? 'bg-red-700 text-white'
+                    : 'bg-yellow-700 hover:bg-yellow-600 active:bg-yellow-800 text-black';
+        return (
+          <div
+            className={`fixed left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-1rem)] max-w-md ${challengeStatus === 'ok' ? 'bg-emerald-950/90' : 'bg-yellow-950/90'} border ${statusBorder} rounded-xl px-3 py-2.5 flex items-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.6)] backdrop-blur-sm animate-in slide-in-from-top-4 duration-300 transition-colors`}
+            style={{ top: 'calc(env(safe-area-inset-top) + 5rem)' }}
           >
-            OK
-          </button>
-        </div>
-      )}
+            <span className="text-yellow-300 font-mono font-black text-base tracking-[0.25em] tabular-nums bg-black/60 px-2.5 py-1 rounded border border-yellow-800/60 select-all shrink-0">{nightChallenge.code}</span>
+            <input
+              type="text"
+              value={challengeInput}
+              onChange={(e) => { setChallengeInput(e.target.value.toUpperCase().slice(0, 6)); if (challengeStatus !== 'ok') setChallengeStatus(null); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && challengeStatus !== 'ok') {
+                  socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null });
+                }
+              }}
+              placeholder="Mührü yaz"
+              autoFocus
+              disabled={challengeStatus === 'ok'}
+              className={`flex-1 min-w-0 border rounded-lg p-2 text-white outline-none text-sm font-mono tracking-widest tabular-nums uppercase transition-colors ${inputBorder}`}
+            />
+            <button
+              type="button"
+              disabled={challengeStatus === 'ok'}
+              onClick={() => socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null })}
+              className={`font-bold px-3 py-2 text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shrink-0 ${btnBg}`}
+            >
+              {challengeStatus === 'ok' ? '✓' : challengeStatus === 'wrong' ? '✗' : 'OK'}
+            </button>
+          </div>
+        );
+      })()}
 
       {isDevMode && (
          <div className="shrink-0 relative z-10 bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
