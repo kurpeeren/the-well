@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
@@ -1042,6 +1043,7 @@ function App() {
       )}
         </div>
       )}
+      <SpeedInsights />
     </div>
   );
 }
