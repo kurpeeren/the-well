@@ -479,7 +479,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   };
 
   return (
-    <div className={`w-full max-w-6xl flex flex-col gap-0 sm:gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 h-full overflow-hidden`}>
+    <div className={`w-full max-w-6xl flex flex-col gap-0 sm:gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 flex-1 min-h-0 overflow-hidden`}>
       
       {isDevMode && (
          <div className="shrink-0 relative z-10 bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
@@ -871,16 +871,13 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
               if (canMafiaShortcut && !isMafiaShortcut && !roleHidden) t.placeholder = 'Zanlıları tartış...  ·  /c ile çete';
 
               return (
-                 <div
-                    className={`shrink-0 border-t ${t.wrap}`}
-                    style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-                 >
+                 <div className={`shrink-0 border-t ${t.wrap}`}>
                     {chatChannel && t.label && (
                        <div className={`px-3 py-1 text-center text-[9px] font-black uppercase tracking-[0.3em] ${t.text} border-b ${t.wrap.split(' ')[1]}`}>
                           — {t.label} —
                        </div>
                     )}
-                    <div className="p-2">
+                    <div className="px-2 pt-2" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
                        {isSpectator && gamePhase === 'DAY' ? (
                           <div className="p-2 text-center"><p className="text-purple-400/80 text-[10px] font-serif uppercase">— İzleyici Modu —</p></div>
                        ) : canSendChat ? (
@@ -1437,9 +1434,10 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
 }
 
 function EventsList({ systemNotes }) {
+  const isEmpty = !(systemNotes?.length > 0);
   return (
-    <ul className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
-      {systemNotes?.length > 0 ? (() => {
+    <ul className={`flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2 ${isEmpty ? 'flex flex-col items-center justify-center' : ''}`}>
+      {!isEmpty ? (() => {
         const items = [];
         let lastDay = null;
         systemNotes.forEach((note, i) => {
@@ -1467,7 +1465,7 @@ function EventsList({ systemNotes }) {
         });
         return items;
       })() : (
-        <li className="text-slate-500 italic text-sm text-center mt-6">Henüz bir olay gerçekleşmedi...</li>
+        <li className="text-slate-500 italic text-sm text-center">Henüz bir olay gerçekleşmedi...</li>
       )}
     </ul>
   );
