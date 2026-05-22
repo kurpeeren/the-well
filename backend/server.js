@@ -543,7 +543,7 @@ io.on('connection', (socket) => {
           // Default kapali (0) — host lobide acabilir
           'Gözcü':       0,
           'Gassal':      0,
-          'Dansöz':      0,
+          'Eskort':      0,
           'Münafık':     0,
           'Eşkıya':      0,
           'Tefeci':      0,

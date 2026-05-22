@@ -26,7 +26,7 @@ class GameEngine {
     // Ozel mod: Deli Koyu — 1 Seri Katil + 1 rastgele gercek masum + geri kalan Deli.
     // Tum oyuncular bilgi rolu sandiklari kostum giyer; gercek bilgi yalnizca tek masumda.
     if (room.settings?.gameMode === 'deli_koyu' && count >= 4) {
-        const masumPool = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Dansöz'];
+        const masumPool = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'];
         const realMasum = masumPool[Math.floor(Math.random() * masumPool.length)];
         const activeRoles = ['Seri Katil', realMasum];
         while (activeRoles.length < count) activeRoles.push('Deli');
@@ -144,7 +144,7 @@ class GameEngine {
         && (roleCap['Eşkıya Başı'] || 0) === 0) {
         ['Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci', 'Kundakçı'].forEach(r => { roleCap[r] = 1; poolEvil.push(r); });
         ['Garip', 'Kan Davalı', 'Kaçak', 'Seri Katil'].forEach(r => { roleCap[r] = 1; poolNeutral.push(r); });
-        ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Dansöz'].forEach(r => { roleCap[r] = 1; poolTown.push(r); });
+        ['Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Şifacı', 'Avcı', 'Bekçi', 'Eskort'].forEach(r => { roleCap[r] = 1; poolTown.push(r); });
         roleCap['Eşkıya Başı'] = 1;
         enabledRoles['Eşkıya Başı'] = 1;
     }
@@ -340,9 +340,9 @@ class GameEngine {
           }
       });
   
-      // Priority 3: Meyhaneci ve Dansöz
+      // Priority 3: Meyhaneci ve Eskort
       let skPassiveAttacks = [];
-      actions.filter(a => (a.role === 'Meyhaneci' || a.role === 'Dansöz') && a.targetId).forEach(a => {
+      actions.filter(a => (a.role === 'Meyhaneci' || a.role === 'Eskort') && a.targetId).forEach(a => {
           if (!alerts[a.targetId]) {
               roleblocked[a.targetId] = true;
               this.sendPrivateNews(roomCode, a.targetId, { text: "Oldukça 'hareketli' bir gece geçirdin ve aklın başından gitti... Haliyle görevini de yapamadın!", align: 'Kırmızı' });
@@ -615,7 +615,7 @@ class GameEngine {
           }
       });
   
-      // Resolve SK Passive Attacks (Dansöz/Meyhaneci roleblocked SK)
+      // Resolve SK Passive Attacks (Eskort/Meyhaneci roleblocked SK)
       skPassiveAttacks.forEach(attack => {
           if (!healed[attack.targetId] && !vested[attack.targetId]) {
               deaths.push(attack.targetId);

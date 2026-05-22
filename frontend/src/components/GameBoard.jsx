@@ -8,7 +8,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   // Olu oyuncunun mezar tasinda ne yazsin: 'role' (rol adi), 'team' (Masum/Eskiya/Tarafsiz), 'none' (gizli)
   const revealDeadAs = settings.revealDeadAs || 'team';
   const TEAM_OF = {
-    'Şifacı':'Masum','Bekçi':'Masum','Avcı':'Masum','Muhtar':'Masum','Gözcü':'Masum','Falcı':'Masum','Gassal':'Masum','Dansöz':'Masum','Deli':'Masum',
+    'Şifacı':'Masum','Bekçi':'Masum','Avcı':'Masum','Muhtar':'Masum','Gözcü':'Masum','Falcı':'Masum','Gassal':'Masum','Eskort':'Masum','Deli':'Masum',
     'Eşkıya Başı':'Eşkıya','Münafık':'Eşkıya','Eşkıya':'Eşkıya','Tefeci':'Eşkıya','Meyhaneci':'Eşkıya',
     'Garip':'Tarafsız','Seri Katil':'Tarafsız','Kan Davalı':'Tarafsız','Kundakçı':'Tarafsız','Kaçak':'Tarafsız',
   };
@@ -252,7 +252,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   // Kullanici rol rozetine basip rolu gizlediginde rol-aciklayan tum gorsel ipuclarini da gizle
   // (chat temalari, baloncuk renkleri, takim vurgusu). Spectator zaten ayri davraniyor.
   const roleHidden = !isRoleVisible && !isSpectator;
-  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Gözcü', 'Falcı', 'Tefeci', 'Meyhaneci', 'Dansöz'].includes(activeRole);
+  const hasNightTargetAction = ['Şifacı', 'Bekçi', 'Eşkıya Başı', 'Eşkıya', 'Seri Katil', 'Münafık', 'Gözcü', 'Falcı', 'Tefeci', 'Meyhaneci', 'Eskort'].includes(activeRole);
   
   const isAvci = activeRole === 'Avcı';
   const isKundakci = activeRole === 'Kundakçı';
@@ -424,9 +424,9 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       ability: '💀 Geceleri ölüler boyutunu dinler',
       desc: 'Ölü yıkayıcısı. Cesetlerin yanında geçen yıllar onu öbür dünyaya açmıştır — ölüler ona sırlarını fısıldar. Geceleri ölü oyuncuların kendi aralarında konuştuğu "Ölüler Boyutu" sohbetini canlı izleyebilir. Gündüz kanal kapalıdır; gece olunca o gün yazılan ölü mesajlarını da geçmişe dönük görür. Aktif bir gece yeteneği yoktur, sadece dinler.',
     },
-    'Dansöz': {
+    'Eskort': {
       color: 'text-emerald-300', team: 'Yeşil Takım', teamColor: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
-      image: '/roles/dansoz.webp',
+      image: '/roles/eskort.webp',
       ability: '💃 Hedefini oyalar, gece yeteneğini engeller',
       desc: 'Köyün en gözalıcı simasi; sohbeti o kadar hoştur ki onunla muhabbete dalan sabaha kadar ne ettiğini unutur. Her gece bir kişiyi ziyaret eder ve onu oyalar; o kişi o gece hiçbir yeteneğini kullanamaz — eşkıyaları bile etkisiz kılabilir. Ancak ziyaret ettiği kişi Seri Katil çıkarsa kendi kapısı son kapı olur.',
     },
@@ -452,7 +452,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/eskiya.webp',
       ability: '🔪 Çetenin kararıyla gece tetiği çeker',
-      desc: 'Ağa\'nın sağ kolu, kirli işlerin adamı. Bıçak çekmek onun, hedef belirlemek başın işidir. Eşkıya Başı\'nın seçtiği hedefi gece öldürmeye gider; baş hedef seçmemişse veya ölmüşse, inisiyatif alıp kendi seçtiği kişiyi vurur. Dansöz veya Meyhaneci tarafından engellenirse o gece tetik çekemez. Gece çete sohbetinde konuşabilir.',
+      desc: 'Ağa\'nın sağ kolu, kirli işlerin adamı. Bıçak çekmek onun, hedef belirlemek başın işidir. Eşkıya Başı\'nın seçtiği hedefi gece öldürmeye gider; baş hedef seçmemişse veya ölmüşse, inisiyatif alıp kendi seçtiği kişiyi vurur. Eskort veya Meyhaneci tarafından engellenirse o gece tetik çekemez. Gece çete sohbetinde konuşabilir.',
     },
     'Tefeci': {
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
@@ -464,7 +464,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-red-400', team: 'Kırmızı Takım', teamColor: 'bg-red-900/40 text-red-400 border-red-700',
       image: '/roles/meyhaneci.webp',
       ability: '💋 Hedefinin gece yeteneğini engeller',
-      desc: 'Köyün meyhanesinin sahibi. İçkisiyle, cazibesiyle insanların gece görevlerini unutturur — eşkıyaların kiralık zihin uyutucusu. Her gece bir oyuncuyu ziyaret eder; o kişi o gece hiçbir yeteneğini kullanamaz. Dansöz\'un kötü ikizi gibi çalışır. Ziyaret ettiği kişi Seri Katil çıkarsa kendi de hayatını kaybeder.',
+      desc: 'Köyün meyhanesinin sahibi. İçkisiyle, cazibesiyle insanların gece görevlerini unutturur — eşkıyaların kiralık zihin uyutucusu. Her gece bir oyuncuyu ziyaret eder; o kişi o gece hiçbir yeteneğini kullanamaz. Eskort\'un kötü ikizi gibi çalışır. Ziyaret ettiği kişi Seri Katil çıkarsa kendi de hayatını kaybeder.',
     },
     'Kan Davalı': {
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
@@ -494,7 +494,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       color: 'text-gray-400', team: 'Gri Takım', teamColor: 'bg-slate-800/60 text-slate-400 border-slate-600',
       image: '/roles/seri_katil.webp',
       ability: '🩸 Her gece bir kişiyi acımasızca öldürür',
-      desc: 'Yalnız hareket eden, gözü dönmüş bir cani. Hiçbir tarafa sadık değildir; sadece kanın kokusunu sever. Her gece bir oyuncuyu seçer ve acımasızca öldürür. Eşkıyalar onun düşmanıdır, o da onların. Gece saldırılarına bağışıktır. Dansöz veya Meyhaneci onu ziyaret ederse onları da öldürür. Köyde son kalanlardan biri olursa kazanır.',
+      desc: 'Yalnız hareket eden, gözü dönmüş bir cani. Hiçbir tarafa sadık değildir; sadece kanın kokusunu sever. Her gece bir oyuncuyu seçer ve acımasızca öldürür. Eşkıyalar onun düşmanıdır, o da onların. Gece saldırılarına bağışıktır. Eskort veya Meyhaneci onu ziyaret ederse onları da öldürür. Köyde son kalanlardan biri olursa kazanır.',
     },
   };
 

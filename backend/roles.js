@@ -7,7 +7,7 @@ const ROLES = {
   'Gözcü': { align: 'Masum', team: 'Köylüler' }, 
   'Falcı': { align: 'Masum', team: 'Köylüler' }, 
   'Gassal': { align: 'Masum', team: 'Köylüler' },
-  'Dansöz': { align: 'Masum', team: 'Köylüler' },
+  'Eskort': { align: 'Masum', team: 'Köylüler' },
   // Deli: bir info-rol kostumuyle (Falci/Bekci/Gozcu) gosterilir, sonuclar tamamen rastgele.
   // Kendi rolunu kostum sanar, baskalari da onu kostum gibi gorur. Reveal sadece oyun sonu.
   'Deli': { align: 'Masum', team: 'Köylüler' },
@@ -31,7 +31,7 @@ function getInvestResults(role) {
    if (['Gözcü', 'Münafık', 'Garip'].includes(role)) return 'Gözcü, Münafık veya Garip';
    if (['Eşkıya Başı', 'Muhtar', 'Kaçak'].includes(role)) return 'Eşkıya Başı, Muhtar veya Kaçak';
    if (['Gassal', 'Tefeci', 'Kundakçı'].includes(role)) return 'Gassal, Tefeci veya Kundakçı';
-   if (['Avcı', 'Eşkıya', 'Meyhaneci', 'Dansöz'].includes(role)) return 'Avcı, Eşkıya, Meyhaneci veya Dansöz';
+   if (['Avcı', 'Eşkıya', 'Meyhaneci', 'Eskort'].includes(role)) return 'Avcı, Eşkıya, Meyhaneci veya Eskort';
    return 'Bu kişiyi okuyamadın (Şüphe uyandırıcı)'; 
 }
 
@@ -48,7 +48,7 @@ function getColorAlignment(role) {
 // Hedefin gercek rolu her zaman icinde yer alir (framed ise eskıya disguise).
 // %75 olasilikla 4 rol, %25 olasilikla 3 rol gosterilir.
 function getProphecy(targetRole, framed = false) {
-  const masum = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Dansöz', 'Deli'];
+  const masum = ['Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort', 'Deli'];
   const eskiya = ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Tefeci', 'Meyhaneci'];
   const tarafsiz = ['Garip', 'Seri Katil', 'Kan Davalı', 'Kundakçı', 'Kaçak'];
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];

@@ -39,7 +39,7 @@ socket.emit = (event, ...args) => {
 };
 
 const ROLES_LIST = [
-  { name: 'Şifacı', group: 'Masumlar' }, { name: 'Bekçi', group: 'Masumlar' }, { name: 'Avcı', group: 'Masumlar' }, { name: 'Muhtar', group: 'Masumlar' }, { name: 'Gözcü', group: 'Masumlar' }, { name: 'Falcı', group: 'Masumlar' }, { name: 'Gassal', group: 'Masumlar' }, { name: 'Dansöz', group: 'Masumlar' }, { name: 'Deli', group: 'Masumlar' },
+  { name: 'Şifacı', group: 'Masumlar' }, { name: 'Bekçi', group: 'Masumlar' }, { name: 'Avcı', group: 'Masumlar' }, { name: 'Muhtar', group: 'Masumlar' }, { name: 'Gözcü', group: 'Masumlar' }, { name: 'Falcı', group: 'Masumlar' }, { name: 'Gassal', group: 'Masumlar' }, { name: 'Eskort', group: 'Masumlar' }, { name: 'Deli', group: 'Masumlar' },
   { name: 'Eşkıya Başı', group: 'Eşkıyalar' }, { name: 'Münafık', group: 'Eşkıyalar' }, { name: 'Eşkıya', group: 'Eşkıyalar' }, { name: 'Tefeci', group: 'Eşkıyalar' }, { name: 'Meyhaneci', group: 'Eşkıyalar' },
   { name: 'Garip', group: 'Tarafsızlar' }, { name: 'Seri Katil', group: 'Tarafsızlar' }, { name: 'Kan Davalı', group: 'Tarafsızlar' }, { name: 'Kundakçı', group: 'Tarafsızlar' }, { name: 'Kaçak', group: 'Tarafsızlar' }
 ];
@@ -55,12 +55,12 @@ const MODE_PRESETS = [
   {
     id: 'klasik', name: 'Klasik Denge', sub: '10 kişi · Turnuva', icon: '⚖️',
     kirmizi: 3, gri: 1, yesil: 6,
-    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Dansöz'],
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Eskort'],
   },
   {
     id: 'bilgi', name: 'Bilgi Ağırlıklı', sub: '12 kişi · ×2 bilgi rolü', icon: '🔮',
     kirmizi: 3, gri: 2, yesil: 7,
-    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Garip', 'Şifacı', ['Bekçi', 2], 'Avcı', 'Muhtar', ['Falcı', 2], 'Gözcü', 'Dansöz'],
+    roles: ['Eşkıya Başı', 'Münafık', 'Tefeci', 'Seri Katil', 'Garip', 'Şifacı', ['Bekçi', 2], 'Avcı', 'Muhtar', ['Falcı', 2], 'Gözcü', 'Eskort'],
   },
   {
     id: 'twist', name: 'Kaotik Sürpriz', sub: '14 kişi · Deli + tarafsızlar', icon: '🌀',
@@ -70,7 +70,7 @@ const MODE_PRESETS = [
   {
     id: 'tamkadro', name: 'Tam Kadro', sub: '16 kişi · Festival', icon: '🎪',
     kirmizi: 4, gri: 2, yesil: 10,
-    roles: ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Meyhaneci', 'Seri Katil', 'Kundakçı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Dansöz', 'Tefeci', 'Deli'],
+    roles: ['Eşkıya Başı', 'Münafık', 'Eşkıya', 'Meyhaneci', 'Seri Katil', 'Kundakçı', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Falcı', 'Gözcü', 'Gassal', 'Eskort', 'Tefeci', 'Deli'],
   },
   {
     // Ozel mod: 1 Seri Katil + 1 rastgele gercek masum + geri kalan Deli.
@@ -78,7 +78,7 @@ const MODE_PRESETS = [
     id: 'delikoyu', name: 'Deli Köyü', sub: '1 katil + 1 gerçek masum + tümü Deli', icon: '🎭',
     gameMode: 'deli_koyu',
     kirmizi: 1, gri: 0, yesil: 7,
-    roles: ['Seri Katil', 'Deli', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Dansöz'],
+    roles: ['Seri Katil', 'Deli', 'Şifacı', 'Bekçi', 'Avcı', 'Muhtar', 'Gözcü', 'Falcı', 'Gassal', 'Eskort'],
   },
 ];
 

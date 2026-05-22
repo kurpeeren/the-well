@@ -60,7 +60,7 @@ Oyunun yaşam döngüsü aşağıdaki durumlar ve geçişler üzerinden yürüt�
 2. **Kaçak (Saklanma):** Sınırlı hakla kişisel bağışıklık kazanır.
 
 ### Adım 2: Engellemeler ve Kontrol (Control)
-3. **Meyhaneci / Dansöz:** Hedefini engeller (Roleblock). 
+3. **Meyhaneci / Eskort:** Hedefini engeller (Roleblock). 
    - *Özel Durum:* Eğer hedef **Seri Katil** ise, SK engelleyeni anında öldürür.
 4. **Kundakçı (Gaz dökme/Yakma):** 
    - Gaz dökme: Hedef işaretlenir.
