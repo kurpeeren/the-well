@@ -1073,6 +1073,7 @@ io.on('connection', (socket) => {
      if (submitted === expected) {
         delete room.nightChallenges[actorId];
         socket.emit('nightChallengeResult', { ok: true });
+        engine.sendPrivateNews(roomCode, actorId, { text: 'Köy nöbetini başarıyla tamamladın — bu gece rolün tam güçle işleyecek.', align: 'Yeşil' });
      } else {
         socket.emit('nightChallengeResult', { ok: false });
      }
