@@ -361,7 +361,7 @@ export default function Admin({ onExit }) {
     // ─── LOGIN SCREEN ───────────────────────────────────────────
     if (!token || !stats) {
         return (
-            <div className="min-h-screen bg-kuyu-dark text-white flex flex-col items-center justify-center p-6 select-none relative overflow-hidden">
+            <div className="h-full overflow-y-auto bg-kuyu-dark text-white flex flex-col items-center justify-center p-6 select-none relative">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(127,29,29,0.15),transparent_70%)] pointer-events-none"></div>
 
                 <div className="relative max-w-md w-full">
@@ -427,7 +427,7 @@ export default function Admin({ onExit }) {
 
     // ─── MAIN DASHBOARD ─────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-kuyu-dark text-white p-3 sm:p-6 select-none">
+        <div className="h-full overflow-y-auto custom-scrollbar bg-kuyu-dark text-white p-3 sm:p-6 select-none">
             {toast && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] animate-in fade-in slide-in-from-bottom-3 duration-300 pointer-events-none">
                     <div className="bg-dark-bg/95 backdrop-blur-md border border-blood-red/40 px-5 py-3 rounded-xl shadow-[0_0_30px_rgba(127,29,29,0.5)] flex items-center gap-3 max-w-md relative overflow-hidden">
