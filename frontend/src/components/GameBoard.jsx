@@ -1009,7 +1009,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       {/* NOTLAR MODAL — Sekmeli */}
       {showNotes && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm sm:modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowNotes(false)}>
-          <div className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-dvh sm:h-[80vh] sm:max-w-lg bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div
               className="shrink-0 flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl"
               style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
@@ -1059,7 +1059,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       {/* ROL BİLGİSİ MODAL */}
       {showRoleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm sm:modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowRoleModal(false)}>
-          <div className="w-full h-full sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-none sm:max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-dvh sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-none sm:max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             
             {/* Kapak: Resim Alanı */}
             <div className="relative w-full aspect-square bg-slate-800 flex items-center justify-center overflow-hidden shrink-0">
@@ -1124,7 +1124,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       {/* MEZARLIK / KUYU MODALI (Mobile-only via Skull icon) */}
       {showGraveyard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm sm:modal-safe-pad animate-in fade-in duration-300 pointer-events-auto" onClick={() => setShowGraveyard(false)}>
-          <div className="w-full h-full sm:h-[80vh] sm:max-w-md bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-dvh sm:h-[80vh] sm:max-w-md bg-slate-900 sm:border border-slate-700 rounded-none sm:rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.9)] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div
               className="flex justify-between items-center p-4 border-b border-slate-800 bg-slate-800/50 sm:rounded-t-2xl shrink-0"
               style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top))' }}
@@ -1213,7 +1213,7 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
       {/* SİLENCED MODAL */}
       {showSilencedModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm sm:modal-safe-pad animate-in zoom-in duration-200 pointer-events-auto" onClick={() => setShowSilencedModal(false)}>
-          <div className="w-full h-full sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-red-900/50 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center justify-center p-8 text-center" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-dvh sm:h-auto sm:max-w-sm bg-slate-900 sm:border border-red-900/50 rounded-none sm:rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden flex flex-col items-center justify-center p-8 text-center" onClick={(e) => e.stopPropagation()}>
              <VolumeX size={64} className="text-red-500 mb-4 animate-pulse" />
              <h3 className="font-serif tracking-widest uppercase text-2xl text-red-500 font-bold mb-2">ŞŞŞT!</h3>
              <p className="text-slate-300 text-sm leading-relaxed mb-8">
@@ -1375,7 +1375,7 @@ function RevealedNotesModal({ revealedNotes, onClose }) {
    return (
       <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 sm:modal-safe-pad animate-in zoom-in duration-500 pointer-events-auto" onClick={onClose}>
          <div
-            className="w-full h-full sm:h-[80vh] sm:max-w-lg bg-[#f4e4bc] text-slate-900 sm:rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative flex flex-col overflow-hidden"
+            className="w-full h-dvh sm:h-[80vh] sm:max-w-lg bg-[#f4e4bc] text-slate-900 sm:rounded-sm shadow-[0_0_60px_rgba(252,211,77,0.3)] relative flex flex-col overflow-hidden"
             style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/old-wall.png')" }}
             onClick={(e) => e.stopPropagation()}
          >
