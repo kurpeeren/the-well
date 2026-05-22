@@ -945,6 +945,30 @@ function App() {
                           })}
                        </div>
                     </div>
+
+                    <div>
+                       <div className="flex flex-wrap justify-between items-end gap-2 border-b border-slate-800 pb-2 mb-3">
+                          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Köy Nöbeti</p>
+                          <span className="text-[10px] text-slate-500 italic">Gece mühür yazma görevi</span>
+                       </div>
+                       <button
+                          type="button"
+                          disabled={!isHost}
+                          onClick={() => {
+                             const newSettings = { ...settings, nightChallenge: !settings.nightChallenge };
+                             setSettings(newSettings); socket.emit('updateSettings', { roomCode, settings: newSettings });
+                          }}
+                          className={`w-full flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${settings.nightChallenge ? 'bg-yellow-900/20 border-yellow-600' : 'bg-black border-slate-700 hover:border-slate-500'}`}
+                       >
+                          <div className="flex flex-col items-start text-left">
+                             <span className={`text-sm font-bold uppercase tracking-wider ${settings.nightChallenge ? 'text-yellow-300' : 'text-slate-300'}`}>{settings.nightChallenge ? 'Açık' : 'Kapalı'}</span>
+                             <span className="text-[10px] text-slate-500 mt-0.5">Gece %20 ihtimal · yazmayan %50 ihtimal rolünü yapamaz</span>
+                          </div>
+                          <span className={`w-10 h-6 rounded-full relative transition-colors shrink-0 ${settings.nightChallenge ? 'bg-yellow-600' : 'bg-slate-700'}`}>
+                             <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${settings.nightChallenge ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                          </span>
+                       </button>
+                    </div>
                  </div>
               )}
 

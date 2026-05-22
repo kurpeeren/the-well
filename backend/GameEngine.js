@@ -268,6 +268,24 @@ class GameEngine {
   
     this.io.to(roomCode).emit('updateLobby', room.players);
     this.io.to(roomCode).emit('phaseChanged', { phase, timeRemaining: timeInSeconds, dayCount: room.dayCount, doused: Object.keys(room.doused || {}), trial: room.trial ? { accusedId: room.trial.accusedId, accusedName: room.trial.accusedName } : null });
+
+    // Koy Nobeti: gece basinda %20 ihtimalle her hayatta oyuncuya rastgele bir muhur cikar.
+    // Muhuru gizli input'a yazarsa basari; yazmazsa o gece rolu %50 ihtimalle isleyemez.
+    // Sadece o gece gecerli — her gece bayrak temizlenir.
+    room.nightChallenges = {};
+    room.nightChallengeFailed = {};
+    if (phase === 'NIGHT' && room.settings?.nightChallenge) {
+       const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // okunmasi zor karakterler (I/O/1/0) yok
+       room.players.forEach(p => {
+          if (!p.isAlive || !p.connected) return;
+          if (Math.random() < 0.20) {
+             let code = '';
+             for (let i = 0; i < 5; i++) code += CHARS[Math.floor(Math.random() * CHARS.length)];
+             room.nightChallenges[p.socketId] = code;
+             this.io.to(p.socketId).emit('nightChallenge', { code });
+          }
+       });
+    }
     const _phaseTR = { DAY: 'Gündüz', NIGHT: 'Gece', MORNING: 'Sabah', DEFENSE: 'Savunma', JUDGMENT: 'Hüküm' }[phase] || phase;
     const _dayLabel = phase === 'NIGHT' ? `${room.dayCount}. Gece` : `${room.dayCount}. Gün`;
     pushEvent(room, { type: 'phase', text: `${_dayLabel} — ${_phaseTR}`, day: room.dayCount, phase, ts: Date.now(), meta: { phase } });
@@ -312,8 +330,25 @@ class GameEngine {
       let ignitedIds = []; // ignite anindaki gazli ev listesi (room.doused temizlenmeden once yakalanir)
 
       const getPlayer = (id) => room.players.find(p => p.socketId === id);
+
+      // Koy Nobeti: muhuru yazmayanlarin gece yetenegi %50 ihtimalle islemez.
+      // Yazanlarin muhuru zaten room.nightChallenges'tan silindi.
+      const pendingChallenges = room.nightChallenges || {};
+      Object.keys(pendingChallenges).forEach(actorId => {
+          if (Math.random() < 0.50) {
+              if (room.nightActions[actorId]) {
+                  delete room.nightActions[actorId];
+              }
+              const p = getPlayer(actorId);
+              if (p) {
+                  this.sendPrivateNews(roomCode, actorId, { text: 'Köy nöbetinde uyukladın — bu gece rolünü uygulayamadın.', align: 'Kırmızı' });
+              }
+          }
+      });
+      room.nightChallenges = {};
+
       const actions = Object.values(room.nightActions);
-  
+
       actions.forEach(a => {
           if (a.targetId) {
               if(!visits[a.targetId]) visits[a.targetId] = [];

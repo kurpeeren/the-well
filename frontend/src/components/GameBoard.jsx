@@ -67,6 +67,10 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   const [showSilencedModal, setShowSilencedModal] = useState(false);
   const [skipDayCount, setSkipDayCount] = useState({ count: 0, total: 0 });
   const [judgmentCounts, setJudgmentCounts] = useState(null);
+  // Koy Nobeti: server'dan gelen muhur ve durumu
+  const [nightChallenge, setNightChallenge] = useState(null); // { code } | null
+  const [challengeInput, setChallengeInput] = useState('');
+  const [challengeStatus, setChallengeStatus] = useState(null); // 'wrong' | null
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -82,14 +86,38 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
        setShowSilencedModal(true);
     });
     socket.on('skipDayUpdate', (data) => setSkipDayCount(data));
+    socket.on('nightChallenge', ({ code }) => {
+       setNightChallenge({ code });
+       setChallengeInput('');
+       setChallengeStatus(null);
+    });
+    socket.on('nightChallengeResult', ({ ok }) => {
+       if (ok) {
+          setNightChallenge(null);
+          setChallengeStatus(null);
+       } else {
+          setChallengeStatus('wrong');
+       }
+    });
     return () => {
        socket.off('chatMessage');
        socket.off('voteCounts');
        socket.off('judgmentCounts');
        socket.off('youAreSilenced');
        socket.off('skipDayUpdate');
+       socket.off('nightChallenge');
+       socket.off('nightChallengeResult');
     }
   }, [socket]);
+
+  // Gece bittiginde muhur ekranini kapat
+  useEffect(() => {
+    if (gamePhase !== 'NIGHT') {
+       setNightChallenge(null);
+       setChallengeInput('');
+       setChallengeStatus(null);
+    }
+  }, [gamePhase]);
 
   useEffect(() => {
     setSelectedPlayer(null);
@@ -500,7 +528,37 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
 
   return (
     <div className={`w-full max-w-6xl flex flex-col gap-0 sm:gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 flex-1 min-h-0 overflow-hidden`}>
-      
+
+      {/* KOY NOBETI - gece muhur gorevi (cikti bizden gizli — sadece sahibi gorur) */}
+      {gamePhase === 'NIGHT' && nightChallenge && (
+        <div className="shrink-0 relative z-20 bg-yellow-950/40 border border-yellow-700/60 rounded-xl px-3 py-2.5 mx-2 sm:mx-0 mt-2 sm:mt-0 flex items-center gap-3 shadow-lg">
+          <div className="text-yellow-400 text-[10px] uppercase tracking-widest font-bold shrink-0 hidden sm:block">Köy Nöbeti</div>
+          <div className="flex-1 flex items-center gap-2 min-w-0">
+            <span className="text-yellow-300 font-mono font-black text-base sm:text-lg tracking-[0.25em] tabular-nums bg-black/60 px-2.5 py-1 rounded border border-yellow-800/60 select-all">{nightChallenge.code}</span>
+            <input
+              type="text"
+              value={challengeInput}
+              onChange={(e) => { setChallengeInput(e.target.value.toUpperCase().slice(0, 6)); setChallengeStatus(null); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null });
+                }
+              }}
+              placeholder="Mührü yaz"
+              autoFocus
+              className={`flex-1 min-w-0 bg-black border rounded-lg p-2 text-white outline-none text-base font-mono tracking-widest tabular-nums uppercase ${challengeStatus === 'wrong' ? 'border-red-600 animate-pulse' : 'border-slate-700 focus:border-yellow-500'}`}
+            />
+            <button
+              type="button"
+              onClick={() => socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null })}
+              className="bg-yellow-700 hover:bg-yellow-600 active:bg-yellow-800 text-black font-bold px-3 py-2 text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shrink-0"
+            >
+              Onayla
+            </button>
+          </div>
+        </div>
+      )}
+
       {isDevMode && (
          <div className="shrink-0 relative z-10 bg-yellow-900/30 border border-yellow-700 p-2 rounded-xl mb-1 flex items-center justify-between">
             <span className="text-yellow-500 font-bold tracking-wider uppercase text-[10px] hidden md:inline">Geliştirici Kumandası</span>

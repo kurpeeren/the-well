@@ -529,6 +529,9 @@ io.on('connection', (socket) => {
         // Mezar tasinda olen oyuncunun rolunun nasil gosterilecegi:
         // 'team' (varsayilan, Masum/Eskiya/Tarafsiz) | 'role' (tam rol) | 'none' (gizli ???)
         revealDeadAs: 'team',
+        // Koy Nobeti: gece basinda %20 ihtimalle rastgele oyunculara muhur, yazmayan
+        // o gece %50 ihtimalle rolu yapamaz. Varsayilan kapali.
+        nightChallenge: false,
         roles: {
           // Sayisal agirlik: 0 = kapali, 1 = normal, 2-5 = orantili olarak daha sik cikar.
           // Default 8 eglenceli rol — sabit ikili (EB+SK) + 1 tarafsiz + 5 koylu, hepsi 1.
@@ -1056,6 +1059,22 @@ io.on('connection', (socket) => {
         if (player) {
            player.personalNote = note;
         }
+     }
+  });
+
+  // Koy Nobeti muhuru: oyuncu girdigi kodu dogrularsa o gece icin penalti bayragi temizlenir
+  socket.on('submitNightChallenge', ({ roomCode, code, impersonateId }) => {
+     const room = rooms[roomCode];
+     if (!room || room.status !== 'NIGHT') return;
+     const actorId = getActorId(room, socket.id, impersonateId);
+     const expected = room.nightChallenges?.[actorId];
+     if (!expected) return;
+     const submitted = String(code || '').trim().toUpperCase();
+     if (submitted === expected) {
+        delete room.nightChallenges[actorId];
+        socket.emit('nightChallengeResult', { ok: true });
+     } else {
+        socket.emit('nightChallengeResult', { ok: false });
      }
   });
 
