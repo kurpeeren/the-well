@@ -529,33 +529,34 @@ function GameBoard({ socket, roomCode, players, gamePhase, myRole, eventNews, sy
   return (
     <div className={`w-full max-w-6xl flex flex-col gap-0 sm:gap-2 p-0 sm:p-6 rounded-none sm:rounded-2xl transition-all duration-1000 ${gamePhase === 'NIGHT' ? 'bg-black text-slate-400 shadow-[0_0_30px_rgba(0,0,0,0.8)]' : 'bg-dark-bg text-slate-100 shadow-2xl'} border-0 sm:border border-slate-800 flex-1 min-h-0 overflow-hidden`}>
 
-      {/* KOY NOBETI - gece muhur gorevi (cikti bizden gizli — sadece sahibi gorur) */}
+      {/* KOY NOBETI - gece muhur gorevi (cikti bizden gizli — sadece sahibi gorur)
+          fixed konum, layout'a etki etmez (yoksa altindaki animasyonlar disari kayiyordu) */}
       {gamePhase === 'NIGHT' && nightChallenge && (
-        <div className="shrink-0 relative z-20 bg-yellow-950/40 border border-yellow-700/60 rounded-xl px-3 py-2.5 mx-2 sm:mx-0 mt-2 sm:mt-0 flex items-center gap-3 shadow-lg">
-          <div className="text-yellow-400 text-[10px] uppercase tracking-widest font-bold shrink-0 hidden sm:block">Köy Nöbeti</div>
-          <div className="flex-1 flex items-center gap-2 min-w-0">
-            <span className="text-yellow-300 font-mono font-black text-base sm:text-lg tracking-[0.25em] tabular-nums bg-black/60 px-2.5 py-1 rounded border border-yellow-800/60 select-all">{nightChallenge.code}</span>
-            <input
-              type="text"
-              value={challengeInput}
-              onChange={(e) => { setChallengeInput(e.target.value.toUpperCase().slice(0, 6)); setChallengeStatus(null); }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null });
-                }
-              }}
-              placeholder="Mührü yaz"
-              autoFocus
-              className={`flex-1 min-w-0 bg-black border rounded-lg p-2 text-white outline-none text-base font-mono tracking-widest tabular-nums uppercase ${challengeStatus === 'wrong' ? 'border-red-600 animate-pulse' : 'border-slate-700 focus:border-yellow-500'}`}
-            />
-            <button
-              type="button"
-              onClick={() => socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null })}
-              className="bg-yellow-700 hover:bg-yellow-600 active:bg-yellow-800 text-black font-bold px-3 py-2 text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shrink-0"
-            >
-              Onayla
-            </button>
-          </div>
+        <div
+          className="fixed left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-1rem)] max-w-md bg-yellow-950/90 border border-yellow-700/70 rounded-xl px-3 py-2.5 flex items-center gap-2 shadow-[0_8px_24px_rgba(0,0,0,0.6)] backdrop-blur-sm animate-in slide-in-from-top-4 duration-300"
+          style={{ top: 'calc(env(safe-area-inset-top) + 0.5rem)' }}
+        >
+          <span className="text-yellow-300 font-mono font-black text-base tracking-[0.25em] tabular-nums bg-black/60 px-2.5 py-1 rounded border border-yellow-800/60 select-all shrink-0">{nightChallenge.code}</span>
+          <input
+            type="text"
+            value={challengeInput}
+            onChange={(e) => { setChallengeInput(e.target.value.toUpperCase().slice(0, 6)); setChallengeStatus(null); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null });
+              }
+            }}
+            placeholder="Mührü yaz"
+            autoFocus
+            className={`flex-1 min-w-0 bg-black border rounded-lg p-2 text-white outline-none text-sm font-mono tracking-widest tabular-nums uppercase ${challengeStatus === 'wrong' ? 'border-red-600 animate-pulse' : 'border-slate-700 focus:border-yellow-500'}`}
+          />
+          <button
+            type="button"
+            onClick={() => socket.emit('submitNightChallenge', { roomCode, code: challengeInput, impersonateId: isDevMode ? impersonateId : null })}
+            className="bg-yellow-700 hover:bg-yellow-600 active:bg-yellow-800 text-black font-bold px-3 py-2 text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shrink-0"
+          >
+            OK
+          </button>
         </div>
       )}
 
