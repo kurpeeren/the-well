@@ -31,8 +31,15 @@ app.post('/api/feedback', async (req, res) => {
     const email = String(req.body?.email || '').trim().slice(0, 120);
     const message = String(req.body?.message || '').trim().slice(0, 2000);
     const gameState = String(req.body?.gameState || '').trim().slice(0, 20) || null;
+    const playerName = String(req.body?.playerName || '').trim().slice(0, 50);
 
     if (name.length < 1) return res.status(400).json({ error: 'İsim gerekli.' });
+
+    // Oyunda kullandigi isim form ismiyle ayniysa eklemeye gerek yok; farkliysa
+    // izlenebilirlik icin name alanina parantez icinde ekle (DB semasini bozmadan).
+    const storedName = (playerName && playerName.toLowerCase() !== name.toLowerCase())
+        ? `${name} (oyun: ${playerName})`
+        : name;
     if (message.length < 5) return res.status(400).json({ error: 'Mesaj en az 5 karakter olmalı.' });
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return res.status(400).json({ error: 'E-posta formatı geçersiz.' });
@@ -43,7 +50,7 @@ app.post('/api/feedback', async (req, res) => {
     try {
         const supabase = require('./db');
         const { error } = await supabase.from('feedbacks').insert([{
-            name, email: email || null, message, game_state: gameState, ip_hash: ipHash,
+            name: storedName, email: email || null, message, game_state: gameState, ip_hash: ipHash,
         }]);
         if (error) {
             console.error('[feedback] supabase error:', error);

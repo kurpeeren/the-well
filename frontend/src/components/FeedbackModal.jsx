@@ -29,6 +29,9 @@ function FeedbackModal({ onClose, showToast, gameState }) {
     }
     setSubmitting(true);
     try {
+      // Oyunda kullandigi ismi de gonder — feedback formuna anonim/sahte ad yazsa bile iz kalsin
+      let playerName = '';
+      try { playerName = (localStorage.getItem('kuyu_playerName') || '').trim(); } catch {}
       const res = await fetch(`${BACKEND_URL}/api/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,6 +40,7 @@ function FeedbackModal({ onClose, showToast, gameState }) {
           email: email.trim(),
           message: message.trim(),
           gameState: gameState || null,
+          playerName: playerName || null,
         }),
       });
       const data = await res.json().catch(() => ({}));
