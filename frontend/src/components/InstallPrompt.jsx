@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { X, Download } from 'lucide-react';
+import { X, Download, Share } from 'lucide-react';
 
-// PWA "Add to Home Screen" prompt — sadece beforeinstallprompt event'i tetiklendiginde gosterir.
-// Zaten kuruluysa, kullanici son 7 gun icinde kapatmissa hic gosterme.
+// PWA "Add to Home Screen" prompt — Chrome/Edge/Android'de beforeinstallprompt + iOS Safari'de manuel rehber.
+// Sik gosterilmemesi icin: kapatildiktan sonra 14 gun bekleme; iOS'ta ek olarak 3. ziyarete kadar gosterilmez.
 export default function InstallPrompt() {
   const [deferred, setDeferred] = useState(null);
   const [show, setShow] = useState(false);
+  const [mode, setMode] = useState('native'); // 'native' | 'ios'
 
   useEffect(() => {
     if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return;
@@ -13,12 +14,30 @@ export default function InstallPrompt() {
 
     try {
       const dismissed = parseInt(localStorage.getItem('kuyu_install_dismissed') || '0', 10);
-      if (dismissed && Date.now() - dismissed < 7 * 24 * 60 * 60 * 1000) return;
+      if (dismissed && Date.now() - dismissed < 14 * 24 * 60 * 60 * 1000) return;
     } catch {}
+
+    // iOS Safari tespiti — Chrome/Firefox/Edge on iOS'u dislar (UA'da Cri/FxiOS/EdgiOS var).
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    const isSafariIOS = isIOS && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA/.test(ua);
+
+    if (isSafariIOS) {
+      // Ziyaret sayacini artir; 3. ziyaret veya sonrasinda goster
+      try {
+         const visits = parseInt(localStorage.getItem('kuyu_visits') || '0', 10) + 1;
+         localStorage.setItem('kuyu_visits', String(visits));
+         if (visits < 3) return;
+      } catch {}
+      setMode('ios');
+      setTimeout(() => setShow(true), 4000);
+      return;
+    }
 
     const handler = (e) => {
       e.preventDefault();
       setDeferred(e);
+      setMode('native');
       // Hemen acmak yerine 3 saniye geciktir — sayfa yuklenir yuklenmez surpriz olmasin
       setTimeout(() => setShow(true), 3000);
     };
@@ -68,7 +87,13 @@ export default function InstallPrompt() {
         <img src="/kuyu-icon-192.png" alt="" className="w-12 h-12 rounded-xl shrink-0 border border-slate-700" />
         <div className="flex-1 min-w-0">
           <h3 className="text-yellow-400 font-bold text-sm font-serif tracking-wide">Oyunumuzu kurmak ister misiniz?</h3>
-          <p className="text-slate-400 text-[11px] mt-0.5 leading-snug">Ana ekranına ekle, tarayıcı arayüzü olmadan tek dokunuşla aç.</p>
+          {mode === 'ios' ? (
+             <p className="text-slate-400 text-[11px] mt-0.5 leading-snug">
+               Safari'de aşağıdaki <Share size={12} className="inline -mt-0.5" /> Paylaş tuşuna bas, sonra <span className="text-yellow-300">"Ana Ekrana Ekle"</span> de.
+             </p>
+          ) : (
+             <p className="text-slate-400 text-[11px] mt-0.5 leading-snug">Ana ekranına ekle, tarayıcı arayüzü olmadan tek dokunuşla aç.</p>
+          )}
         </div>
       </div>
       <div className="flex gap-2 mt-3">
@@ -77,15 +102,17 @@ export default function InstallPrompt() {
           onClick={dismiss}
           className="flex-1 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 font-medium py-2 px-3 text-xs uppercase tracking-wider rounded-lg transition-colors"
         >
-          Şimdi Değil
+          {mode === 'ios' ? 'Tamam' : 'Şimdi Değil'}
         </button>
-        <button
-          type="button"
-          onClick={handleInstall}
-          className="flex-1 bg-blood-red hover:bg-red-700 active:bg-red-800 text-white font-bold py-2 px-3 text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-lg"
-        >
-          <Download size={14} /> Kur
-        </button>
+        {mode === 'native' && (
+          <button
+            type="button"
+            onClick={handleInstall}
+            className="flex-1 bg-blood-red hover:bg-red-700 active:bg-red-800 text-white font-bold py-2 px-3 text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-lg"
+          >
+            <Download size={14} /> Kur
+          </button>
+        )}
       </div>
     </div>
   );
