@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import { Analytics } from '@vercel/analytics/react';
 import Lobby from './components/Lobby';
 import GameBoard from './components/GameBoard';
 import Admin from './components/Admin';
@@ -420,6 +421,7 @@ function App() {
   const isInGame = gameState === 'GAME';
   return (
     <div className="text-slate-100 font-sans flex flex-col items-center bg-[#050505] h-full w-full overflow-hidden sm:p-4">
+      <Analytics />
       <InstallPrompt />
 
       {toast && (
